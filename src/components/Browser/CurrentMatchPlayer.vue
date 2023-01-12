@@ -114,8 +114,8 @@ export default {
             const Div = this.$refs['this'] as HTMLDivElement
             const Rect = Div.getBoundingClientRect()
 
-            let left = this.enemy ? Rect.left - 600 : Rect.left - 110
-            let top = Math.min(250, Rect.top - 22)
+            let left = this.enemy ? Rect.left - 256 - 446 - 77 : Rect.left + 256 - 55
+            let top = Math.min(376, Rect.top - 22)
 
             this.$emit('update:inventory_subject', this.subject)
             this.$emit('update:inventory_left', left)
@@ -232,15 +232,10 @@ export default {
     border: 0 solid;
     border-radius: 6px;
 }
-.player.ally > .banner-wrapper > .inventory {
-    left: 8px;
-}
-.player.enemy > .banner-wrapper > .inventory {
-    right: 8px;
-}
 .player > .banner-wrapper > .inventory {
     position: absolute;
     top: 8px;
+    right: 8px;
 
     height: 17px;
     padding: 0 6px;
