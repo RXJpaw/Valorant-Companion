@@ -12,11 +12,29 @@
             </div>
         </div>
         <div class="players left">
-            <CurrentMatchPlayer v-for="subject in getSides()?.TeamLeft" :subject="subject" />
+            <CurrentMatchPlayer
+                v-for="subject in getSides()?.TeamLeft"
+                v-model:inventory_subject="inventory_subject"
+                v-model:inventory_left="inventory_left"
+                v-model:inventory_top="inventory_top"
+                :game_state="game_state"
+                :subject="subject"
+            />
         </div>
         <div class="players right">
-            <CurrentMatchPlayer v-for="subject in getSides()?.TeamRight" :subject="subject" :enemy="true" />
+            <CurrentMatchPlayer
+                v-for="subject in getSides()?.TeamRight"
+                v-model:inventory_subject="inventory_subject"
+                v-model:inventory_left="inventory_left"
+                v-model:inventory_top="inventory_top"
+                :game_state="game_state"
+                :subject="subject"
+                :enemy="true"
+            />
         </div>
+        <transition>
+            <CurrentMatchInventory v-if="inventory_subject" :subject="inventory_subject" :left="inventory_left" :top="inventory_top" />
+        </transition>
     </div>
     <div v-else class="current-match">
         <NotReady text="Waiting for VALORANT match data..." />
@@ -24,6 +42,7 @@
 </template>
 
 <script lang="ts">
+import CurrentMatchInventory from '@/components/Browser/CurrentMatchInventory.vue'
 import CurrentMatchPlayer from '@/components/Browser/CurrentMatchPlayer.vue'
 import { capitalizeFirstLetter, sleep } from '@/scripts/methods'
 import { ValorantInstance } from '@/scripts/valorant_instance'
@@ -38,7 +57,7 @@ const Valorant = ValorantInstance()
 
 export default {
     name: 'CurrentMatch',
-    components: { CurrentMatchPlayer, Icon, NotReady },
+    components: { CurrentMatchInventory, CurrentMatchPlayer, Icon, NotReady },
     data() {
         return {
             subjects: [],
@@ -47,7 +66,10 @@ export default {
             game_state: null as never as ValorantChatPresences.SessionLoopState,
             match_id: null as string | null,
             queue: [] as ValorantChatPresences.Player[][],
-            mock_state: 'INGAME' as null | 'INGAME' | 'PREGAME'
+            mock_state: 'INGAME' as null | 'INGAME' | 'PREGAME',
+            inventory_subject: null as LoadedCurrentMatchSubject | null,
+            inventory_left: 0,
+            inventory_top: 0
         }
     },
     async created() {
@@ -141,11 +163,16 @@ export default {
                 const LevelBorder = await Valorant.getLevelBorder(player.PlayerIdentity.AccountLevel, player.PlayerIdentity.PreferredLevelBorderID)
                 const NameService = NameServices[player.Subject]
 
-                const Buddies = Loadouts
-                    ? Object.values(WEAPONS).map((weaponUUID) => {
-                          return Loadouts[i].Items[weaponUUID]?.Sockets[SOCKETS.buddy]?.Item.ID
-                      })
-                    : []
+                const SkinChromas: (string | null)[] = []
+                const Buddies: (string | null)[] = []
+
+                for (const weaponName in WEAPONS) {
+                    const weaponUUID = WEAPONS[weaponName]
+                    const Item = Loadouts?.[i].Items[weaponUUID] || null
+
+                    Buddies.push(Item?.Sockets[SOCKETS.buddy]?.Item.ID || null)
+                    SkinChromas.push(Item?.Sockets[SOCKETS.skin_chroma]?.Item.ID || null)
+                }
 
                 this.subjects[index] = {
                     AgentIconURL: `https://media.valorant-api.com/agents/${player.CharacterID}/displayicon.png`,
@@ -153,6 +180,9 @@ export default {
                     LevelBorderURL: LevelBorder.levelNumberAppearance,
                     HasFistBumpBuddy: Buddies.includes(FistBumpBuddyUUID),
                     HasPresence: !!Presence,
+
+                    Buddies: Buddies,
+                    SkinChromas: SkinChromas,
 
                     LowestRankIconURL: MMR.WorstRank.smallIcon,
                     LowestRankName: capitalizeFirstLetter(MMR.WorstRank.tierName),
@@ -255,6 +285,13 @@ export default {
 </script>
 
 <style scoped>
+.inventory:is(.v-enter-active, .v-leave-active) {
+    transition: opacity ease-in-out 0.15s;
+}
+.inventory:is(.v-enter-from, .v-leave-to) {
+    opacity: 0;
+}
+
 :root {
     --boi: UwU;
 }

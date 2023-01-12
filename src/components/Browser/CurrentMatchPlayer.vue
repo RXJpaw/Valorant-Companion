@@ -2,8 +2,9 @@
     <div
         class="player"
         :class="`${enemy ? 'enemy' : 'ally'} team-${subject.TeamID?.toLowerCase()} subject-${subject.Subject}`"
-        @mouseenter="overCard = true"
-        @mouseleave="overCard = true"
+        @mouseenter="hoverOverCard(true)"
+        @mouseleave="hoverOverCard(false)"
+        ref="this"
     >
         <transition>
             <div v-if="subject.PartyID" class="party-indicator" :class="`party-${subject.PartyID}`"></div>
@@ -62,7 +63,7 @@
                     <div class="icon"></div>
                 </div>
             </div>
-            <div v-if="overCard" class="inventory">
+            <div v-if="isOverCard" class="inventory" @mouseenter="hoverOverInventoryIcon(true)" @mouseleave="hoverOverInventoryIcon(false)">
                 <svg fill="currentColor" style="width: 15px; height: 15px" viewBox="0 0 24.95 22.57">
                     <path d="M281.3,418.52v8.14s-2.94-1.4-2.94-4.34A4.14,4.14,0,0,1,281.3,418.52Z" transform="translate(-278.36 -405.8)" />
                     <polygon points="14.83 0 12.48 0 10.12 0 7.99 2.13 9.74 2.13 10.23 1.63 12.48 1.63 14.72 1.63 15.22 2.13 16.96 2.13 14.83 0" />
@@ -84,13 +85,41 @@ export default {
     name: 'CurrentMatchPlayer',
     components: { Icon },
     props: {
-        subject: Object as () => any,
+        inventory_subject: Object as () => LoadedCurrentMatchSubject | null,
+        inventory_left: Number as () => number,
+        inventory_top: Number as () => number,
+        game_state: String as () => string,
+        subject: Object as () => CurrentMatchSubject,
         enemy: Boolean as () => boolean
     },
     data() {
         return {
             hover: false,
-            overCard: true
+            isOverCard: false
+        }
+    },
+    methods: {
+        hoverOverCard(isOver: boolean) {
+            if (this.game_state !== 'INGAME' || !isOver) {
+                this.isOverCard = false
+
+                return
+            }
+
+            this.isOverCard = true
+        },
+        hoverOverInventoryIcon(isOver: boolean) {
+            if (!isOver) return this.$emit('update:inventory_subject', null)
+
+            const Div = this.$refs['this'] as HTMLDivElement
+            const Rect = Div.getBoundingClientRect()
+
+            let left = this.enemy ? Rect.left - 256 - 446 - 77 : Rect.left + 256 - 55
+            let top = Math.min(376, Rect.top - 22)
+
+            this.$emit('update:inventory_subject', this.subject)
+            this.$emit('update:inventory_left', left)
+            this.$emit('update:inventory_top', top)
         }
     }
 }
