@@ -35,7 +35,7 @@ export default {
 
 <style scoped>
 .inventory {
-    --uwu: 0.5;
+    --uwu: 0.757;
     position: absolute;
 
     border-radius: 6px;
@@ -45,9 +45,9 @@ export default {
     display: grid;
     grid-auto-flow: column;
     /*grid-template-columns: 52px 86px 95px 103px; !* scaled to 0.368 *!*/
-    /*grid-template-columns: calc(142px * var(--uwu)) calc(232px * var(--uwu)) calc(260px * var(--uwu)) calc(280px * var(--uwu));*/
-    grid-template-columns: 71px 116px 130px 140px; /* scaled to 0.5 */
-    grid-template-rows: repeat(5, 49px);
+    grid-template-columns: calc(142px * var(--uwu)) calc(232px * var(--uwu)) calc(260px * var(--uwu)) calc(280px * var(--uwu));
+    /*grid-template-columns: 71px 116px 130px 140px; !* scaled to 0.5 *!*/
+    grid-template-rows: repeat(5, calc(98px * var(--uwu)));
     grid-column-gap: 11px;
     grid-row-gap: 11px;
 
@@ -89,14 +89,14 @@ export default {
 
 .inventory > .weapons > .weapon > .buddy {
     position: absolute;
-    bottom: 3px;
+    bottom: 5px;
     left: -1px;
 
     background-image: var(--bgi);
     background-size: cover;
 
-    height: 19px;
-    width: 19px;
+    height: 27px;
+    width: 27px;
 }
 
 .sharpen {
