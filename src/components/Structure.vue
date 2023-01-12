@@ -1,0 +1,74 @@
+<template>
+    <div class="structure">
+        <Sidebar v-model:active-button="activeButton" v-model:match-history-tabs="matchHistoryTabs" v-model:active-match-history-tab="activeMatchHistoryTab" />
+        <Content :active-button="activeButton" :match-history-tabs="matchHistoryTabs" :active-match-history-tab="activeMatchHistoryTab" />
+    </div>
+</template>
+
+<script lang="ts">
+import { ValorantInstance } from '@/scripts/valorant_instance'
+import Content from '@/components/Structure/Content.vue'
+import Sidebar from '@/components/Structure/Sidebar.vue'
+
+const Valorant = ValorantInstance()
+const MatchHistoryChannel = new BroadcastChannel('match-history')
+
+export default {
+    name: 'Structure',
+    components: {
+        Content,
+        Sidebar
+    },
+    data() {
+        return {
+            // activeButton: 'loadout-manager',
+            activeButton: 'current-match',
+            matchHistoryTabs: [],
+            activeMatchHistoryTab: 0
+        }
+    },
+    async created() {
+        const { Client } = Valorant
+
+        Client.on('ready', () => {
+            const SelfSubject = Valorant.getSelfSubject()
+            const Presence = Valorant.getCachePresences().find((presence) => presence.Subject === SelfSubject)
+
+            if (Presence) {
+                this.matchHistoryTabs[0] = {
+                    GameName: Presence.GameName,
+                    Subject: Presence.Subject,
+                    Icon: `https://media.valorant-api.com/playercards/${Presence.playerCardId}/displayicon.png`
+                }
+            }
+        })
+
+        MatchHistoryChannel.onmessage = ({ data }) => {
+            const Player = <any>data
+            console.log()
+
+            this.matchHistoryTabs.push({
+                GameName: Player.GameName,
+                Subject: Player.Subject,
+                Icon: `https://media.valorant-api.com/playercards/${Player.PlayerCardID}/displayicon.png`
+            })
+        }
+
+        Client.on('error', () => {
+            this.matchHistoryTabs = []
+        })
+    }
+}
+</script>
+
+<style scoped>
+.structure {
+    position: absolute;
+    top: 22px;
+
+    height: calc(100% - 22px);
+    width: 100%;
+
+    background-color: #202225;
+}
+</style>

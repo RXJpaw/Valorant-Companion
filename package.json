@@ -1,0 +1,71 @@
+{
+    "project_version": "2.2.3",
+    "electron_version": "2",
+    "name": "valorant-companion",
+    "version": "1.0.0",
+    "private": true,
+    "author": {
+        "name": "RXJpaw",
+        "email": "github@rxj.pw"
+    },
+    "main": "electron/main.js",
+    "scripts": {
+        "vue:serve": "vue-cli-service serve --port 8069",
+        "vue:build": "vue-cli-service build",
+        "vue:lint": "vue-cli-service lint",
+        "electron:serve": "electron .",
+        "electron:build": "electron-builder",
+        "typescript:build": "tsc",
+        "typescript:after": "npm-run-all --parallel vue:serve electron:serve",
+        "serve": "npm-run-all typescript:build typescript:after",
+        "build": "npm-run-all typescript:build vue:build electron:build"
+    },
+    "dependencies": {
+        "axios": "^0.27.2",
+        "localforage": "^1.10.0",
+        "ws": "^8.8.0"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.12.16",
+        "@babel/eslint-parser": "^7.12.16",
+        "@types/node-fetch": "^2.6.2",
+        "@typescript-eslint/eslint-plugin": "^5.4.0",
+        "@typescript-eslint/parser": "^5.4.0",
+        "@vue/cli-plugin-babel": "~5.0.0",
+        "@vue/cli-plugin-typescript": "~5.0.0",
+        "@vue/cli-service": "~5.0.0",
+        "@vue/eslint-config-typescript": "^9.1.0",
+        "core-js": "^3.8.3",
+        "electron": "^19.0.7",
+        "electron-builder": "^23.1.0",
+        "electron-devtools-installer": "^3.2.0",
+        "eslint": "^7.32.0",
+        "eslint-plugin-vue": "^8.0.3",
+        "npm-run-all": "^4.1.5",
+        "prettier-plugin-sort-imports": "^1.7.0",
+        "typescript": "^4.7.4",
+        "vue": "^3.2.13",
+        "vue-class-component": "^8.0.0-0"
+    },
+    "eslintConfig": {
+        "root": true,
+        "env": {
+            "node": true
+        },
+        "extends": [
+            "plugin:vue/vue3-essential",
+            "eslint:recommended",
+            "@vue/typescript"
+        ],
+        "parserOptions": {
+            "parser": "@typescript-eslint/parser"
+        },
+        "rules": {}
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead",
+        "not ie 11"
+    ]
+}

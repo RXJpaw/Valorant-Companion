@@ -1,0 +1,49 @@
+<template>
+    <svg v-if="icon === 'more'" :style="getStyle()" viewBox="0 0 24 24">
+        <path
+            d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2z"
+            fill="currentColor"
+        ></path>
+    </svg>
+    <svg v-else-if="icon === 'next'" :style="getStyle()" viewBox="0 0 24 24">
+        <path d="M10 6L8.59 7.41L13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"></path>
+    </svg>
+    <svg v-else-if="icon === 'before'" :style="getStyle()" viewBox="0 0 24 24">
+        <path d="M15.41 7.41L14 6l-6 6l6 6l1.41-1.41L10.83 12z" fill="currentColor"></path>
+    </svg>
+    <svg v-else-if="icon === 'close'" :style="getStyle()" viewBox="0 0 24 24">
+        <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z" fill="currentColor"></path>
+    </svg>
+    <svg v-else-if="icon === 'more-vert'" :style="getStyle()" viewBox="0 0 24 24">
+        <path
+            d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2s-2 .9-2 2s.9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2z"
+            fill="currentColor"
+        ></path>
+    </svg>
+    <svg v-else-if="icon === 'package'" :style="getStyle()" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3"></path>
+            <path d="M12 12l8-4.5"></path>
+            <path d="M12 12v9"></path>
+            <path d="M12 12L4 7.5"></path>
+            <path d="M16 5.25l-8 4.5"></path>
+        </g>
+    </svg>
+</template>
+
+<script lang="ts">
+export default {
+    props: {
+        size: String as () => string,
+        icon: String as () => 'more' | 'next' | 'before' | 'close' | 'more-vert' | 'package'
+    },
+    name: 'Icon',
+    methods: {
+        getStyle() {
+            return `width: ${this.size}; height: ${this.size};`
+        }
+    }
+}
+</script>
+
+<style scoped></style>

@@ -1,0 +1,26 @@
+{
+    "directories": {
+        "output": "dist_electron"
+    },
+    "files": [
+        {
+            "from": "dist_vue",
+            "to": "",
+            "filter": ["!**/*.ts"]
+        },
+        {
+            "from": "electron",
+            "to": "electron",
+            "filter": ["!**/*.ts"]
+        },
+        "package.json"
+    ],
+    "productName": "Valorant Companion",
+    "appId": "pw.rxj.closed.valorant.companion",
+    "win": {
+        "icon": "public/favicon.ico",
+        "signAndEditExecutable": true,
+        "target": ["dir"],
+        "asar": true
+    }
+}
