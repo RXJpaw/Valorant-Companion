@@ -54,6 +54,8 @@ export default {
         async WheelListener(event: WheelEvent) {
             if (!this.mouseOver) return
 
+            this.MoveCoordinates(event)
+
             if (event.deltaY < 0) {
                 //zoom in
 
@@ -65,6 +67,9 @@ export default {
             }
         },
         MouseMoveListener(event: MouseEvent) {
+            this.MoveCoordinates(event)
+        },
+        MoveCoordinates(event: MouseEvent | WheelEvent) {
             const x = event.offsetX * 1.2 - 52
             const y = event.offsetY * 1.2 - 32
 
