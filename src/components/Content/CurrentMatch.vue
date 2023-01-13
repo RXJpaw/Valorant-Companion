@@ -58,6 +58,9 @@ const Valorant = ValorantInstance()
 export default {
     name: 'CurrentMatch',
     components: { CurrentMatchInventory, CurrentMatchPlayer, Icon, NotReady },
+    props: {
+        isVisible: Boolean as () => boolean
+    },
     data() {
         return {
             subjects: [],
@@ -73,6 +76,8 @@ export default {
         }
     },
     async created() {
+        window.addEventListener('keydown', this.KeyDownListener)
+
         this.queue.push(Valorant.getCachePresences())
         Valorant.Client.on('presences', async (data) => {
             this.queue.push(data)
@@ -93,7 +98,17 @@ export default {
             }
         }
     },
+    beforeUnmount() {
+        window.removeEventListener('keydown', this.KeyDownListener)
+    },
     methods: {
+        async KeyDownListener(event: KeyboardEvent) {
+            if (!this.isVisible) return
+
+            if (event.key === 'Escape') {
+                this.inventory_subject = null
+            }
+        },
         getSides() {
             const SelfSubject = Valorant.getSelfSubject()
             const SelfPlayer = this.subjects.find((subject) => subject?.Subject === SelfSubject)!

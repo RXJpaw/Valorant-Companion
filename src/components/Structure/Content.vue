@@ -8,9 +8,9 @@
                 :subject="tab.Subject"
             />
         </div>
-        <CurrentMatch v-show="activeButton === 'current-match'" />
+        <CurrentMatch v-show="activeButton === 'current-match'" :isVisible="activeButton === 'current-match'" />
         <PlayerLookup v-show="activeButton === 'player-lookup'" />
-        <LoadoutManager v-show="activeButton === 'loadout-manager'" :is-visible="activeButton === 'loadout-manager'" />
+        <LoadoutManager v-show="activeButton === 'loadout-manager'" :isVisible="activeButton === 'loadout-manager'" />
     </div>
     <div v-else class="content">
         <NotReady text="Waiting for VALORANT to start..." />

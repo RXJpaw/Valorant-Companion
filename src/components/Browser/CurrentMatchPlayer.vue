@@ -63,8 +63,13 @@
                     <div class="icon"></div>
                 </div>
             </div>
-            <div v-if="isOverCard" class="inventory" @mouseenter="hoverOverInventoryIcon(true)" @mouseleave="hoverOverInventoryIcon(false)">
-                <svg fill="currentColor" style="width: 15px; height: 15px" viewBox="0 0 24.95 22.57">
+            <div v-if="isOverCard || inventory_subject?.Subject === subject?.Subject" class="inventory" @click="clickInventoryIcon()">
+                <svg
+                    v-if="inventory_subject?.Subject !== subject?.Subject"
+                    fill="currentColor"
+                    style="width: 15px; height: 15px; margin-top: 1px"
+                    viewBox="0 0 24.95 22.57"
+                >
                     <path d="M281.3,418.52v8.14s-2.94-1.4-2.94-4.34A4.14,4.14,0,0,1,281.3,418.52Z" transform="translate(-278.36 -405.8)" />
                     <polygon points="14.83 0 12.48 0 10.12 0 7.99 2.13 9.74 2.13 10.23 1.63 12.48 1.63 14.72 1.63 15.22 2.13 16.96 2.13 14.83 0" />
                     <path d="M290.83,409.56h-9.37v4s7.13,1.49,7.13,4.92h4.49c0-3.43,7.13-4.92,7.13-4.92v-4Z" transform="translate(-278.36 -405.8)" />
@@ -73,6 +78,13 @@
                         transform="translate(-278.36 -405.8)"
                     />
                     <path d="M300.37,418.52v8.14s2.94-1.4,2.94-4.34A4.14,4.14,0,0,0,300.37,418.52Z" transform="translate(-278.36 -405.8)" />
+                </svg>
+                <svg v-else aria-hidden="false" width="12" height="12" style="width: 13px; height: 13px; margin: 0 1px" viewBox="0 0 12 12">
+                    <polygon
+                        fill="currentColor"
+                        fill-rule="evenodd"
+                        points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"
+                    ></polygon>
                 </svg>
             </div>
         </div>
@@ -108,13 +120,16 @@ export default {
 
             this.isOverCard = true
         },
-        hoverOverInventoryIcon(isOver: boolean) {
-            if (!isOver) return this.$emit('update:inventory_subject', null)
+        clickInventoryIcon() {
+            if (this.inventory_subject?.Subject === this.subject?.Subject) {
+                this.$emit('update:inventory_subject', null)
+                return
+            }
 
             const Div = this.$refs['this'] as HTMLDivElement
             const Rect = Div.getBoundingClientRect()
 
-            let left = this.enemy ? Rect.left - 256 - 446 - 77 : Rect.left + 256 - 55
+            let left = this.enemy ? Rect.left - 256 - 77 - 35 : Rect.left + 256 - 55
             let top = Math.min(376, Rect.top - 22)
 
             this.$emit('update:inventory_subject', this.subject)
