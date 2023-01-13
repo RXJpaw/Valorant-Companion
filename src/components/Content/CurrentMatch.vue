@@ -69,7 +69,7 @@ export default {
             game_state: null as never as ValorantChatPresences.SessionLoopState,
             match_id: null as string | null,
             queue: [] as ValorantChatPresences.Player[][],
-            mock_state: 'INGAME' as null | 'INGAME' | 'PREGAME',
+            mock_state: null as null | 'INGAME' | 'PREGAME',
             inventory_subject: null as LoadedCurrentMatchSubject | null,
             inventory_left: 0,
             inventory_top: 0
@@ -77,6 +77,17 @@ export default {
     },
     async created() {
         window.addEventListener('keydown', this.KeyDownListener)
+
+        window['setMockState'] = (newMockState) => {
+            if ([null, 'INGAME', 'PREGAME'].includes(newMockState)) {
+                this.mock_state = newMockState
+                this.queue.push(Valorant.getCachePresences())
+
+                console.log(`Mock state set to: ${newMockState}`)
+            } else {
+                console.log('The new mock state must be one of: null, INGAME, PREGAME')
+            }
+        }
 
         this.queue.push(Valorant.getCachePresences())
         Valorant.Client.on('presences', async (data) => {
