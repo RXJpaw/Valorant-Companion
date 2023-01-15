@@ -125,7 +125,9 @@ export default {
                 this.match_history[MatchID].MatchDetails = await this.getSubjectMatchDetails(MatchDetails)
             }
         },
-        async getSubjectMatchDetails(MatchDetails: ValorantMatchDetails): Promise<ValorantSubjectMatchDetails> {
+        async getSubjectMatchDetails(MatchDetails: ValorantMatchDetails): Promise<ValorantSubjectMatchDetails | null> {
+            if (MatchDetails.httpStatus) return null
+
             const Maps = await Cache.Maps
             const GameModes = await Cache.GameModes
             const CompetitiveTiers = await Cache.CompetitiveTiers
@@ -210,12 +212,12 @@ export default {
             const MatchHistoryPage = Object.fromEntries(
                 Object.entries(MatchHistoryStore) //
                     .sort((a, b) => b[1].GameStartTime - a[1].GameStartTime)
-                    .slice(0, 693)
+                    .slice(0, 1393) //693
             )
 
             const newEntry = {}
             for (const MatchID in MatchHistoryPage) {
-                newEntry[MatchID] = { ...MatchHistoryPage[MatchID], MatchDetails: null }
+                newEntry[MatchID] = { ...MatchHistoryPage[MatchID], MatchDetails: undefined }
             }
 
             this.match_history = newEntry

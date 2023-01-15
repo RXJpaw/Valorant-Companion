@@ -32,7 +32,11 @@
             </div>
             <div class="map-banner" :style="`--bgi: url('${match.MatchDetails.MapBannerURL}')`"></div>
         </div>
-        <div v-else class="unloaded"></div>
+        <div v-else-if="match.MatchDetails === undefined" class="unloaded"></div>
+        <div v-else class="unloadable">
+            <div class="error">This Match is no longer available on the Riot Games servers.</div>
+            <div class="description">Make sure to download played matches within a month of completion.</div>
+        </div>
     </div>
 </template>
 
@@ -86,6 +90,33 @@ export default {
     border-radius: 6px;
 
     animation: fetching-animation 2s infinite ease-in-out;
+}
+
+.match > .unloadable {
+    position: relative;
+
+    height: inherit;
+    width: inherit;
+
+    border: 0 solid;
+    border-radius: 6px;
+
+    background-color: #202225;
+}
+
+.match > .unloadable .error {
+    position: absolute;
+    top: 17px;
+
+    width: 100%;
+    font-size: 18px;
+    line-height: 13px;
+}
+.match > .unloadable .description {
+    position: absolute;
+    top: 35px;
+
+    width: 100%;
 }
 
 .match > .loaded {
