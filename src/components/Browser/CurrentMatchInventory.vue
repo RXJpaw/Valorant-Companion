@@ -58,11 +58,9 @@ export default {
 
             if (event.deltaY < 0) {
                 //zoom in
-
                 this.scale = Math.min(3, this.scale + 1 / 3)
             } else {
                 //zoom out
-
                 this.scale = Math.max(1, this.scale - 1 / 3)
             }
         },

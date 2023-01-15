@@ -3,6 +3,9 @@
         <div v-if="match.MatchDetails" class="loaded" :class="getWinOrLoseAttribute(match)">
             <div class="agent-icon" :style="`--bgi: url('${match.MatchDetails.SubjectAgentIconURL}')`"></div>
             <div class="gamemode-icon" :style="`--bgi: url('${match.MatchDetails.GameModeIconURL || match.MatchDetails.RankIconURL}')`"></div>
+            <div v-if="match.MatchDetails.MMRChange" :class="getMMRChangeAttribute(match.MatchDetails.MMRChange)" class="rank-rating-change">
+                {{ match.MatchDetails.MMRChange >= 0 ? `+${match.MatchDetails.MMRChange}` : match.MatchDetails.MMRChange }}
+            </div>
             <div class="game-summary">
                 <div class="tags">
                     <div class="kda">KDA</div>
@@ -59,6 +62,9 @@ export default {
         getWinOrLoseAttribute(match: ValorantMatchHistoryWithSubjectMatchDetails) {
             const MatchDraw = !match.MatchDetails.WinningTeam
             return MatchDraw ? 'draw' : match.MatchDetails.SubjectTeamWin ? 'won' : 'lost'
+        },
+        getMMRChangeAttribute(MMRChange) {
+            return MMRChange === 0 ? 'neutral' : MMRChange > 0 ? 'positive' : 'negative'
         }
     }
 }
@@ -95,14 +101,17 @@ export default {
 .match > .loaded.won {
     background-color: #287567;
     --game-result-color: #287567;
+    --game-result-color-bright: #66c3a9;
 }
 .match > .loaded.lost {
     background-color: #603a3d;
     --game-result-color: #603a3d;
+    --game-result-color-bright: #f05c57;
 }
 .match > .loaded.draw {
     background-color: #727988;
     --game-result-color: #727988;
+    --game-result-color-bright: #b6c2d9;
 }
 
 .match > .loaded > .agent-icon {
@@ -130,6 +139,28 @@ export default {
 
     background-image: var(--bgi);
     background-size: cover;
+}
+
+.match > .loaded .rank-rating-change {
+    position: absolute;
+    left: 82px;
+    top: 47px;
+
+    text-align: right;
+    font-size: 12px;
+
+    width: 37px;
+    line-height: 10px;
+}
+
+.match > .loaded .rank-rating-change.positive {
+    color: #66c3a9;
+}
+.match > .loaded .rank-rating-change.neutral {
+    color: #b6c2d9;
+}
+.match > .loaded .rank-rating-change.negative {
+    color: #f05c57;
 }
 
 .match > .loaded > .game-summary {
