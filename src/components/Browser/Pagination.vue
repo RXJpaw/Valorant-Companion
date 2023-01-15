@@ -2,23 +2,23 @@
     <div v-if="pageAmount > 0" class="pagination">
         <div class="page previous" :class="getBlockedAttribute('previous')" @click="setCurrentPage(this.currentPage - 1)">
             <div class="button previous">
-                <Icon icon="before" size="24px" />
+                <Icon icon="before" size="23px" />
             </div>
         </div>
 
         <div class="page" :class="getCurrentAttribute(page)" v-for="page of getValidPages()" @click="setCurrentPage(page)">
             <div v-if="typeof page === 'number'" class="button">{{ page }}</div>
             <div v-else-if="page === 'backward'" class="button backward">
-                <Icon icon="more" size="24px" />
+                <Icon icon="more" size="23px" />
             </div>
             <div v-else-if="page === 'forward'" class="button forward">
-                <Icon icon="more" size="24px" />
+                <Icon icon="more" size="23px" />
             </div>
         </div>
 
         <div class="page next" :class="getBlockedAttribute('next')" @click="setCurrentPage(this.currentPage + 1)">
             <div class="button next">
-                <Icon icon="next" size="24px" />
+                <Icon icon="next" size="23px" />
             </div>
         </div>
     </div>
@@ -80,7 +80,7 @@ export default {
     align-items: center;
     justify-content: center;
 
-    height: 32px;
+    height: 31px;
     width: fit-content;
     user-select: none;
 
@@ -95,8 +95,8 @@ export default {
 
     cursor: pointer;
 
-    width: 32px;
-    height: 32px;
+    width: 31px;
+    height: 31px;
 }
 .pagination > .page.blocked {
     cursor: no-drop;
@@ -120,7 +120,7 @@ export default {
 .pagination > .page:not(.blocked, .current):hover {
     background-color: #121314;
 
-    transform: scale(1.12);
+    transform: scale(1.13);
 }
 /* transformation */
 
@@ -131,9 +131,9 @@ export default {
 }
 
 .pagination > .page > .button {
-    font-size: 14px;
-    line-height: 16px;
-    height: 16px;
+    font-size: 13px;
+    line-height: 15px;
+    height: 15px;
     width: 26px;
 
     padding: 5px 0;
@@ -143,8 +143,8 @@ export default {
 .pagination > .page > .button.next,
 .pagination > .page > .button.backward,
 .pagination > .page > .button.forward {
-    height: 24px;
-    width: 24px;
+    height: 23px;
+    width: 23px;
     padding: 0;
 }
 </style>
