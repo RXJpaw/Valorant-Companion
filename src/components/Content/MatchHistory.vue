@@ -241,7 +241,7 @@ export default {
 }
 
 .match-history > .pagination {
-    position: absolute;
+    position: fixed;
     bottom: 22px;
 }
 

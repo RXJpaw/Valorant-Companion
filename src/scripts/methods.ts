@@ -3,7 +3,9 @@ import localForage from 'localforage'
 
 const Store = {
     CompetitiveUpdates: localForage.createInstance({ name: 'ValorantMatch', storeName: 'CompetitiveUpdates' }),
-    MatchHistory: localForage.createInstance({ name: 'ValorantMatch', storeName: 'History' })
+    MatchHistory: localForage.createInstance({ name: 'ValorantMatch', storeName: 'History' }),
+
+    RiotIdHistory: localForage.createInstance({ name: 'Valorant', storeName: 'RiotIdHistory' })
 }
 
 export const sleep = (duration) => {
@@ -23,6 +25,42 @@ export const capitalizeFirstLetter = (string: string) => {
 export const removeLastWord = (sentence: string) => {
     const lastIndex = sentence.lastIndexOf(' ')
     return sentence.substring(0, lastIndex)
+}
+
+export const RiotIdHistory = {
+    getAll: async (subject: string, SetNewGameName?: string, SetNewTagLine?: string) => {
+        let { Data: RiotIdHistoryList, Version } = (await Store.RiotIdHistory.getItem(subject)) as IndexedDbRiotIdHistory
+        if (!RiotIdHistoryList) RiotIdHistoryList = []
+
+        if (SetNewGameName && SetNewTagLine) {
+            const setResult = await RiotIdHistory.set(subject, SetNewGameName, SetNewTagLine, { Data: RiotIdHistoryList, Version })
+
+            if (RiotIdHistoryList[RiotIdHistoryList.length - 1]?.Version !== setResult.Version) RiotIdHistoryList.push(setResult)
+        }
+
+        return RiotIdHistoryList
+    },
+    set: async (subject: string, GameName: string, TagLine: string, IndexedDb?: IndexedDbRiotIdHistory) => {
+        let { Data: RiotIdHistoryList } = (IndexedDb ? IndexedDb : ((await Store.RiotIdHistory.getItem(subject)) as IndexedDbRiotIdHistory)) ?? {}
+        if (!RiotIdHistoryList) RiotIdHistoryList = []
+
+        const latestName = structuredClone(RiotIdHistoryList[RiotIdHistoryList.length - 1]) ?? {}
+
+        if (latestName.GameName !== GameName || latestName.TagLine !== TagLine) {
+            latestName.GameName = GameName
+            latestName.TagLine = TagLine
+            latestName.Version = Date.now()
+
+            RiotIdHistoryList.push(latestName)
+
+            await Store.RiotIdHistory.setItem(subject, {
+                Data: RiotIdHistoryList,
+                Version: latestName.Version
+            })
+        }
+
+        return latestName
+    }
 }
 
 window['exportIndexedDB'] = async () => {

@@ -1,8 +1,8 @@
 import { DivisionOrder, fetchGameAuthData, fetchHelp, getAuthFileData, getHeaders, getLogFileData } from './valorant'
 import { connectWebSocket } from '@/scripts/valorant_websocket'
+import { RiotIdHistory, sleep } from '@/scripts/methods'
 import * as ValorantAPI from '@/scripts/valorant_api'
 import PersistentCache from './cache_manager'
-import { sleep } from '@/scripts/methods'
 import { EventEmitter } from 'events'
 
 const Emitter = new EventEmitter()
@@ -423,6 +423,8 @@ export const ValorantInstance = () => {
         for (let i = 0; i < cache.length; i++) {
             const service = cache[i]
             newEntry[service.Subject] = service
+
+            await RiotIdHistory.set(service.Subject, service.GameName, service.TagLine)
         }
 
         return newEntry
