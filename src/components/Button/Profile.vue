@@ -69,7 +69,7 @@ export default {
     },
     methods: {
         openExternal: window.electron.openExternal,
-        async processSelfPresence(presence: ValorantChatPresences.Player) {
+        async processSelfPresence(presence: ValorantChatPresences.Player, skipLevelBorder?: boolean) {
             if (!presence) {
                 presence = {
                     Subject: null,
@@ -82,12 +82,14 @@ export default {
                 } as any
             }
 
-            const LevelBorder = await Valorant.getLevelBorder(presence.accountLevel, presence.preferredLevelBorderId)
+            const LevelBorder = skipLevelBorder ? null : await Valorant.getLevelBorder(presence.accountLevel, presence.preferredLevelBorderId)
 
             this.presence = {
                 Subject: presence.Subject,
 
-                LevelBorderURL: LevelBorder.levelNumberAppearance,
+                LevelBorderURL: LevelBorder
+                    ? LevelBorder.levelNumberAppearance
+                    : 'https://media.valorant-api.com/levelborders/ebc736cd-4b6a-137b-e2b0-1486e31312c9/levelnumberappearance.png',
                 AvatarURL: `https://media.valorant-api.com/playercards/${presence.playerCardId}/smallart.png`,
 
                 PlayerCardID: presence.playerCardId,
@@ -100,6 +102,8 @@ export default {
         }
     },
     async created() {
+        this.processSelfPresence(null!, true).then()
+
         const { Client } = Valorant
 
         Client.on('presences', (data) => {
