@@ -147,7 +147,9 @@ export default {
     left: -1px;
 
     background-image: var(--bgi);
-    background-size: cover;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 
     height: 19px;
     width: 19px;
