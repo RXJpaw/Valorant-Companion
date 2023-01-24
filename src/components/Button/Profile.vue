@@ -1,5 +1,5 @@
 <template>
-    <div v-if="presence" class="profile" @mouseover="hover = true" @mouseleave="hover = false">
+    <div v-if="presence" class="profile" @mouseenter="hover = true" @mouseleave="hover = false">
         <div class="avatar" :style="`--bgi: url('${presence.AvatarURL}')`"></div>
         <div class="riot-id-flex">
             <div class="username">{{ presence.GameName }}</div>
@@ -36,11 +36,8 @@
                             <icon icon="external-url" />
                         </div>
                     </div>
-                    <div class="entry" @click="openExternal('https://status.riotgames.com/')">
-                        <div class="text">Server Status</div>
-                        <div class="icon">
-                            <icon icon="external-url" />
-                        </div>
+                    <div class="entry" @click="copyToClipboard(presence.Subject)">
+                        <div class="text">Copy ID</div>
                     </div>
                 </div>
             </div>
@@ -70,6 +67,13 @@ export default {
     },
     methods: {
         openExternal: window.electron.openExternal,
+        copyToClipboard(text?: string) {
+            if (!text) return
+
+            navigator.clipboard.writeText(text)
+
+            if (this.hover) this.hover = false
+        },
         async processSelfPresence(presence: ValorantChatPresences.Player, firstLoad?: boolean) {
             if (!this.firstLoadComplete && presence && firstLoad !== false) {
                 this.firstLoadComplete = true
