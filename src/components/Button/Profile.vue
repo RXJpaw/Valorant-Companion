@@ -63,13 +63,19 @@ export default {
     },
     data() {
         return {
+            firstLoadComplete: false,
             presence: null,
             hover: false
         }
     },
     methods: {
         openExternal: window.electron.openExternal,
-        async processSelfPresence(presence: ValorantChatPresences.Player, skipLevelBorder?: boolean) {
+        async processSelfPresence(presence: ValorantChatPresences.Player, firstLoad?: boolean) {
+            if (!this.firstLoadComplete && presence && firstLoad !== false) {
+                this.firstLoadComplete = true
+                firstLoad = true
+            }
+
             if (!presence) {
                 presence = {
                     Subject: null,
@@ -82,7 +88,7 @@ export default {
                 } as any
             }
 
-            const LevelBorder = skipLevelBorder ? null : await Valorant.getLevelBorder(presence.accountLevel, presence.preferredLevelBorderId)
+            const LevelBorder = firstLoad || !presence ? null : await Valorant.getLevelBorder(presence.accountLevel, presence.preferredLevelBorderId)
 
             this.presence = {
                 Subject: presence.Subject,
@@ -98,6 +104,10 @@ export default {
                 TagLine: presence.TagLine,
 
                 isIdle: presence.isIdle
+            }
+
+            if (firstLoad) {
+                await this.processSelfPresence(presence, false)
             }
         }
     },
