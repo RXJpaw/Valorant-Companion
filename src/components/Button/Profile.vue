@@ -5,6 +5,8 @@
             <div class="username">{{ presence.GameName }}</div>
             <div class="tag">#{{ presence.TagLine }}</div>
         </div>
+        <div class="level-border" :style="`--bgi: url('${presence.LevelBorderURL}')`"></div>
+        <div class="level">{{ presence.AccountLevel }}</div>
         <div class="idle-status" :class="presence.isIdle ? 'idle' : 'online'">{{ presence.isIdle ? 'Away' : 'Available' }}</div>
 
         <transition>
@@ -67,22 +69,29 @@ export default {
     },
     methods: {
         openExternal: window.electron.openExternal,
-        processSelfPresence(presence: ValorantChatPresences.Player) {
+        async processSelfPresence(presence: ValorantChatPresences.Player) {
             if (!presence) {
                 presence = {
                     Subject: null,
                     playerCardId: '0819fbcd-4bd4-c379-5384-52803440f2b2',
+                    accountLevel: 1,
+                    preferredLevelBorderId: null,
                     GameName: 'Player',
                     TagLine: '00000',
                     isIdle: true
                 } as any
             }
 
+            const LevelBorder = await Valorant.getLevelBorder(presence.accountLevel, presence.preferredLevelBorderId)
+
             this.presence = {
                 Subject: presence.Subject,
 
-                PlayerCardID: presence.playerCardId,
+                LevelBorderURL: LevelBorder.levelNumberAppearance,
                 AvatarURL: `https://media.valorant-api.com/playercards/${presence.playerCardId}/smallart.png`,
+
+                PlayerCardID: presence.playerCardId,
+                AccountLevel: presence.accountLevel,
                 GameName: presence.GameName,
                 TagLine: presence.TagLine,
 
@@ -197,6 +206,33 @@ export default {
     color: #40444b;
     font-size: 10px;
     line-height: 7px;
+}
+
+.profile > .level-border {
+    position: absolute;
+    bottom: -4px;
+    left: 1px;
+
+    width: 42px;
+    height: 18px;
+
+    background-image: var(--bgi);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.profile > .level {
+    display: flex;
+    justify-content: center;
+
+    position: absolute;
+    bottom: -8px;
+    left: -6px;
+
+    line-height: 8px;
+    font-size: 8px;
+
+    width: 56px;
+    margin: 8px 0;
 }
 
 .profile > .avatar {
