@@ -1,6 +1,7 @@
 <template>
     <div class="sidebar">
         <div class="upper">
+            <Profile />
             <div class="current-match">
                 <StructureSidebarButton name="current-match" v-model:active="activeButton" text="Current Match" />
             </div>
@@ -40,10 +41,12 @@ import StructureSidebarUpdate from '@/components/Button/StructureSidebarUpdate.v
 import StructureSidebarButton from '@/components/Button/StructureSidebarButton.vue'
 import StructureSidebarTab from '@/components/Button/StructureSidebarTab.vue'
 import { project_version } from '../../../package.json'
+import Profile from '@/components/Button/Profile.vue'
 
 export default {
     name: 'Sidebar',
     components: {
+        Profile,
         StructureSidebarUpdate,
         StructureSidebarButton,
         StructureSidebarTab

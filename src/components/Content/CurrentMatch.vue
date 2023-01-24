@@ -69,7 +69,7 @@ export default {
             game_state: null as never as ValorantChatPresences.SessionLoopState,
             match_id: null as string | null,
             queue: [] as ValorantChatPresences.Player[][],
-            mock_state: null as null | 'INGAME' | 'PREGAME',
+            mock_state: 'INGAME' as null | 'INGAME' | 'PREGAME',
             inventory_subject: null as LoadedCurrentMatchSubject | null,
             inventory_left: 0,
             inventory_top: 0

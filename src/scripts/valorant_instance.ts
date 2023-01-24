@@ -15,6 +15,7 @@ const connection = {
     presences: [] as ValorantChatPresences.Player[],
     friends: [] as ValorantChatFriends.Friend[],
     ready: false as never as number | any[],
+    hadFirstPresences: false as boolean,
     reset() {
         connection.websocket?.removeAllListeners()
 
@@ -25,6 +26,7 @@ const connection = {
         connection.presences = []
         connection.friends = []
         connection.ready = 0
+        connection.hadFirstPresences = false
 
         Cache.ContentServiceContent = undefined
         Cache.CoreGameMatch = {}
@@ -51,7 +53,7 @@ const Cache = {
 }
 
 const connect = async () => {
-    let { auth, server, token } = connection
+    let { auth, server, token, presences, hadFirstPresences } = connection
     let refreshed = <string[]>[]
 
     if (!auth) {
@@ -63,6 +65,10 @@ const connect = async () => {
     if (!window.isRunning(auth.PID)) {
         connection.reset()
         return -1
+    }
+
+    if (hadFirstPresences && presences.findIndex((p) => p.Subject === token?.subject) === -1) {
+        return -2
     }
 
     if (!server) {
@@ -92,6 +98,9 @@ const connect = async () => {
         connection.websocket = websocket.Client
         connection.presences = websocket.presences
         connection.friends = websocket.friends
+
+        Emitter.emit('presences', connection.presences)
+        connection.hadFirstPresences = true
 
         connection.websocket.on('presences', (data) => {
             Emitter.emit('presences', data)
@@ -508,6 +517,7 @@ export const ValorantInstance = () => {
     }
 
     const getSelfSubject = (): string | null => connection.token?.subject || null
+    const hasSelfPresence = (): boolean => connection.presences.findIndex((p) => p.Subject === connection.token?.subject) === -1
     const getCachePresences = (): ValorantChatPresences.Player[] => connection.presences
     const getCacheFriends = (): ValorantChatFriends.Friend[] => connection.friends
 
@@ -585,6 +595,7 @@ export const ValorantInstance = () => {
         getNameService,
 
         getSelfSubject,
+        hasSelfPresence,
         getCachePresences,
         getCacheFriends
     }
