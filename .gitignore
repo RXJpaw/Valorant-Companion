@@ -10,6 +10,7 @@ node_modules
 /src/**/*.js
 /src/**/*.js.map
 /src/**/*.d.ts
+!/src/shims-vue.d.ts
 
 # local env files
 .env.local
