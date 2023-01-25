@@ -26,7 +26,7 @@
         "ws": "^8.8.0"
     },
     "devDependencies": {
-        "@babel/core": "^7.12.16",
+        "@babel/core": "^7.20.12",
         "@babel/eslint-parser": "^7.12.16",
         "@types/node-fetch": "^2.6.2",
         "@typescript-eslint/eslint-plugin": "^5.4.0",
@@ -36,7 +36,7 @@
         "@vue/cli-service": "~5.0.0",
         "@vue/eslint-config-typescript": "^9.1.0",
         "core-js": "^3.8.3",
-        "electron": "^19.0.7",
+        "electron": "^21.3.5",
         "electron-builder": "^23.1.0",
         "electron-devtools-installer": "^3.2.0",
         "eslint": "^7.32.0",
