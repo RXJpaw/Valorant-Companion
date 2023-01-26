@@ -37,8 +37,12 @@ async function createWindow() {
     })
 
     //TODO: after updating electron to 21.3.5, Ctrl+R would stop working
-    globalShortcut.register('CommandOrControl+R', function () {
-        mainWindow.reload()
+
+    mainWindow.on('focus', () => {
+        globalShortcut.register('CommandOrControl+R', () => mainWindow.reload())
+    })
+    mainWindow.on('blur', () => {
+        globalShortcut.unregister('CommandOrControl+R')
     })
 
     mainWindow.once('ready-to-show', () => {
