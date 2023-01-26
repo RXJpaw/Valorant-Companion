@@ -1,7 +1,7 @@
 // Modules to control application life and create native browser window
 
+import { app, BrowserWindow, protocol, ipcMain, shell, globalShortcut } from 'electron'
 import { createProtocol, updateProtocolResourceName } from './createProtocol'
-import { app, BrowserWindow, protocol, ipcMain, shell } from 'electron'
 import { getVersions } from './methods'
 import path from 'path'
 import fs from 'fs'
@@ -34,6 +34,11 @@ async function createWindow() {
         },
         show: isDevelopment,
         frame: false
+    })
+
+    //TODO: after updating electron to 21.3.5, Ctrl+R would stop working
+    globalShortcut.register('CommandOrControl+R', function () {
+        mainWindow.reload()
     })
 
     mainWindow.once('ready-to-show', () => {
@@ -71,15 +76,6 @@ app.whenReady().then(async () => {
     const version = await getVersions()
     if (!isDevelopment) {
         createProtocol(customProtocol, version.asarFileName)
-    }
-    if (isDevelopment) {
-        try {
-            import('electron-devtools-installer').then((install) => {
-                install.default('nhdogjmejiglipccpnnnanhbledajbpd')
-            })
-        } catch (e: any) {
-            console.error('Vue Devtools failed to install:', e.toString())
-        }
     }
 
     const mainWindow = await createWindow()
