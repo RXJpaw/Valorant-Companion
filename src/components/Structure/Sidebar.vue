@@ -40,8 +40,8 @@
 import StructureSidebarUpdate from '@/components/Button/StructureSidebarUpdate.vue'
 import StructureSidebarButton from '@/components/Button/StructureSidebarButton.vue'
 import StructureSidebarTab from '@/components/Button/StructureSidebarTab.vue'
+import Profile from '@/components/Button/StructureSidebarProfile.vue'
 import { project_version } from '../../../package.json'
-import Profile from '@/components/Button/Profile.vue'
 
 export default {
     name: 'Sidebar',

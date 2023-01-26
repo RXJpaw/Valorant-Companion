@@ -36,6 +36,9 @@
                             <icon icon="external-url" />
                         </div>
                     </div>
+                    <div class="entry" @click="openPreferences">
+                        <div class="text">Preferences</div>
+                    </div>
                     <div class="entry" @click="copyToClipboard(presence.Subject)">
                         <div class="text">Copy ID</div>
                     </div>
@@ -51,6 +54,7 @@ import { ValorantInstance } from '@/scripts/valorant_instance'
 import Icon from '@/components/Misc/Icon.vue'
 
 const Valorant = ValorantInstance()
+const PreferencesChannel = new BroadcastChannel('preferences')
 
 export default {
     name: 'Profile',
@@ -71,6 +75,11 @@ export default {
             if (!text) return
 
             navigator.clipboard.writeText(text)
+
+            if (this.hover) this.hover = false
+        },
+        openPreferences() {
+            PreferencesChannel.postMessage('open')
 
             if (this.hover) this.hover = false
         },
@@ -158,7 +167,6 @@ export default {
     left: 0;
 
     width: 206px;
-    height: 196px;
 
     border: 3px solid #121314;
 
@@ -177,7 +185,7 @@ export default {
     gap: 7px;
 
     margin-top: 30px;
-    height: calc(100% - 30px);
+    margin-bottom: 13px;
 }
 
 .profile > .drop-down > .header > .entry {
