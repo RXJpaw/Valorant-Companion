@@ -2,7 +2,7 @@
 
 import { createProtocol, updateProtocolResourceName } from './createProtocol'
 import { app, BrowserWindow, protocol, ipcMain, shell } from 'electron'
-import { getVersions } from './get_versions'
+import { getVersions } from './methods'
 import path from 'path'
 import fs from 'fs'
 import './updater'

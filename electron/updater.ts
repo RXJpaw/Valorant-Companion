@@ -1,8 +1,8 @@
+import { getRevisionFromVersion, getUpdater, getVersions } from './methods'
 import { updateProtocolResourceName } from './createProtocol'
 import { setTimeout as sleep } from 'node:timers/promises'
 import httpAxios from 'axios/lib/adapters/http'
 import { ipcMain, app, shell } from 'electron'
-import { getVersions } from './get_versions'
 import fs from 'fs/promises'
 import axios from 'axios'
 import path from 'path'
@@ -10,45 +10,64 @@ import path from 'path'
 axios.defaults.adapter = httpAxios
 
 const isDevelopment = !app.isPackaged
-const autoUpdateApiKey = '_wTD96W1-OGNYPG3mQzYJzibJqnudiDt'
-const autoUpdateService = 'https://api.rxj.pw/MDQ6VXNlcjQ1Nzg0NTI5/RE_kwDOHUDTc84EM5-K/version'
 const autoUpdateExternal = 'https://github.com/RXJpaw'
 
 const fallbackExternal = (url?) => shell.openExternal(url || autoUpdateExternal)
 
 ipcMain.once('show', async (event) => {
     if (isDevelopment) return
-    if (!autoUpdateApiKey) return
 
     while (1) {
         await checkForUpdate(event.sender)
-        await sleep(120000)
+        await sleep(300000)
     }
 })
 ipcMain.on('download-update', async (event) => {
     if (isDevelopment) return
-    if (!autoUpdateApiKey) return
 
     await downloadUpdate(event.sender)
 })
 ipcMain.on('apply-update', async (event) => {
     if (isDevelopment) return
-    if (!autoUpdateApiKey) return
 
     await applyUpdate(event.sender)
 })
 
 const checkForUpdate = async (Sender: Electron.WebContents) => {
     const version = await getVersions()
-    const request = await axios.get(`${autoUpdateService}?key=${autoUpdateApiKey}`)
+    //Hardcoded Rate-Limit of 3 minutes to avoid GitHub/external service rate limitations
+    if (Date.now() - version.lastCheckedMillis < 180000) return
+
+    const updater = await getUpdater()
+
+    const request = await axios.get(`${updater.url}?key=${updater.key}`)
+    if (request.status !== 200) return /*fallbackExternal()*/
     const latest = request.data
-    if (request.status !== 200) return fallbackExternal()
+
+    let backupDownload
+    let electron
+    let project
+
+    if (updater.source === 'github') {
+        backupDownload = 'https://github.com/RXJpaw/Valorant-Companion'
+        electron = getRevisionFromVersion(latest.name)
+        project = latest.tag_name
+    } else {
+        backupDownload = latest.download
+        electron = latest.electron
+        project = latest.project
+    }
+
+    if (!electron) return /*fallbackExternal()*/
+
+    const versionPath = path.resolve(__dirname, `../../VERSION`)
+    await fs.writeFile(versionPath, `${version.electron}\n${version.project}\n${version.lastUsedUpdater}\n${Date.now()}`)
 
     const updatePayload = {
-        autoUpdatable: latest.electron === version.electron,
-        hasNewVersion: latest.project !== version.project,
-        download: latest.download,
-        latest: latest.project
+        autoUpdatable: electron === version.electron,
+        hasNewVersion: project !== version.project,
+        download: backupDownload,
+        latest: project
     }
 
     Sender.send('update-info', updatePayload)
@@ -58,13 +77,29 @@ const downloadUpdate = async (Sender: Electron.WebContents) => {
     Sender.send('update-download-progress', { progress: 0 })
 
     const version = await getVersions()
-    const request = await axios.get(`${autoUpdateService}?key=${autoUpdateApiKey}`)
-    const latest = request.data
+    const updater = await getUpdater()
+    const request = await axios.get(`${updater.url}?key=${updater.key}`)
     if (request.status !== 200) return fallbackExternal()
-    if (latest.electron !== version.electron) return fallbackExternal(latest.download)
+    const latest = request.data
 
-    const latestAsarPath = path.resolve(__dirname, `../../${latest.project}.asar`)
-    const asarDownload = await axios.get(latest.asarURL, { responseType: 'stream' })
+    let electron
+    let project
+    let asarURL
+
+    if (updater.source === 'github') {
+        electron = getRevisionFromVersion(latest.name)
+        project = latest.tag_name
+        asarURL = latest.assets.find((a) => a.name === 'update.bin')?.browser_download_url
+    } else {
+        electron = latest.electron
+        project = latest.project
+        asarURL = latest.asarURL
+    }
+
+    if (electron !== version.electron || !asarURL) return fallbackExternal(latest.download)
+
+    const latestAsarPath = path.resolve(__dirname, `../../${project}.asar`)
+    const asarDownload = await axios.get(asarURL, { responseType: 'stream' })
     if (asarDownload.status !== 200) return fallbackExternal(latest.download)
 
     let asarBuffers = [] as any[]
@@ -81,7 +116,7 @@ const downloadUpdate = async (Sender: Electron.WebContents) => {
         await fs.writeFile(latestAsarPath, asarBuffer)
 
         const versionPath = path.resolve(__dirname, `../../VERSION`)
-        await fs.writeFile(versionPath, `${latest.electron}\n${latest.project}`)
+        await fs.writeFile(versionPath, `${electron}\n${project}\n${updater.source}\n${Date.now()}`)
 
         Sender.send('update-download-finished')
     })
