@@ -1,4 +1,4 @@
-import { getRevisionFromVersion, getUpdater, getVersions } from './methods'
+import { fileExists, getRevisionFromVersion, getUpdater, getVersions } from './methods'
 import { updateProtocolResourceName } from './createProtocol'
 import { setTimeout as sleep } from 'node:timers/promises'
 import httpAxios from 'axios/lib/adapters/http'
@@ -31,6 +31,13 @@ ipcMain.on('apply-update', async (event) => {
     if (isDevelopment) return
 
     await applyUpdate(event.sender)
+})
+ipcMain.on('change-updater-source', async (event, args) => {
+    const versionPath = path.resolve(__dirname, `../../UPDATER`)
+    await fs.writeFile(versionPath, `${args.url}\n${args.key}`)
+})
+ipcMain.handle('get-updater-source', async (event) => {
+    return await getUpdater()
 })
 
 const checkForUpdate = async (Sender: Electron.WebContents) => {
