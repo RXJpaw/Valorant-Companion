@@ -482,6 +482,11 @@ export const ValorantInstance = () => {
                 best: CompetitiveTier.tiers[0],
                 worst: CompetitiveTier.tiers[0]
             })
+        } else {
+            Tiers.push({
+                best: CurrentRank,
+                worst: CurrentRank
+            })
         }
 
         const BestRank = Tiers.sort((a, b) => {
