@@ -44,7 +44,10 @@
         "prettier-plugin-sort-imports": "^1.7.0",
         "typescript": "^4.7.4",
         "vue": "^3.2.13",
-        "vue-class-component": "^8.0.0-0"
+        "vue-class-component": "^8.0.0-0",
+        "http-cache-semantics": ">=4.1.1",
+        "minimatch": ">=3.0.5",
+        "got": ">=11.8.5"
     },
     "eslintConfig": {
         "root": true,
