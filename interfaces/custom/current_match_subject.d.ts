@@ -11,6 +11,9 @@ interface LoadedCurrentMatchSubject {
     HasFistBumpBuddy: boolean
     HasPresence: boolean
 
+    EncounterAmount: number
+    LastEncounter: number
+
     Buddies: (string | null)[]
     SkinChromas: (string | null)[]
 
