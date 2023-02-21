@@ -30,7 +30,7 @@
             <StructureSidebarUpdate />
             <div class="footer">
                 <div class="version">Valorant Companion, Closed {{ version }}</div>
-                <div class="copyright">Copyright © 2022 RXJpaw</div>
+                <div class="copyright">Copyright © 2023 RXJpaw</div>
             </div>
         </div>
     </div>
