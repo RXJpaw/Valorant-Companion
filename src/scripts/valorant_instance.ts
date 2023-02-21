@@ -1,6 +1,6 @@
 import { DivisionOrder, fetchGameAuthData, fetchHelp, getAuthFileData, getHeaders, getLogFileData } from './valorant'
+import { EncounterHistory, RiotIdHistory, sleep } from '@/scripts/methods'
 import { connectWebSocket } from '@/scripts/valorant_websocket'
-import { RiotIdHistory, sleep } from '@/scripts/methods'
 import * as ValorantAPI from '@/scripts/valorant_api'
 import PersistentCache from './cache_manager'
 import { EventEmitter } from 'events'
@@ -394,7 +394,12 @@ export const ValorantInstance = () => {
 
         Cache.CoreGameMatch[ingame_match_id] = request('get', 'glz', `/core-game/v1/matches/${ingame_match_id}`)
 
-        return await Cache.CoreGameMatch[ingame_match_id]!
+        const CoreGameMatch = await Cache.CoreGameMatch[ingame_match_id]!
+        for (const player of CoreGameMatch.Players) {
+            await EncounterHistory.add(player.Subject, CoreGameMatch.MatchID)
+        }
+
+        return CoreGameMatch
     }
 
     const getCoreGameLoadouts = async (ingame_match_id, force?: boolean): Promise<ValorantCoreGameLoadouts> => {

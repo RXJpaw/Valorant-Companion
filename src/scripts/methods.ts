@@ -5,7 +5,8 @@ const Store = {
     CompetitiveUpdates: localForage.createInstance({ name: 'ValorantMatch', storeName: 'CompetitiveUpdates' }),
     MatchHistory: localForage.createInstance({ name: 'ValorantMatch', storeName: 'History' }),
 
-    RiotIdHistory: localForage.createInstance({ name: 'Valorant', storeName: 'RiotIdHistory' })
+    RiotIdHistory: localForage.createInstance({ name: 'Valorant', storeName: 'RiotIdHistory' }),
+    EncounterHistory: localForage.createInstance({ name: 'Valorant', storeName: 'EncounterHistory' })
 }
 
 export const sleep = (duration) => {
@@ -60,6 +61,35 @@ export const RiotIdHistory = {
         }
 
         return latestName
+    }
+}
+
+export const EncounterHistory = {
+    get: async (subject: string) => {
+        let { Data: EncounterHistory, Version } = ((await Store.EncounterHistory.getItem(subject)) as IndexedDbEncounterHistory) || {}
+        if (!EncounterHistory) EncounterHistory = {}
+
+        return {
+            Matches: EncounterHistory || {},
+            LastEncounter: Version || null
+        }
+    },
+    add: async (subject: string, matchId: string) => {
+        let { Data: EncounterHistory } = ((await Store.EncounterHistory.getItem(subject)) as IndexedDbEncounterHistory) || {}
+        if (!EncounterHistory) EncounterHistory = {}
+
+        const Version = Date.now()
+        EncounterHistory[matchId] = Version
+
+        await Store.EncounterHistory.setItem(subject, {
+            Data: EncounterHistory,
+            Version
+        })
+
+        return {
+            Matches: EncounterHistory,
+            LastEncounter: Version
+        }
     }
 }
 

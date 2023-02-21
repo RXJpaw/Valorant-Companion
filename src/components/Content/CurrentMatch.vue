@@ -43,8 +43,8 @@
 
 <script lang="ts">
 import CurrentMatchInventory from '@/components/Browser/CurrentMatchInventory.vue'
+import { capitalizeFirstLetter, EncounterHistory, sleep } from '@/scripts/methods'
 import CurrentMatchPlayer from '@/components/Browser/CurrentMatchPlayer.vue'
-import { capitalizeFirstLetter, sleep } from '@/scripts/methods'
 import { ValorantInstance } from '@/scripts/valorant_instance'
 import WEAPONS from '@/assets/valorant_api/weapons.json'
 import SOCKETS from '@/assets/valorant_api/sockets.json'
@@ -186,6 +186,7 @@ export default {
 
                 const MMR = await Valorant.parseMMR(player.Subject)
                 const Presence = Presences.find((presence) => presence.Subject === player.Subject)
+                const Encounters = await EncounterHistory.get(player.Subject)
                 const LevelBorder = await Valorant.getLevelBorder(player.PlayerIdentity.AccountLevel, player.PlayerIdentity.PreferredLevelBorderID)
                 const NameService = NameServices[player.Subject]
 
@@ -206,6 +207,9 @@ export default {
                     LevelBorderURL: LevelBorder.levelNumberAppearance,
                     HasFistBumpBuddy: Buddies.includes(FistBumpBuddyUUID),
                     HasPresence: !!Presence,
+
+                    EncounterAmount: Object.keys(Encounters.Matches).filter((mId) => mId !== this.match_id).length,
+                    LastEncounter: Encounters.LastEncounter,
 
                     Buddies: Buddies,
                     SkinChromas: SkinChromas,

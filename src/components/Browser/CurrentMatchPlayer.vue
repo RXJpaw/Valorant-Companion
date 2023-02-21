@@ -63,6 +63,9 @@
                     <div class="icon"></div>
                 </div>
             </div>
+            <div v-if="isOverCard && subject.EncounterAmount > 0" class="encounters">
+                {{ subject.EncounterAmount }} {{ subject.EncounterAmount === 1 ? 'Meetup' : 'Meetups' }}
+            </div>
             <div v-if="isOverCard || inventory_subject?.Subject === subject?.Subject" class="inventory" @click="clickInventoryIcon()">
                 <svg
                     v-if="inventory_subject?.Subject !== subject?.Subject"
@@ -274,6 +277,22 @@ export default {
 /*.player > .banner-wrapper > .inventory > .skin > .sharpen {*/
 /*    image-rendering: pixelated;*/
 /*}*/
+
+.player > .banner-wrapper > .encounters {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+
+    height: 17px;
+    padding: 0 6px;
+
+    border: 0 solid;
+    border-radius: 6px;
+    backdrop-filter: blur(2px) brightness(0.65);
+
+    font-size: 13px;
+    line-height: 18px;
+}
 
 .player > .banner-wrapper > .inventory > svg {
     color: #ffffff;
