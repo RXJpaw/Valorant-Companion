@@ -69,7 +69,9 @@ export default {
         }
     },
     async created() {
+        this.current_page = 0
         await this.processMatchHistory()
+        this.current_page = 1
 
         window.addEventListener('keydown', this.KeyDownListener)
         GameStateChangeChannel.addEventListener('message', this.GameStateChangeListener)
@@ -87,7 +89,9 @@ export default {
             if (event.key.toLowerCase() === 'u' && event.shiftKey && event.ctrlKey && event.altKey) {
                 this.used_unlimited = true
 
+                this.current_page = 0
                 await this.processMatchHistory(true)
+                this.current_page = 1
 
                 console.debug('downloaded all available match history data')
             }
@@ -96,7 +100,11 @@ export default {
             const { from, to, old_match_id } = data
 
             if (from === 'INGAME' && to === 'MENUS') {
+                const backup_page = this.current_page
+
+                this.current_page = 0
                 await this.processMatchHistory(false, old_match_id)
+                this.current_page = backup_page
             }
         },
         async processPageMatchDetails(current_page) {
@@ -195,8 +203,6 @@ export default {
             return Math.ceil(Object.values(elements).length / this.per_page)
         },
         async processMatchHistory(unlimited?: boolean, preload_match_id?: string) {
-            if (!preload_match_id) this.current_page = 0
-
             const MatchHistoryStore = <ValorantMatchHistoryList>await Store.MatchHistory.getItem(this.subject) ?? {}
             const CompetitiveUpdatesStore = <ValorantCompetitiveUpdatesList>await Store.CompetitiveUpdates.getItem(this.subject) ?? {}
 
@@ -249,7 +255,6 @@ export default {
             this.competitive_updates = CompetitiveUpdatesStore
             this.match_history_total = MatchHistory.Total
             this.page_amount = this.getPageAmountFromObject(MatchHistoryPage)
-            if (!preload_match_id) this.current_page = 1
         }
     }
 }
