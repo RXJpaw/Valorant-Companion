@@ -48,7 +48,7 @@ npm ci
 ```bash
 npm run build
 ```
-The project is builded and located at `dist_electron\win-unpacked`.
+The project is built and located at `dist_electron\win-unpacked`.
 
 
 
