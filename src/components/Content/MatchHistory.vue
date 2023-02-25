@@ -105,10 +105,17 @@ export default {
                 const MatchDetailsStore = (await Store.MatchDetails.getItem(Match.MatchID)) as ValorantMatchDetails
 
                 if (MatchDetailsStore && !MatchDetailsStore.httpStatus) {
+                    //Match is cached but has to be retrieved and processed first.
                     await sleep(50)
 
                     this.match_history[MatchID].MatchDetails = await this.getSubjectMatchDetails(MatchDetailsStore)
+                } else if (Date.now() - Match.GameStartTime > 30 * 24 * 60 * 60 * 1000) {
+                    //Match will no longer be available on Valorant servers.
+                    await sleep(50)
+
+                    this.match_history[MatchID].MatchDetails = null
                 } else {
+                    //Retrieving match from Valorant Servers.
                     UnloadedMatchDetails[MatchID] = null
                 }
             }
