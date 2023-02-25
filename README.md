@@ -62,3 +62,13 @@ The project is built and located at `dist_electron\win-unpacked`.
 
 ### Loadout Manager (Incomplete)
 <img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_loadout_manager.png" width="854" height="480">
+
+## Acknowledgements
+
+* [LukenSkyne](https://github.com/LukenSkyne), for comforting me during development and being a good friend. <3
+* [Valorant-API](https://github.com/valorant-api), for actively updating assets required for this project.
+* [techchrism](https://github.com/techchrism/valorant-api-docs), for providing unofficial Valorant API documentation.
+
+## Disclaimer
+
+This project is not affiliated, authorized or endorsed by Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
