@@ -34,6 +34,8 @@ const Cache = {
     CompetitiveSeasons: ValorantAPI.getCompetitiveSeasons()
 }
 
+const GameStateChangeChannel = new BroadcastChannel('game-state-change')
+
 export default {
     name: 'MatchHistory',
     components: {
@@ -70,11 +72,13 @@ export default {
         await this.processMatchHistory()
 
         window.addEventListener('keydown', this.KeyDownListener)
+        GameStateChangeChannel.addEventListener('message', this.GameStateChangeListener)
     },
     beforeUnmount() {
         this.mounted = false
 
         window.removeEventListener('keydown', this.KeyDownListener)
+        GameStateChangeChannel.removeEventListener('message', this.GameStateChangeListener)
     },
     methods: {
         async KeyDownListener(event: KeyboardEvent) {
@@ -83,11 +87,16 @@ export default {
             if (event.key.toLowerCase() === 'u' && event.shiftKey && event.ctrlKey && event.altKey) {
                 this.used_unlimited = true
 
-                this.current_page = 0
                 await this.processMatchHistory(true)
-                this.current_page = 1
 
                 console.debug('downloaded all available match history data')
+            }
+        },
+        async GameStateChangeListener({ data }) {
+            const { from, to, old_match_id } = data
+
+            if (from === 'INGAME' && to === 'MENUS') {
+                await this.processMatchHistory(false, old_match_id)
             }
         },
         async processPageMatchDetails(current_page) {
@@ -185,7 +194,9 @@ export default {
         getPageAmountFromObject(elements: object) {
             return Math.ceil(Object.values(elements).length / this.per_page)
         },
-        async processMatchHistory(unlimited?: boolean) {
+        async processMatchHistory(unlimited?: boolean, preload_match_id?: string) {
+            if (!preload_match_id) this.current_page = 0
+
             const MatchHistoryStore = <ValorantMatchHistoryList>await Store.MatchHistory.getItem(this.subject) ?? {}
             const CompetitiveUpdatesStore = <ValorantCompetitiveUpdatesList>await Store.CompetitiveUpdates.getItem(this.subject) ?? {}
 
@@ -219,19 +230,26 @@ export default {
             const MatchHistoryPage = Object.fromEntries(
                 Object.entries(MatchHistoryStore) //
                     .sort((a, b) => b[1].GameStartTime - a[1].GameStartTime)
-                    .slice(0, 1393) //693
+                    .slice(0, 6993) //increased limit: 693 -> 1393 -> 6993
             )
 
             const newEntry = {}
             for (const MatchID in MatchHistoryPage) {
-                newEntry[MatchID] = { ...MatchHistoryPage[MatchID], MatchDetails: undefined }
+                if (preload_match_id && MatchID === preload_match_id) {
+                    const MatchDetails = await Valorant.getMatchDetails(preload_match_id)
+                    await Store.MatchDetails.setItem(preload_match_id, MatchDetails)
+
+                    newEntry[MatchID] = { ...MatchHistoryPage[MatchID], MatchDetails: await this.getSubjectMatchDetails(MatchDetails) }
+                } else {
+                    newEntry[MatchID] = { ...MatchHistoryPage[MatchID], MatchDetails: this.match_history[MatchID]?.MatchDetails }
+                }
             }
 
             this.match_history = newEntry
             this.competitive_updates = CompetitiveUpdatesStore
             this.match_history_total = MatchHistory.Total
-            this.current_page = 1
             this.page_amount = this.getPageAmountFromObject(MatchHistoryPage)
+            if (!preload_match_id) this.current_page = 1
         }
     }
 }

@@ -54,6 +54,7 @@ import SKILL from '@/assets/valorant_api/skill.json'
 import Icon from '@/components/Misc/Icon.vue'
 
 const Valorant = ValorantInstance()
+const GameStateChangeChannel = new BroadcastChannel('game-state-change')
 
 export default {
     name: 'CurrentMatch',
@@ -245,6 +246,7 @@ export default {
             const GameState = this.mock_state || SelfPresence.sessionLoopState
 
             if (this.game_state !== GameState) {
+                if (!this.mock_state) GameStateChangeChannel.postMessage(structuredClone({ from: this.game_state, to: GameState, old_match_id: this.match_id }))
                 this.game_state = GameState
 
                 if (GameState === 'MENUS') {
