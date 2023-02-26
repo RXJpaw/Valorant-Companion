@@ -1,7 +1,7 @@
 <template>
     <div v-if="current_page > 0" class="match-history">
         <div class="matches">
-            <MatchDetails v-for="match in getCurrentPage()" :match="match"></MatchDetails>
+            <MatchDetails v-for="match in getCurrentPage()" :key="match.MatchID" :match="match"></MatchDetails>
         </div>
         <Pagination v-model:current-page="current_page" :page-amount="page_amount" />
     </div>
