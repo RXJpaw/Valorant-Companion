@@ -18,7 +18,8 @@
                         v-model:tabs="matchHistoryTabs"
                         v-model:active="activeMatchHistoryTab"
                         v-model:group-active="activeButton"
-                        :text="`${tab.GameName}`"
+                        :text="tab.GameName"
+                        :key="tab.Subject"
                     ></StructureSidebarTab>
                 </div>
             </div>

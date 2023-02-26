@@ -6,6 +6,8 @@
                 v-show="activeButton === 'match-history' && activeMatchHistoryTab === index"
                 :isVisible="activeButton === 'match-history' && activeMatchHistoryTab === index"
                 :subject="tab.Subject"
+                :index="index"
+                :key="tab.Subject"
             />
         </div>
         <CurrentMatch v-show="activeButton === 'current-match'" :isVisible="activeButton === 'current-match'" />

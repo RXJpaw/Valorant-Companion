@@ -44,6 +44,7 @@ export default {
         Pagination
     },
     props: {
+        index: Number as () => number,
         subject: String as () => string,
         isVisible: Boolean as () => boolean
     },
@@ -97,6 +98,8 @@ export default {
             }
         },
         async GameStateChangeListener({ data }) {
+            if (this.index !== 0) return
+
             const { from, to, old_match_id } = data
 
             if (from === 'INGAME' && to === 'MENUS') {
