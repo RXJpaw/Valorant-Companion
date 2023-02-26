@@ -235,6 +235,7 @@ export default {
 
             await Store.CompetitiveUpdates.setItem(this.subject, CompetitiveUpdatesStore)
             await Store.MatchHistory.setItem(this.subject, MatchHistoryStore)
+            this.competitive_updates = CompetitiveUpdatesStore
 
             const MatchHistoryPage = Object.fromEntries(
                 Object.entries(MatchHistoryStore) //
@@ -255,7 +256,6 @@ export default {
             }
 
             this.match_history = newEntry
-            this.competitive_updates = CompetitiveUpdatesStore
             this.match_history_total = MatchHistory.Total
             this.page_amount = this.getPageAmountFromObject(MatchHistoryPage)
         }
