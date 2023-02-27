@@ -344,7 +344,13 @@ export const ValorantInstance = () => {
     }
 
     const getMatchDetails = async (match_id): Promise<ValorantMatchDetails> => {
-        return await request('get', 'pd', `/match-details/v1/matches/${match_id}`)
+        const MatchDetails: ValorantMatchDetails = await request('get', 'pd', `/match-details/v1/matches/${match_id}`)
+
+        for (const player of MatchDetails.players) {
+            await EncounterHistory.add(player.subject, MatchDetails.matchInfo.matchId)
+        }
+
+        return MatchDetails
     }
 
     const getCompetitiveUpdates = async (player_uuid, parameters?: ValorantMatchHistoryFunctionParams): Promise<ValorantCompetitiveUpdates> => {
@@ -394,12 +400,7 @@ export const ValorantInstance = () => {
 
         Cache.CoreGameMatch[ingame_match_id] = request('get', 'glz', `/core-game/v1/matches/${ingame_match_id}`)
 
-        const CoreGameMatch = await Cache.CoreGameMatch[ingame_match_id]!
-        for (const player of CoreGameMatch.Players) {
-            await EncounterHistory.add(player.Subject, CoreGameMatch.MatchID)
-        }
-
-        return CoreGameMatch
+        return await Cache.CoreGameMatch[ingame_match_id]!
     }
 
     const getCoreGameLoadouts = async (ingame_match_id, force?: boolean): Promise<ValorantCoreGameLoadouts> => {
