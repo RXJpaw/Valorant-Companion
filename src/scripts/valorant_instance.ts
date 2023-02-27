@@ -347,7 +347,11 @@ export const ValorantInstance = () => {
         const MatchDetails: ValorantMatchDetails = await request('get', 'pd', `/match-details/v1/matches/${match_id}`)
 
         for (const player of MatchDetails.players) {
-            await EncounterHistory.add(player.subject, MatchDetails.matchInfo.matchId)
+            await EncounterHistory.add(
+                player.subject,
+                MatchDetails.matchInfo.matchId,
+                MatchDetails.matchInfo.gameStartMillis + MatchDetails.matchInfo.gameLengthMillis
+            )
         }
 
         return MatchDetails

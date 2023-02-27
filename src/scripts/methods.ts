@@ -74,11 +74,11 @@ export const EncounterHistory = {
             LastEncounter: Version || null
         }
     },
-    add: async (subject: string, matchId: string) => {
+    add: async (subject: string, matchId: string, timestamp?: number) => {
         let { Data: EncounterHistory } = ((await Store.EncounterHistory.getItem(subject)) as IndexedDbEncounterHistory) || {}
         if (!EncounterHistory) EncounterHistory = {}
 
-        const Version = Date.now()
+        const Version = timestamp || Date.now()
         EncounterHistory[matchId] = Version
 
         await Store.EncounterHistory.setItem(subject, {

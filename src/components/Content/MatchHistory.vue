@@ -5,6 +5,9 @@
         </div>
         <Pagination v-model:current-page="current_page" :page-amount="page_amount" />
     </div>
+    <div v-else-if="using_unlitmied">
+        <NotReady text="Processing all available match data, this may take a while..." />
+    </div>
     <div v-else>
         <NotReady text="Waiting for VALORANT match history..." />
     </div>
@@ -15,9 +18,9 @@ import MatchDetails from '@/components/Browser/MatchDetails.vue'
 import { ValorantInstance } from '@/scripts/valorant_instance'
 import Pagination from '@/components/Browser/Pagination.vue'
 import GAMEMODE from '@/assets/valorant_api/gamemodes.json'
+import { EncounterHistory, sleep } from '@/scripts/methods'
 import NotReady from '@/components/Content/NotReady.vue'
 import * as ValorantAPI from '@/scripts/valorant_api'
-import { sleep } from '@/scripts/methods'
 import localForage from 'localforage'
 
 const Valorant = ValorantInstance()
@@ -52,6 +55,7 @@ export default {
         return {
             mounted: true,
             used_unlimited: false,
+            using_unlitmied: false,
             match_history_total: 0,
             competitive_updates: {} as ValorantCompetitiveUpdatesList,
             match_history: {} as ValorantMatchHistoryWithSubjectMatchDetailsList,
@@ -91,7 +95,26 @@ export default {
                 this.used_unlimited = true
 
                 this.current_page = 0
+                this.using_unlitmied = true
+
                 await this.processMatchHistory(true)
+
+                for (const MatchKey in this.match_history) {
+                    const Match = this.match_history[MatchKey]
+
+                    const MatchDetailsStore = (await Store.MatchDetails.getItem(Match.MatchID)) as ValorantMatchDetails
+                    if (!MatchDetailsStore || MatchDetailsStore.httpStatus) continue
+
+                    for (const player of MatchDetailsStore.players) {
+                        await EncounterHistory.add(
+                            player.subject,
+                            MatchDetailsStore.matchInfo.matchId,
+                            MatchDetailsStore.matchInfo.gameStartMillis + MatchDetailsStore.matchInfo.gameLengthMillis
+                        )
+                    }
+                }
+
+                this.using_unlitmied = false
                 this.current_page = 1
 
                 console.debug('downloaded all available match history data')
