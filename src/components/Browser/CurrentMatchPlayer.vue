@@ -66,7 +66,11 @@
             <div v-if="isOverCard && subject.EncounterAmount > 0" class="encounters">
                 {{ subject.EncounterAmount }} {{ subject.EncounterAmount === 1 ? 'Meetup' : 'Meetups' }}
             </div>
-            <div v-if="isOverCard || inventory_subject?.Subject === subject?.Subject" class="inventory" @click="clickInventoryIcon()">
+            <div
+                v-if="(isOverCard && game_state === 'INGAME') || inventory_subject?.Subject === subject?.Subject"
+                class="inventory"
+                @click="clickInventoryIcon()"
+            >
                 <svg
                     v-if="inventory_subject?.Subject !== subject?.Subject"
                     fill="currentColor"
@@ -115,13 +119,7 @@ export default {
     },
     methods: {
         hoverOverCard(isOver: boolean) {
-            if (this.game_state !== 'INGAME' || !isOver) {
-                this.isOverCard = false
-
-                return
-            }
-
-            this.isOverCard = true
+            this.isOverCard = isOver
         },
         clickInventoryIcon() {
             if (this.inventory_subject?.Subject === this.subject?.Subject) {
