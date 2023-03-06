@@ -90,6 +90,9 @@ export const EncounterHistory = {
             Matches: EncounterHistory,
             LastEncounter: Version
         }
+    },
+    clear: async () => {
+        await Store.EncounterHistory.clear()
     }
 }
 

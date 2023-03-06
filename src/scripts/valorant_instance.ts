@@ -343,15 +343,17 @@ export const ValorantInstance = () => {
         return await request('get', 'pd', `/match-history/v1/history/${player_uuid}?${query}`)
     }
 
-    const getMatchDetails = async (match_id): Promise<ValorantMatchDetails> => {
+    const getMatchDetails = async (match_id, process_encounters?: boolean): Promise<ValorantMatchDetails> => {
         const MatchDetails: ValorantMatchDetails = await request('get', 'pd', `/match-details/v1/matches/${match_id}`)
 
-        for (const player of MatchDetails.players) {
-            await EncounterHistory.add(
-                player.subject,
-                MatchDetails.matchInfo.matchId,
-                MatchDetails.matchInfo.gameStartMillis + MatchDetails.matchInfo.gameLengthMillis
-            )
+        if (process_encounters) {
+            for (const player of MatchDetails.players) {
+                await EncounterHistory.add(
+                    player.subject,
+                    MatchDetails.matchInfo.matchId,
+                    MatchDetails.matchInfo.gameStartMillis + MatchDetails.matchInfo.gameLengthMillis
+                )
+            }
         }
 
         return MatchDetails

@@ -99,18 +99,22 @@ export default {
 
                 await this.processMatchHistory(true)
 
-                for (const MatchKey in this.match_history) {
-                    const Match = this.match_history[MatchKey]
+                if (this.index === 0) {
+                    await EncounterHistory.clear()
 
-                    const MatchDetailsStore = (await Store.MatchDetails.getItem(Match.MatchID)) as ValorantMatchDetails
-                    if (!MatchDetailsStore || MatchDetailsStore.httpStatus) continue
+                    for (const MatchKey in this.match_history) {
+                        const Match = this.match_history[MatchKey]
 
-                    for (const player of MatchDetailsStore.players) {
-                        await EncounterHistory.add(
-                            player.subject,
-                            MatchDetailsStore.matchInfo.matchId,
-                            MatchDetailsStore.matchInfo.gameStartMillis + MatchDetailsStore.matchInfo.gameLengthMillis
-                        )
+                        const MatchDetailsStore = (await Store.MatchDetails.getItem(Match.MatchID)) as ValorantMatchDetails
+                        if (!MatchDetailsStore || MatchDetailsStore.httpStatus) continue
+
+                        for (const player of MatchDetailsStore.players) {
+                            await EncounterHistory.add(
+                                player.subject,
+                                MatchDetailsStore.matchInfo.matchId,
+                                MatchDetailsStore.matchInfo.gameStartMillis + MatchDetailsStore.matchInfo.gameLengthMillis
+                            )
+                        }
                     }
                 }
 
@@ -170,7 +174,7 @@ export default {
                     await sleep(100)
                 }
 
-                const MatchDetails = await Valorant.getMatchDetails(MatchID)
+                const MatchDetails = await Valorant.getMatchDetails(MatchID, this.index === 0)
                 await Store.MatchDetails.setItem(MatchID, MatchDetails)
                 this.match_history[MatchID].MatchDetails = await this.getSubjectMatchDetails(MatchDetails)
             }
@@ -269,7 +273,7 @@ export default {
             const newEntry = {}
             for (const MatchID in MatchHistoryPage) {
                 if (preload_match_id && MatchID === preload_match_id) {
-                    const MatchDetails = await Valorant.getMatchDetails(preload_match_id)
+                    const MatchDetails = await Valorant.getMatchDetails(preload_match_id, this.index === 0)
                     await Store.MatchDetails.setItem(preload_match_id, MatchDetails)
 
                     newEntry[MatchID] = { ...MatchHistoryPage[MatchID], MatchDetails: await this.getSubjectMatchDetails(MatchDetails) }
