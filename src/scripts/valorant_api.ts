@@ -19,7 +19,8 @@ const cache = {
     Buddies: null as never as Promise<ValorantAPIBuddy[]>,
     Themes: null as never as Promise<ValorantAPIThemes.Theme[]>,
     ContentTiers: null as never as Promise<ValorantAPIContentTiers.ContentTier[]>,
-    Bundles: null as never as Promise<ValorantAPIBundles.Bundle[]>
+    Bundles: null as never as Promise<ValorantAPIBundles.Bundle[]>,
+    Contracts: null as never as Promise<ValorantAPIContracts.Contract[]>
 }
 
 export const getMaps = async (): Promise<ValorantAPIMap[]> => {
@@ -80,6 +81,12 @@ export const getBundles = async () => {
     if (cache.Bundles) return await cache.Bundles
     cache.Bundles = CacheManager('bundles', 'https://valorant-api.com/v1/bundles')
     return await cache.Bundles
+}
+
+export const getContracts = async () => {
+    if (cache.Contracts) return await cache.Contracts
+    cache.Contracts = CacheManager('contracts', 'https://valorant-api.com/v1/contracts')
+    return await cache.Contracts
 }
 
 export const mapWeaponSkins = async () => {

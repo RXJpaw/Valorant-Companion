@@ -571,6 +571,9 @@ export const ValorantInstance = () => {
     const putSelfLoadout = async (PlayerLoadout: ValorantPersonalizationPlayerLoadoutSettings) => {
         return await request('put', 'pd', `/personalization/v2/players/${getSelfSubject()}/playerloadout`, PlayerLoadout)
     }
+    const getContracts = async () => {
+        return await request('get', 'pd', `/contracts/v1/contracts/${getSelfSubject()}`)
+    }
 
     const Client: ValorantInstanceClient = {
         on: (event, listener) => Emitter.on(event, listener),
@@ -596,8 +599,9 @@ export const ValorantInstance = () => {
         getMatchDetails,
         getCompetitiveUpdates,
         getContentServiceContent,
-        getAccountXP,
         getPlayerLoadout,
+        getAccountXP,
+        getContracts,
 
         getPreGameMatch,
         getCoreGameMatch,
