@@ -246,8 +246,13 @@ export default {
             const GameState = this.mock_state || SelfPresence.sessionLoopState
 
             if (this.game_state !== GameState) {
-                if (!this.mock_state) GameStateChangeChannel.postMessage(structuredClone({ from: this.game_state, to: GameState, old_match_id: this.match_id }))
+                const GameStateChangeObject = structuredClone({ from: this.game_state, to: GameState, old_match_id: this.match_id })
+                GameStateChangeChannel.postMessage(GameStateChangeObject)
                 this.game_state = GameState
+
+                if (GameStateChangeObject.from === 'INGAME' && GameStateChangeObject.to === 'MENUS') {
+                    this.inventory_subject = null
+                }
 
                 if (GameState === 'MENUS') {
                     this.match_id = null
