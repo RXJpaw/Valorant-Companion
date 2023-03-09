@@ -65,10 +65,10 @@ export default {
         }
     },
     watch: {
-        async isVisible(current, before) {
-            if (current === false) return
-            await this.processPageMatchDetails(this.current_page)
-        },
+        // async isVisible(current, before) {
+        //     if (current === false) return
+        //     await this.processPageMatchDetails(this.current_page)
+        // },
         async current_page(current, before) {
             await this.processPageMatchDetails(current)
         }
@@ -77,6 +77,8 @@ export default {
         this.current_page = 0
         await this.processMatchHistory()
         this.current_page = 1
+
+        this.processPageMatchDetails(this.current_page).then()
 
         window.addEventListener('keydown', this.KeyDownListener)
         GameStateChangeChannel.addEventListener('message', this.GameStateChangeListener)
@@ -144,7 +146,7 @@ export default {
             const UnloadedMatchDetails = {}
             for (const { MatchID } of Page) {
                 if (this.current_page !== current_page) return
-                if (!this.isVisible || !this.mounted) return
+                if (/*!this.isVisible ||*/ !this.mounted) return
 
                 const Match = this.match_history[MatchID]
                 if (Match.MatchDetails) continue
@@ -170,7 +172,7 @@ export default {
             for (const MatchID in UnloadedMatchDetails) {
                 for (let i = 0; i < 15; i++) {
                     if (this.current_page !== current_page) return
-                    if (!this.isVisible || !this.mounted) return
+                    if (/*!this.isVisible ||*/ !this.mounted) return
                     await sleep(100)
                 }
 
