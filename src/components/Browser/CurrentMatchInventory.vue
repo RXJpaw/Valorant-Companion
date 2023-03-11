@@ -68,8 +68,11 @@ export default {
             this.MoveCoordinates(event)
         },
         MoveCoordinates(event: MouseEvent | WheelEvent) {
-            const x = event.offsetX * 1.2 - 52
-            const y = event.offsetY * 1.2 - 32
+            // const x = event.offsetX * 1.2 - 52
+            // const y = event.offsetY * 1.2 - 32
+
+            const x = event['layerX'] * 1.75 - 192
+            const y = event['layerY'] * 1.75 - 116
 
             this.x = Math.min(512, Math.max(0, x))
             this.y = Math.min(311, Math.max(0, y))
