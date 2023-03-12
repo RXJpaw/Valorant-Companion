@@ -3,9 +3,7 @@
         <Sidebar v-model:active-button="activeButton" v-model:match-history-tabs="matchHistoryTabs" v-model:active-match-history-tab="activeMatchHistoryTab" />
         <Content :active-button="activeButton" :match-history-tabs="matchHistoryTabs" :active-match-history-tab="activeMatchHistoryTab" />
 
-        <transition-group>
-            <Preferences v-if="showPreferences" />
-        </transition-group>
+        <Preferences v-model:active="showPreferences" />
     </div>
 </template>
 
@@ -91,21 +89,5 @@ export default {
     width: 100%;
 
     background-color: #202225;
-}
-</style>
-
-<style>
-.structure > .preferences:is(.v-enter-from, .v-leave-to) {
-    opacity: 0;
-}
-.structure > .preferences:is(.v-enter-from, .v-leave-to) > .window {
-    scale: 0.66;
-}
-
-.structure > .preferences {
-    transition: opacity 0.15s ease-in-out;
-}
-.structure > .preferences > .window {
-    transition: scale 0.15s ease-in-out;
 }
 </style>
