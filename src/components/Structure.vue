@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import Preferences from '@/components/Content/Preferences.vue'
+import Preferences from '@/components/Structure/Preferences.vue'
 import { ValorantInstance } from '@/scripts/valorant_instance'
 import Content from '@/components/Structure/Content.vue'
 import Sidebar from '@/components/Structure/Sidebar.vue'
