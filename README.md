@@ -30,11 +30,11 @@ make your lobby feel awkward by exposing Rito-Buddy-Owners and possible VALORANT
 
 1. Download the [latest version](https://github.com/RXJpaw/Valorant-Companion/releases/latest) and follow the version's instructions.
 2. Extract the downloaded file with f.e. [7zip](https://www.7-zip.org/download.html).
-3. Execute `Valorant Match Watcher.exe`.
+3. Execute `Valorant Companion.exe`.
 
 ### Building the executables yourself
 
-Requirements: `windows@>=19044`, `node.js@>=16.16.0`, `git`.
+Requirements: `windows@>=19044`, `node.js@>=18.12.1`, `git`.
 
 ```bash
 git clone https://github.com/RXJpaw/Valorant-Companion
