@@ -1,17 +1,24 @@
 <template>
-    <div v-if="presence" class="profile" @mouseenter="hover = true" @mouseleave="hover = false">
+    <div v-if="presence" class="profile" :class="{ hover }" @mouseenter="hover = true" @mouseleave="hover = false">
         <div class="avatar" :style="`--bgi: url('${presence.AvatarURL}')`"></div>
         <div class="riot-id-flex">
             <div class="username">{{ presence.GameName }}</div>
             <div class="tag">#{{ presence.TagLine }}</div>
         </div>
-        <div class="level-border" :style="`--bgi: url('${presence.LevelBorderURL}')`"></div>
+        <div class="level-border" :style="`--bgi: url('${account.level_border_url}')`"></div>
         <div class="level">{{ presence.AccountLevel }}</div>
         <div class="idle-status" :class="presence.isIdle ? 'idle' : 'online'">{{ presence.isIdle ? 'Away' : 'Available' }}</div>
 
         <transition>
             <div v-if="hover" class="drop-down">
                 <div class="header">
+                    <div class="experience">
+                        <div class="progress-bar">
+                            <div class="progress" :style="{ width: `${(account.exp / 5000) * 100}%` }"></div>
+                        </div>
+                        <div class="level">Level {{ account.level }}</div>
+                        <div class="exp">{{ account.exp }} / 5000</div>
+                    </div>
                     <div class="entry" @click="openExternal('https://account.riotgames.com/')">
                         <div class="text">Account Management</div>
                         <div class="icon">
@@ -64,8 +71,12 @@ export default {
     },
     data() {
         return {
-            firstLoadComplete: false,
             presence: null,
+            account: {
+                level_border_url: 'https://media.valorant-api.com/levelborders/ebc736cd-4b6a-137b-e2b0-1486e31312c9/levelnumberappearance.png',
+                level: 1,
+                exp: 0
+            },
             hover: false
         }
     },
@@ -83,12 +94,28 @@ export default {
 
             if (this.hover) this.hover = false
         },
-        async processSelfPresence(presence: ValorantChatPresences.Player, firstLoad?: boolean) {
-            if (!this.firstLoadComplete && presence && firstLoad !== false) {
-                this.firstLoadComplete = true
-                firstLoad = true
+        async processAccount() {
+            if (!this.presence?.Subject) {
+                this.account = {
+                    level_border_url: 'https://media.valorant-api.com/levelborders/ebc736cd-4b6a-137b-e2b0-1486e31312c9/levelnumberappearance.png',
+                    level: 1,
+                    exp: 0
+                }
+
+                return
             }
 
+            const AccountXp = await Valorant.getAccountXP()
+            const SelfLoadout = await Valorant.getSelfLoadout()
+            const LevelBorder = await Valorant.getLevelBorder(AccountXp.Progress.Level, SelfLoadout.Identity.PreferredLevelBorderID)
+
+            this.account = {
+                level_border_url: LevelBorder.levelNumberAppearance,
+                level: AccountXp.Progress.Level,
+                exp: AccountXp.Progress.XP
+            }
+        },
+        processSelfPresence(presence: ValorantChatPresences.Player) {
             if (!presence) {
                 presence = {
                     Subject: null,
@@ -101,14 +128,9 @@ export default {
                 } as any
             }
 
-            const LevelBorder = firstLoad || !presence ? null : await Valorant.getLevelBorder(presence.accountLevel, presence.preferredLevelBorderId)
-
             this.presence = {
                 Subject: presence.Subject,
 
-                LevelBorderURL: LevelBorder
-                    ? LevelBorder.levelNumberAppearance
-                    : 'https://media.valorant-api.com/levelborders/ebc736cd-4b6a-137b-e2b0-1486e31312c9/levelnumberappearance.png',
                 AvatarURL: `https://media.valorant-api.com/playercards/${presence.playerCardId}/smallart.png`,
 
                 PlayerCardID: presence.playerCardId,
@@ -118,19 +140,16 @@ export default {
 
                 isIdle: presence.isIdle
             }
-
-            if (firstLoad) {
-                await this.processSelfPresence(presence, false)
-            }
         }
     },
     async created() {
-        this.processSelfPresence(null!, true).then()
-
         const { Client } = Valorant
 
         Client.on('presences', (data) => {
-            this.processSelfPresence(data.find((p) => p.Subject === Valorant.getSelfSubject()))
+            const SelfPresence = data.find((p) => p.Subject === Valorant.getSelfSubject())
+
+            this.processSelfPresence(SelfPresence)
+            this.processAccount()
         })
 
         await Client.login()
@@ -186,6 +205,42 @@ export default {
 
     margin-top: 30px;
     margin-bottom: 13px;
+}
+
+.profile > .drop-down > .header > .experience {
+    position: relative;
+
+    margin: 0 18px;
+    height: 16px;
+}
+.profile > .drop-down > .header > .experience > .progress-bar {
+    position: absolute;
+    bottom: 0;
+    height: 5px;
+    width: 100%;
+    background-color: #202225;
+    border-radius: 3px;
+}
+.profile > .drop-down > .header > .experience > .progress-bar > .progress {
+    height: 100%;
+    border-radius: 3px;
+    background-color: #30c7ab;
+}
+.profile > .drop-down > .header > .experience > .level {
+    position: absolute;
+    bottom: 5px;
+    left: 1px;
+
+    font-size: 11px;
+    line-height: 13px;
+}
+.profile > .drop-down > .header > .experience > .exp {
+    position: absolute;
+    bottom: 5px;
+    right: 1px;
+
+    font-size: 11px;
+    line-height: 13px;
 }
 
 .profile > .drop-down > .header > .entry {
@@ -245,6 +300,11 @@ export default {
     background-image: var(--bgi);
     background-size: contain;
     background-repeat: no-repeat;
+
+    transition: opacity 0.15s ease-in-out;
+}
+.profile.hover > .level-border {
+    opacity: 0;
 }
 .profile > .level {
     display: flex;
@@ -259,6 +319,11 @@ export default {
 
     width: 56px;
     margin: 8px 0;
+
+    transition: opacity 0.15s ease-in-out;
+}
+.profile.hover > .level {
+    opacity: 0;
 }
 
 .profile > .avatar {
