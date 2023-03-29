@@ -11,6 +11,7 @@ import Titlebar from './components/Titlebar.vue'
 import { sleep } from './scripts/methods'
 
 const Valorant = ValorantInstance()
+const GameStateChangeChannel = new BroadcastChannel('game-state-change')
 
 export default {
     components: {
@@ -27,6 +28,15 @@ export default {
         Client.on('error', (data) => console.debug('error', structuredClone(data)))
         Client.on('friends', (data) => console.debug('friends', structuredClone(data)))
         Client.on('presences', (data) => console.debug('presences', structuredClone(data)))
+
+        GameStateChangeChannel.addEventListener('message', ({ data }) => {
+            const { from, to } = data
+
+            if (from === 'INGAME' && to === 'MENUS') {
+                Valorant.getSelfLoadout(true)
+                Valorant.getAccountXP(true)
+            }
+        })
 
         await Client.login()
     },

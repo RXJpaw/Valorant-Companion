@@ -34,6 +34,9 @@ const connection = {
         Cache.PreGameMatch = {}
         Cache.PreGameLoadouts = {}
 
+        Cache.SelfLoadout = undefined
+        Cache.AccountXP = undefined
+
         Cache.LevelBorders = ValorantAPI.getLevelBorders()
         Cache.CompetitiveTiers = ValorantAPI.getCompetitiveTiers()
         Cache.CompetitiveSeasons = ValorantAPI.getCompetitiveSeasons()
@@ -48,6 +51,10 @@ const Cache = {
     PreGameLoadouts: {} as { [id: string]: Promise<ValorantPreGameLoadouts> | undefined },
     // NameService: {} as { [id: string]: ValorantNameService },
     // MMR: {} as { [id: string]: Promise<ValorantMMR> | undefined },
+
+    SelfLoadout: undefined as Promise<ValorantPersonalizationPlayerLoadout> | undefined,
+    AccountXP: undefined as Promise<ValorantAccountXp> | undefined,
+
     LevelBorders: ValorantAPI.getLevelBorders(),
     CompetitiveTiers: ValorantAPI.getCompetitiveTiers(),
     CompetitiveSeasons: ValorantAPI.getCompetitiveSeasons()
@@ -330,8 +337,12 @@ export const ValorantInstance = () => {
         })
     }
 
-    const getAccountXP = async (player_uuid): Promise<ValorantAccountXp> => {
-        return await request('get', 'pd', `/account-xp/v1/players/${player_uuid}`)
+    const getAccountXP = async (force?: boolean): Promise<ValorantAccountXp> => {
+        if (!force && Cache.AccountXP) return await Cache.AccountXP
+
+        Cache.AccountXP = request('get', 'pd', `/account-xp/v1/players/${getSelfSubject()}`)
+
+        return await Cache.AccountXP
     }
 
     const getMatchHistory = async (player_uuid, parameters?: ValorantMatchHistoryFunctionParams): Promise<ValorantMatchHistory> => {
@@ -563,8 +574,12 @@ export const ValorantInstance = () => {
         }
     }
 
-    const getSelfLoadout = async (): Promise<ValorantPersonalizationPlayerLoadout> => {
-        return await request('get', 'pd', `/personalization/v2/players/${getSelfSubject()}/playerloadout`)
+    const getSelfLoadout = async (force?: boolean): Promise<ValorantPersonalizationPlayerLoadout> => {
+        if (!force && Cache.SelfLoadout) return await Cache.SelfLoadout
+
+        Cache.SelfLoadout = request('get', 'pd', `/personalization/v2/players/${getSelfSubject()}/playerloadout`)
+
+        return await Cache.SelfLoadout
     }
     const putSelfLoadout = async (PlayerLoadout: ValorantPersonalizationPlayerLoadoutSettings) => {
         return await request('put', 'pd', `/personalization/v2/players/${getSelfSubject()}/playerloadout`, PlayerLoadout)
