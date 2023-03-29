@@ -330,7 +330,7 @@ export const ValorantInstance = () => {
         })
     }
 
-    const getAccountXP = async (player_uuid): Promise<any> => {
+    const getAccountXP = async (player_uuid): Promise<ValorantAccountXp> => {
         return await request('get', 'pd', `/account-xp/v1/players/${player_uuid}`)
     }
 
