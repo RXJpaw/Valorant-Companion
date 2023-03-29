@@ -41,6 +41,56 @@
                             />
                         </div>
                     </div>
+                    <div class="setting database-backup">
+                        <div class="header">Database Backup</div>
+                        <div class="inputs"></div>
+                        <div class="buttons">
+                            <CheckboxInput
+                                class="input"
+                                text="Ex-/Import folders"
+                                :reverse="true"
+                                :disabled="!database_backup.can_import || database_backup.has_dialog_open || database_backup.processing_backup"
+                                v-model:input="database_backup.use_folder_import"
+                            />
+                            <Button
+                                class="button"
+                                :disabled="!database_backup.can_import || database_backup.has_dialog_open || database_backup.processing_backup"
+                                text="Import"
+                                @click="importBackup"
+                            />
+                            <Button
+                                class="button"
+                                :disabled="database_backup.has_dialog_open || database_backup.processing_backup"
+                                text="Export"
+                                @click="exportBackup"
+                            />
+                        </div>
+                    </div>
+                    <transition>
+                        <div v-if="database_backup.processing_backup" class="progress-bar database-backup">
+                            <div class="progress" :style="{ width: `${database_backup.processing_percent * 100}%` }"></div>
+                        </div>
+                    </transition>
+                    <div class="notifications database-backup">
+                        <div v-if="!database_backup.can_import" class="notice important">
+                            <div class="icon">
+                                <Icon icon="warning" size="16px" />
+                            </div>
+                            <div class="text">
+                                Imports will be available once you rebuild the client. Before rebuilding make sure you "Export" a backup to guarantee your
+                                progress is saved in case of data loss. From version 2.8.0 this is no longer an issue.
+                            </div>
+                        </div>
+                        <div v-if="!database_backup.can_import" class="notice warning">
+                            <div class="icon">
+                                <Icon icon="warning" size="16px" />
+                            </div>
+                            <div class="text">
+                                Exports will save in "C:/Valorant Companion Backups/" due to the limitations of auto-updating. You'll be able to select your
+                                preferred backup destination once you rebuilt the client. We recommend making a backup first.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -48,16 +98,19 @@
 </template>
 
 <script lang="ts">
-import TextInput from '@/components/Browser/TextInput.vue'
-import Button from '@/components/Browser/Button.vue'
+import CheckboxInput from '@/components/Input/CheckboxInput.vue'
+import TextInput from '@/components/Input/TextInput.vue'
+import Button from '@/components/Input/Button.vue'
+import Icon from '@/components/Misc/Icon.vue'
 import Animation from '@/scripts/animations'
 import { sleep } from '@/scripts/methods'
+import { Backup } from '@/scripts/backup'
 
 const PreferencesChannel = new BroadcastChannel('preferences')
 
 export default {
     name: 'Preferences',
-    components: { Button, TextInput },
+    components: { CheckboxInput, Icon, Button, TextInput },
     props: {
         active: Boolean as () => boolean
     },
@@ -69,11 +122,22 @@ export default {
                 tested: false,
                 server_address: '',
                 server_password: ''
+            },
+            database_backup: {
+                can_import: false,
+                use_folder_import: false,
+                has_dialog_open: false,
+                processing_backup: false,
+                processing_percent: 0
             }
         }
     },
     async created() {
+        this.database_backup.can_import = Backup.AcceptedFormats.includes('zip')
+        this.database_backup.use_folder_import = !this.database_backup.can_import
+
         await this.getUpdaterSource()
+
         this.loaded = true
 
         window.addEventListener('keydown', (event) => {
@@ -93,6 +157,68 @@ export default {
         disableActive() {
             if (!this.active) return
             this.$emit('update:active', false)
+        },
+        async importBackup() {
+            this.database_backup.has_dialog_open = true
+
+            const DialogProperties: any[] = []
+            const DialogFilters: any[] = []
+            if (this.database_backup.use_folder_import) {
+                DialogProperties.push('openDirectory')
+            } else {
+                DialogProperties.push('openFile')
+                DialogFilters.push({ name: 'Valorant Companion Backup', extensions: ['vcb'] })
+            }
+
+            const { filePaths } = await window.electron.ipcRenderer.invoke('show-open-dialog', { properties: DialogProperties, filters: DialogFilters })
+
+            this.database_backup.has_dialog_open = false
+            if (!filePaths[0]) return
+            this.database_backup.processing_backup = true
+
+            const Import = Backup.importIndexedDb(filePaths[0], false, false)
+            Import.Client.on('progress', (progress) => {
+                this.database_backup.processing_percent = progress
+            })
+            Import.Client.on('error', (error) => {
+                console.error('Backup/importIndexedDb', error)
+            })
+            Import.Client.on('end', () => {
+                this.database_backup.processing_backup = false
+                this.database_backup.processing_percent = 0
+
+                window.electron.hide()
+                window.electron.ipcRenderer.send('apply-update')
+            })
+
+            Import.execute()
+        },
+        async exportBackup() {
+            this.database_backup.has_dialog_open = true
+
+            let filePath = 'C:/Valorant Companion Backups/'
+            if (this.database_backup.can_import) {
+                const Dialog = await window.electron.ipcRenderer.invoke('show-open-dialog', { properties: ['openDirectory'] })
+                filePath = Dialog?.filePaths[0]
+            }
+
+            this.database_backup.has_dialog_open = false
+            if (!filePath) return
+            this.database_backup.processing_backup = true
+
+            const Export = Backup.exportIndexedDb(filePath, this.database_backup.use_folder_import)
+            Export.Client.on('progress', (progress) => {
+                this.database_backup.processing_percent = progress
+            })
+            Export.Client.on('error', (error) => {
+                console.error('Backup/exportIndexedDb', error)
+            })
+            Export.Client.on('end', () => {
+                this.database_backup.processing_backup = false
+                this.database_backup.processing_percent = 0
+            })
+
+            Export.execute()
         },
         async testUpdaterSource() {
             this.auto_updating.testing = true
@@ -159,6 +285,9 @@ export default {
 .preferences:is(.v-enter-from, .v-leave-to) {
     opacity: 0;
 }
+.progress-bar:is(.v-enter-from, .v-leave-to) {
+    margin-top: -33px;
+}
 .preferences {
     width: 100%;
     height: 100%;
@@ -196,31 +325,101 @@ export default {
 
     background-color: #0a0a0a;
 }
-.settings {
-    position: relative;
-    left: 22px;
-    top: 22px;
+.progress-bar {
+    z-index: 1250;
 
+    position: relative;
+    margin: -28px 22px 22px;
+
+    min-height: 11px;
+    background-color: #1c1c1c;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+
+    transition: margin-top 0.15s ease-in-out;
+}
+.progress-bar > .progress {
+    height: 100%;
+    border-radius: 6px;
+    background-color: var(--lighter);
+}
+.notifications {
     display: flex;
     flex-direction: column;
     gap: 22px;
 
-    width: calc(100% - 22px);
-    max-height: calc(100% - 44px);
+    margin-left: 22px;
+    margin-right: 22px;
+}
+.notifications:not(:has(div)) {
+    display: none;
+}
+.notifications > :not(:last-child) {
+    box-shadow: 0 1px 6px 0 #0a0a0a;
+}
+.notifications > .notice {
+    display: flex;
+
+    margin-top: -28px;
+
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+.notifications > .notice.warning {
+    color: #0a0a0a;
+    background-color: #fb8c00;
+}
+.notifications > .notice.important {
+    color: #0a0a0a;
+    background-color: #f44336;
+}
+.notifications > .notice > .icon {
+    margin-left: 3px;
+    margin-top: 6px;
+    padding: 3px;
+}
+.notifications > .notice > .text {
+    margin-top: 6px;
+    padding: 3px 9px 3px 3px;
+
+    font-size: 14px;
+    text-align: left;
+    line-height: 16px;
+}
+.settings {
+    position: relative;
+    margin-top: 22px;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    height: calc(100% - 44px);
 
     overflow: var(--webkit-overlay);
 }
+.settings > :not(.progress-bar):not(:last-child) {
+    margin-bottom: 22px;
+}
 .settings > .setting {
+    z-index: 1300;
+
     padding: 11px 22px 22px;
+    margin-left: 22px;
     margin-right: 22px;
     border-radius: 6px;
 
     background-color: #121212;
 }
-.settings > .setting.auto-updating {
+.settings > *.auto-updating {
     --lighter: #9575cd;
     --darker: #7e57c2;
     --darkest: #673ab7;
+}
+.settings > *.database-backup {
+    --lighter: #7986cb;
+    --darker: #5c6bc0;
+    --darkest: #3f51b5;
 }
 .settings > .setting > .header {
     font-size: 13px;
@@ -241,15 +440,16 @@ export default {
     flex-direction: column;
     gap: 11px;
 }
-.settings > .setting > .inputs > .input {
+.settings > .setting > * > .input {
     --background-color: #1c1c1c;
     --placeholder-font-color: #737373;
     --vibrant-color: var(--lighter);
+    --checked-color: var(--darkest);
 }
 .settings > .setting > .buttons {
     display: flex;
-    justify-content: space-between;
-    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 11px;
     margin-top: 11px;
 }
 .settings > .setting > .buttons > .button {
@@ -266,6 +466,27 @@ export default {
     border-radius: 10px;
 }
 
+.notifications > :nth-child(1) {
+    z-index: 1199;
+}
+.notifications > :nth-child(2) {
+    z-index: 1198;
+}
+.notifications > :nth-child(3) {
+    z-index: 1197;
+}
+.notifications > :nth-child(4) {
+    z-index: 1196;
+}
+.notifications > :nth-child(5) {
+    z-index: 1195;
+}
+.notifications > :nth-child(6) {
+    z-index: 1194;
+}
+.notifications > :nth-child(7) {
+    z-index: 1193;
+}
 @keyframes backdrop-filter-animation {
     from {
         backdrop-filter: blur(0px);
