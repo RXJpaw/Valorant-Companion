@@ -1,6 +1,6 @@
 // Modules to control application life and create native browser window
 
-import { app, BrowserWindow, protocol, ipcMain, shell, globalShortcut } from 'electron'
+import { app, BrowserWindow, protocol, ipcMain, shell, globalShortcut, dialog } from 'electron'
 import { createProtocol, updateProtocolResourceName } from './createProtocol'
 import { getVersions } from './methods'
 import path from 'path'
@@ -74,6 +74,9 @@ ipcMain.on('close', (event) => {
 })
 ipcMain.on('open-external', (event, args) => {
     shell.openExternal(args).then()
+})
+ipcMain.handle('show-open-dialog', async (event, args) => {
+    return dialog.showOpenDialog(args)
 })
 
 app.whenReady().then(async () => {
