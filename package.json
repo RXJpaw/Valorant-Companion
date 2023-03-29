@@ -1,5 +1,5 @@
 {
-    "project_version": "2.7.1",
+    "project_version": "2.7.1+dev.1",
     "electron_version": "3",
     "name": "valorant-companion",
     "version": "1.0.0",
@@ -23,9 +23,9 @@
     "dependencies": {
         "axios": "^0.27.2",
         "localforage": "^1.10.0",
-        "zip-lib": "^0.7.3",
         "path": "^0.12.7",
-        "ws": "^8.8.0"
+        "ws": "^8.8.0",
+        "zip-lib": "^0.7.3"
     },
     "devDependencies": {
         "@babel/core": "^7.20.12",
@@ -38,7 +38,7 @@
         "@vue/cli-service": "~5.0.0",
         "@vue/eslint-config-typescript": "^9.1.0",
         "core-js": "^3.8.3",
-        "electron": "^22.3.3",
+        "electron": "^22.3.4",
         "electron-builder": "^24.0.0",
         "eslint": "^7.32.0",
         "eslint-plugin-vue": "^8.0.3",
