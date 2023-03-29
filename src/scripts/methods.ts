@@ -1,12 +1,26 @@
 import { project_version } from '../../package.json'
 import localForage from 'localforage'
 
-const Store = {
+export const HandleError = (functionToHandle, ...args) => {
+    try {
+        return functionToHandle(...args)
+    } catch (e) {
+        return null
+    }
+}
+
+const fs = window.require('fs/promises') as typeof import('fs/promises')
+const zl = HandleError(window.require, 'zip-lib') as typeof import('zip-lib')
+
+export const Store = {
+    //ValorantMatch
     CompetitiveUpdates: localForage.createInstance({ name: 'ValorantMatch', storeName: 'CompetitiveUpdates' }),
     MatchHistory: localForage.createInstance({ name: 'ValorantMatch', storeName: 'History' }),
+    MatchDetails: localForage.createInstance({ name: 'ValorantMatch', storeName: 'Details' }),
 
-    RiotIdHistory: localForage.createInstance({ name: 'Valorant', storeName: 'RiotIdHistory' }),
-    EncounterHistory: localForage.createInstance({ name: 'Valorant', storeName: 'EncounterHistory' })
+    //Valorant
+    EncounterHistory: localForage.createInstance({ name: 'Valorant', storeName: 'EncounterHistory' }),
+    RiotIdHistory: localForage.createInstance({ name: 'Valorant', storeName: 'RiotIdHistory' })
 }
 
 export const sleep = (duration) => {
@@ -96,72 +110,23 @@ export const EncounterHistory = {
     }
 }
 
-window['exportIndexedDB'] = async () => {
-    const match_history_keys = await Store.MatchHistory.keys()
-    const competitive_updates_keys = await Store.CompetitiveUpdates.keys()
-
-    const export_object = {
-        version: project_version,
-        match_history: {},
-        competitive_updates: {}
-    }
-    for (let i = 0; i < match_history_keys.length; i++) {
-        const key = match_history_keys[i]
-        export_object.match_history[key] = await Store.MatchHistory.getItem(key)
-    }
-    for (let i = 0; i < competitive_updates_keys.length; i++) {
-        const key = competitive_updates_keys[i]
-        export_object.competitive_updates[key] = await Store.CompetitiveUpdates.getItem(key)
+/*
+    cyrb53 (c) 2018 bryc (github.com/bryc)
+    A fast and simple hash function with decent collision resistance.
+    Largely inspired by MurmurHash2/3, but with a focus on speed/simplicity.
+    Public domain. Attribution appreciated.
+*/
+export const cyrb53 = (str: string, seed: number = 0) => {
+    let h1 = 0xdeadbeef ^ seed,
+        h2 = 0x41c6ce57 ^ seed
+    for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i)
+        h1 = Math.imul(h1 ^ ch, 2654435761)
+        h2 = Math.imul(h2 ^ ch, 1597334677)
     }
 
-    const export_base64 = Buffer.from(JSON.stringify(export_object)).toString('base64')
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909)
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
 
-    console.log(`Please focus outside the console to export ${(export_base64.length / 1024).toFixed(1)} KB of data to your clipboard.`)
-
-    const FocusListener = async () => {
-        window.removeEventListener('focus', FocusListener)
-        await navigator.clipboard.writeText(export_base64)
-
-        console.log(`Wrote ${(export_base64.length / 1024).toFixed(1)} KB of data to your clipboard.`)
-    }
-
-    window.addEventListener('focus', FocusListener)
-}
-
-window['importIndexedDB'] = (allow_mismatched_version) => {
-    console.log(`Please focus outside the console to import data from your clipboard.`)
-
-    const FocusListener = async () => {
-        window.removeEventListener('focus', FocusListener)
-        const import_base64 = await navigator.clipboard.readText()
-
-        console.log(`Read ${(import_base64.length / 1024).toFixed(1)} KB of data from your clipboard.`)
-
-        const import_object = JSON.parse(Buffer.from(import_base64, 'base64').toString('utf-8'))
-        await import_data(import_object)
-    }
-
-    window.addEventListener('focus', FocusListener)
-
-    const import_data = async (import_object) => {
-        if (!allow_mismatched_version && import_object.version !== project_version) {
-            console.log(`Mismatched Version. Use Parameter 'true' to bypass this Error.`)
-            return null
-        }
-        if (typeof import_object.match_history !== 'object' || typeof import_object.competitive_updates !== 'object') {
-            console.log('Malformed Data.')
-            return null
-        }
-
-        for (const key in import_object.match_history) {
-            const MatchHistory = import_object.match_history[key]
-            await Store.MatchHistory.setItem(key, MatchHistory)
-        }
-        for (const key in import_object.competitive_updates) {
-            const CompetitiveUpdates = import_object.competitive_updates[key]
-            await Store.CompetitiveUpdates.setItem(key, CompetitiveUpdates)
-        }
-
-        location.reload()
-    }
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0)
 }
