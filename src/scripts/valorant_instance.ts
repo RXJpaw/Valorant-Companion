@@ -30,8 +30,9 @@ const connection = {
 
         Cache.ContentServiceContent = undefined
         Cache.CoreGameMatch = {}
+        Cache.CoreGameLoadouts = {}
         Cache.PreGameMatch = {}
-        // Cache.MMR = {}
+        Cache.PreGameLoadouts = {}
 
         Cache.LevelBorders = ValorantAPI.getLevelBorders()
         Cache.CompetitiveTiers = ValorantAPI.getCompetitiveTiers()
@@ -333,10 +334,6 @@ export const ValorantInstance = () => {
         return await request('get', 'pd', `/account-xp/v1/players/${player_uuid}`)
     }
 
-    const getPlayerLoadout = async (player_uuid): Promise<any> => {
-        return await request('get', 'pd', `/personalization/v2/players/${player_uuid}/playerloadout`)
-    }
-
     const getMatchHistory = async (player_uuid, parameters?: ValorantMatchHistoryFunctionParams): Promise<ValorantMatchHistory> => {
         const query = new URLSearchParams(<never>parameters)
 
@@ -600,7 +597,6 @@ export const ValorantInstance = () => {
         getMatchDetails,
         getCompetitiveUpdates,
         getContentServiceContent,
-        getPlayerLoadout,
         getAccountXP,
         getContracts,
 
