@@ -43,6 +43,9 @@ const Cache = {
 
         return cache?.Data
     },
+    delete: async (key) => {
+        await Store.PersistentCache.removeItem(key)
+    },
     delete_expired: async () => {
         console.time('[cache]')
 
