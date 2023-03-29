@@ -70,6 +70,7 @@ export default {
 }
 .checkbox-input.disabled {
     filter: opacity(0.666);
+    pointer-events: none;
 }
 .checkbox-input.checked {
     outline-offset: -1px;
