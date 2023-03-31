@@ -208,6 +208,7 @@ export default {
                     LevelBorderURL: LevelBorder.levelNumberAppearance,
                     HasFistBumpBuddy: Buddies.includes(FistBumpBuddyUUID),
                     HasPresence: !!Presence,
+                    Incognito: player.PlayerIdentity.Incognito,
 
                     EncounterAmount: Object.keys(Encounters.Matches).filter((mId) => mId !== this.match_id).length,
                     LastEncounter: Encounters.LastEncounter,
