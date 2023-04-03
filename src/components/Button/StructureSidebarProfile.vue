@@ -214,6 +214,8 @@ export default {
     height: 16px;
 }
 .profile > .drop-down > .header > .experience > .progress-bar {
+    overflow: hidden;
+
     position: absolute;
     bottom: 0;
     height: 5px;
