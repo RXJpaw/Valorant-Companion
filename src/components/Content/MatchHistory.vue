@@ -78,8 +78,6 @@ export default {
         await this.processMatchHistory()
         this.current_page = 1
 
-        this.processPageMatchDetails(this.current_page).then()
-
         window.addEventListener('keydown', this.KeyDownListener)
         GameStateChangeChannel.addEventListener('message', this.GameStateChangeListener)
     },
