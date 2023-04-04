@@ -12,6 +12,7 @@ const cache = {
     Version: null as never as Promise<string>,
     Maps: null as never as Promise<ValorantAPIMap[]>,
     GameModes: null as never as Promise<ValorantAPIGameMode[]>,
+    Seasons: null as never as Promise<ValorantAPISeason[]>,
     CompetitiveSeasons: null as never as Promise<ValorantAPICompetitiveSeason[]>,
     CompetitiveTiers: null as never as Promise<ValorantAPICompetitiveTiers[]>,
     LevelBorders: null as never as Promise<ValorantAPILevelBorder[]>,
@@ -33,6 +34,12 @@ export const getGameModes = async () => {
     if (cache.GameModes) return await cache.GameModes
     cache.GameModes = CacheManager('gamemodes', 'https://valorant-api.com/v1/gamemodes')
     return await cache.GameModes
+}
+
+export const getSeasons = async () => {
+    if (cache.Seasons) return await cache.Seasons
+    cache.Seasons = CacheManager('seasons', 'https://valorant-api.com/v1/seasons')
+    return await cache.Seasons
 }
 
 export const getCompetitiveSeasons = async () => {
