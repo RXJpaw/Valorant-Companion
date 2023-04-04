@@ -17,6 +17,9 @@
                 v-model:inventory_subject="inventory_subject"
                 v-model:inventory_left="inventory_left"
                 v-model:inventory_top="inventory_top"
+                v-model:history_subject="history_subject"
+                v-model:history_left="history_left"
+                v-model:history_top="history_top"
                 :game_state="game_state"
                 :subject="subject"
             />
@@ -27,14 +30,18 @@
                 v-model:inventory_subject="inventory_subject"
                 v-model:inventory_left="inventory_left"
                 v-model:inventory_top="inventory_top"
+                v-model:history_subject="history_subject"
+                v-model:history_left="history_left"
+                v-model:history_top="history_top"
                 :game_state="game_state"
                 :subject="subject"
                 :enemy="true"
             />
         </div>
-        <transition>
+        <transition-group>
             <CurrentMatchInventory v-if="inventory_subject" :subject="inventory_subject" :left="inventory_left" :top="inventory_top" />
-        </transition>
+            <CurrentMatchHistory v-if="history_subject" :subject="history_subject" :left="history_left" :top="history_top" />
+        </transition-group>
     </div>
     <div v-else class="current-match">
         <NotReady text="Waiting for VALORANT match data..." />
@@ -44,6 +51,7 @@
 <script lang="ts">
 import CurrentMatchInventory from '@/components/Browser/CurrentMatchInventory.vue'
 import { capitalizeFirstLetter, EncounterHistory, sleep } from '@/scripts/methods'
+import CurrentMatchHistory from '@/components/Browser/CurrentMatchHistory.vue'
 import CurrentMatchPlayer from '@/components/Browser/CurrentMatchPlayer.vue'
 import { ValorantInstance } from '@/scripts/valorant_instance'
 import WEAPONS from '@/assets/valorant_api/weapons.json'
@@ -58,7 +66,7 @@ const GameStateChangeChannel = new BroadcastChannel('game-state-change')
 
 export default {
     name: 'CurrentMatch',
-    components: { CurrentMatchInventory, CurrentMatchPlayer, Icon, NotReady },
+    components: { CurrentMatchHistory, CurrentMatchInventory, CurrentMatchPlayer, Icon, NotReady },
     props: {
         isVisible: Boolean as () => boolean
     },
@@ -73,7 +81,10 @@ export default {
             mock_state: null as null | 'INGAME' | 'PREGAME',
             inventory_subject: null as LoadedCurrentMatchSubject | null,
             inventory_left: 0,
-            inventory_top: 0
+            inventory_top: 0,
+            history_subject: null as LoadedCurrentMatchSubject | null,
+            history_left: 0,
+            history_top: 0
         }
     },
     async created() {
@@ -119,6 +130,7 @@ export default {
 
             if (event.key === 'Escape') {
                 this.inventory_subject = null
+                this.history_subject = null
             }
         },
         getSides() {
@@ -186,10 +198,13 @@ export default {
                 const index = (EnemyTeamSize ? (AllyTeamID === 'Blue' ? 0 : EnemyTeamSize) : 0) + i
 
                 const MMR = await Valorant.parseMMR(player.Subject)
+                const Triangles = await Valorant.parseTriangles(player.Subject)
+
                 const Presence = Presences.find((presence) => presence.Subject === player.Subject)
                 const Encounters = await EncounterHistory.get(player.Subject)
                 const LevelBorder = await Valorant.getLevelBorder(player.PlayerIdentity.AccountLevel, player.PlayerIdentity.PreferredLevelBorderID)
                 const NameService = NameServices[player.Subject]
+                const CompetitiveUpdates = await Valorant.getCachedCompetitiveUpdates(player.Subject)
 
                 const SkinChromas: (string | null)[] = []
                 const Buddies: (string | null)[] = []
@@ -202,7 +217,7 @@ export default {
                     SkinChromas.push(Item?.Sockets[SOCKETS.skin_chroma]?.Item.ID || null)
                 }
 
-                this.subjects[index] = {
+                this.subjects[index] = <LoadedCurrentMatchSubject>{
                     AgentIconURL: `https://media.valorant-api.com/agents/${player.CharacterID}/displayicon.png`,
                     PlayerCardURL: `https://media.valorant-api.com/playercards/${player.PlayerIdentity.PlayerCardID}/wideart.png`,
                     LevelBorderURL: LevelBorder.levelNumberAppearance,
@@ -226,6 +241,9 @@ export default {
                     HighestRankIconURL: MMR.BestRank.smallIcon,
                     HighestRankName: capitalizeFirstLetter(MMR.BestRank.tierName),
                     HighestRank: MMR.BestRank,
+
+                    CompetitiveUpdates: CompetitiveUpdates.Matches.filter((m) => m.SeasonID),
+                    Triangles: Triangles,
 
                     Level: player.PlayerIdentity.AccountLevel,
                     TagLine: NameService.TagLine,
@@ -253,6 +271,7 @@ export default {
 
                 if (GameStateChangeObject.from === 'INGAME' && GameStateChangeObject.to === 'MENUS') {
                     this.inventory_subject = null
+                    this.history_subject = null
                 }
 
                 if (GameState === 'MENUS') {
@@ -327,6 +346,13 @@ export default {
     transition: opacity ease-in-out 0.15s;
 }
 .inventory:is(.v-enter-from, .v-leave-to) {
+    opacity: 0;
+}
+
+.history:is(.v-enter-active, .v-leave-active) {
+    transition: opacity ease-in-out 0.15s;
+}
+.history:is(.v-enter-from, .v-leave-to) {
     opacity: 0;
 }
 

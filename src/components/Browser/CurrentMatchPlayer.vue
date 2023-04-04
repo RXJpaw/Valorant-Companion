@@ -74,33 +74,52 @@
             <div v-if="isOverCard && subject.EncounterAmount > 0" class="encounters">
                 {{ subject.EncounterAmount }} {{ subject.EncounterAmount === 1 ? 'Meetup' : 'Meetups' }}
             </div>
-            <div
-                v-if="(isOverCard && game_state === 'INGAME') || inventory_subject?.Subject === subject?.Subject"
-                class="inventory"
-                @click="clickInventoryIcon()"
-            >
-                <svg
-                    v-if="inventory_subject?.Subject !== subject?.Subject"
-                    fill="currentColor"
-                    style="width: 15px; height: 15px; margin-top: 1px"
-                    viewBox="0 0 24.95 22.57"
-                >
-                    <path d="M281.3,418.52v8.14s-2.94-1.4-2.94-4.34A4.14,4.14,0,0,1,281.3,418.52Z" transform="translate(-278.36 -405.8)" />
-                    <polygon points="14.83 0 12.48 0 10.12 0 7.99 2.13 9.74 2.13 10.23 1.63 12.48 1.63 14.72 1.63 15.22 2.13 16.96 2.13 14.83 0" />
-                    <path d="M290.83,409.56h-9.37v4s7.13,1.49,7.13,4.92h4.49c0-3.43,7.13-4.92,7.13-4.92v-4Z" transform="translate(-278.36 -405.8)" />
-                    <path
-                        d="M294.31,420.55h-6.95s-.21-4-4-4v11.86h15V416.51C294.52,416.51,294.31,420.55,294.31,420.55Z"
-                        transform="translate(-278.36 -405.8)"
-                    />
-                    <path d="M300.37,418.52v8.14s2.94-1.4,2.94-4.34A4.14,4.14,0,0,0,300.37,418.52Z" transform="translate(-278.36 -405.8)" />
-                </svg>
-                <svg v-else aria-hidden="false" width="12" height="12" style="width: 13px; height: 13px; margin: 0 1px" viewBox="0 0 12 12">
-                    <polygon
+            <div v-if="isOverCard || anySideMenuOpen()" class="side-menu">
+                <div v-if="game_state === 'INGAME'" class="side-button inventory" @click="clickInventoryIcon()">
+                    <svg
+                        v-if="inventory_subject?.Subject !== subject?.Subject"
                         fill="currentColor"
-                        fill-rule="evenodd"
-                        points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"
-                    ></polygon>
-                </svg>
+                        style="width: 15px; height: 15px; margin-top: 1px"
+                        viewBox="0 0 24.95 22.57"
+                    >
+                        <path d="M281.3,418.52v8.14s-2.94-1.4-2.94-4.34A4.14,4.14,0,0,1,281.3,418.52Z" transform="translate(-278.36 -405.8)" />
+                        <polygon points="14.83 0 12.48 0 10.12 0 7.99 2.13 9.74 2.13 10.23 1.63 12.48 1.63 14.72 1.63 15.22 2.13 16.96 2.13 14.83 0" />
+                        <path d="M290.83,409.56h-9.37v4s7.13,1.49,7.13,4.92h4.49c0-3.43,7.13-4.92,7.13-4.92v-4Z" transform="translate(-278.36 -405.8)" />
+                        <path
+                            d="M294.31,420.55h-6.95s-.21-4-4-4v11.86h15V416.51C294.52,416.51,294.31,420.55,294.31,420.55Z"
+                            transform="translate(-278.36 -405.8)"
+                        />
+                        <path d="M300.37,418.52v8.14s2.94-1.4,2.94-4.34A4.14,4.14,0,0,0,300.37,418.52Z" transform="translate(-278.36 -405.8)" />
+                    </svg>
+                    <svg v-else aria-hidden="false" width="12" height="12" style="width: 13px; height: 13px; margin: 0 1px" viewBox="0 0 12 12">
+                        <polygon
+                            fill="currentColor"
+                            fill-rule="evenodd"
+                            points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"
+                        ></polygon>
+                    </svg>
+                </div>
+                <div class="side-button history" @click="clickHistoryIcon()">
+                    <svg
+                        v-if="history_subject?.Subject !== subject?.Subject"
+                        fill="currentColor"
+                        style="width: 15px; height: 15px; margin-top: 1px"
+                        viewBox="0 -1.5 22.55 32.17"
+                    >
+                        <polygon points="0 0 10.08 0 10.08 12.94 7.33 13.26 0 7.46 0 0" />
+                        <polygon points="22.55 0 12.47 0 12.47 12.94 15.22 13.26 22.55 7.46 22.55 0" />
+                        <path
+                            d="m11.34,15.08c-4.17,0-7.54,3.38-7.54,7.54s3.38,7.54,7.54,7.54,7.54-3.38,7.54-7.54-3.38-7.54-7.54-7.54Zm0,11.18l-3.72-3.72,3.72-3.72,3.72,3.72-3.72,3.72Z"
+                        />
+                    </svg>
+                    <svg v-else aria-hidden="false" width="12" height="12" style="width: 13px; height: 13px; margin: 0 1px" viewBox="0 0 12 12">
+                        <polygon
+                            fill="currentColor"
+                            fill-rule="evenodd"
+                            points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"
+                        ></polygon>
+                    </svg>
+                </div>
             </div>
         </div>
     </div>
@@ -112,6 +131,9 @@ export default {
     name: 'CurrentMatchPlayer',
     components: { Icon },
     props: {
+        history_subject: Object as () => LoadedCurrentMatchSubject | null,
+        history_left: Number as () => number,
+        history_top: Number as () => number,
         inventory_subject: Object as () => LoadedCurrentMatchSubject | null,
         inventory_left: Number as () => number,
         inventory_top: Number as () => number,
@@ -126,14 +148,37 @@ export default {
         }
     },
     methods: {
+        anySideMenuOpen() {
+            return this.inventory_subject?.Subject === this.subject?.Subject || this.history_subject?.Subject === this.subject?.Subject
+        },
         hoverOverCard(isOver: boolean) {
             this.isOverCard = isOver
+        },
+        clickHistoryIcon() {
+            if (this.history_subject?.Subject === this.subject?.Subject) {
+                this.$emit('update:history_subject', null)
+                return
+            }
+
+            this.$emit('update:inventory_subject', null)
+
+            const Div = this.$refs['this'] as HTMLDivElement
+            const Rect = Div.getBoundingClientRect()
+
+            let left = this.enemy ? Rect.left - 256 + 69 - 35 : Rect.left + 256 - 55
+            let top = Math.min(490, Rect.top - 22)
+
+            this.$emit('update:history_subject', this.subject)
+            this.$emit('update:history_left', left)
+            this.$emit('update:history_top', top)
         },
         clickInventoryIcon() {
             if (this.inventory_subject?.Subject === this.subject?.Subject) {
                 this.$emit('update:inventory_subject', null)
                 return
             }
+
+            this.$emit('update:history_subject', null)
 
             const Div = this.$refs['this'] as HTMLDivElement
             const Rect = Div.getBoundingClientRect()
@@ -256,11 +301,16 @@ export default {
     border: 0 solid;
     border-radius: 6px;
 }
-.player > .banner-wrapper > .inventory {
+.player > .banner-wrapper > .side-menu {
     position: absolute;
-    top: 8px;
     right: 8px;
+    top: 8px;
 
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.player > .banner-wrapper > .side-menu > .side-button {
     height: 17px;
     padding: 0 6px;
 

@@ -37,6 +37,7 @@ const connection = {
         Cache.SelfLoadout = undefined
         Cache.AccountXP = undefined
 
+        Cache.Seasons = ValorantAPI.getSeasons()
         Cache.LevelBorders = ValorantAPI.getLevelBorders()
         Cache.CompetitiveTiers = ValorantAPI.getCompetitiveTiers()
         Cache.CompetitiveSeasons = ValorantAPI.getCompetitiveSeasons()
@@ -44,7 +45,6 @@ const connection = {
 }
 
 const Cache = {
-    ContentServiceContent: undefined as Promise<ValorantContentServiceContent> | undefined,
     CoreGameMatch: {} as { [id: string]: Promise<ValorantCoreGameMatch> | undefined },
     CoreGameLoadouts: {} as { [id: string]: Promise<ValorantCoreGameLoadouts> | undefined },
     PreGameMatch: {} as { [id: string]: Promise<ValorantPreGameMatch> | undefined },
@@ -52,9 +52,11 @@ const Cache = {
     // NameService: {} as { [id: string]: ValorantNameService },
     // MMR: {} as { [id: string]: Promise<ValorantMMR> | undefined },
 
+    ContentServiceContent: undefined as Promise<ValorantContentServiceContent> | undefined,
     SelfLoadout: undefined as Promise<ValorantPersonalizationPlayerLoadout> | undefined,
     AccountXP: undefined as Promise<ValorantAccountXp> | undefined,
 
+    Seasons: ValorantAPI.getSeasons(),
     LevelBorders: ValorantAPI.getLevelBorders(),
     CompetitiveTiers: ValorantAPI.getCompetitiveTiers(),
     CompetitiveSeasons: ValorantAPI.getCompetitiveSeasons()
@@ -372,6 +374,15 @@ export const ValorantInstance = () => {
 
         return await request('get', 'pd', `/mmr/v1/players/${player_uuid}/competitiveupdates?${query}`)
     }
+    const getCachedCompetitiveUpdates = async (player_uuid, force?: boolean): Promise<ValorantCompetitiveUpdates> => {
+        const query = new URLSearchParams(<never>{ endIndex: 10, queue: 'competitive' })
+
+        return await PersistentCache.get(
+            `competitive-updates_${player_uuid}`,
+            () => request('get', 'pd', `/mmr/v1/players/${player_uuid}/competitiveupdates?${query}`),
+            { delay: 250, force }
+        )
+    }
 
     const getContentServiceContent = async (force?: boolean): Promise<ValorantContentServiceContent> => {
         if (!force && Cache.ContentServiceContent) return await Cache.ContentServiceContent!
@@ -526,6 +537,38 @@ export const ValorantInstance = () => {
         return { BestRank, WorstRank, CurrentRank, CurrentRR }
     }
 
+    const parseTriangles = async (subject, force?: boolean) => {
+        const MMR = await getMMR(subject, force)
+
+        const Seasons = await Cache.Seasons
+        const CompetitiveTiers = await Cache.CompetitiveTiers
+        const CompetitiveSeasons = await Cache.CompetitiveSeasons
+
+        const Acts = Seasons
+            //Seasons include future Seasons and therefore needs to be filtered first.
+            .filter((s) => s.type === 'EAresSeasonType::Act' && new Date(s.startTime).getTime() <= Date.now())
+            .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
+        const Triangles = {}
+
+        for (const Act of Acts) {
+            const CompetitiveSeason = CompetitiveSeasons.find((season) => season.seasonUuid === Act.uuid)!
+            const CompetitiveTier = CompetitiveTiers.find((tier) => tier.uuid === CompetitiveSeason.competitiveTiersUuid)!
+
+            const SubjectSeason = MMR.QueueSkills?.competitive.SeasonalInfoBySeasonID?.[Act.uuid]
+            const EpisodeAct = Act.assetPath.match(/ShooterGame\/Content\/Seasons\/Season_Episode(\d+)_Act(\d+)_DataAsset/)
+            const WinsByTier = SubjectSeason?.WinsByTier ?? { 0: 0 }
+
+            const BestRankTier = Number(Object.keys(WinsByTier).sort((a, b) => Number(b) - Number(a))[0])
+
+            Triangles[Act.uuid] = {
+                NameShort: EpisodeAct ? `Ep. ${EpisodeAct[1]}, Act ${EpisodeAct[2]}` : Act.displayName,
+                BestRank: CompetitiveTier.tiers.find((t) => t.tier === BestRankTier)!
+            }
+        }
+
+        return Triangles
+    }
+
     const getCurrentSeason = async () => {
         const Content = await getContentServiceContent()
 
@@ -611,6 +654,7 @@ export const ValorantInstance = () => {
         getMatchHistory,
         getMatchDetails,
         getCompetitiveUpdates,
+        getCachedCompetitiveUpdates,
         getContentServiceContent,
         getAccountXP,
         getContracts,
@@ -624,6 +668,7 @@ export const ValorantInstance = () => {
 
         getMMR,
         parseMMR,
+        parseTriangles,
         getLevelBorder,
         getNameService,
 

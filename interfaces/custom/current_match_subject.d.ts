@@ -10,6 +10,7 @@ interface LoadedCurrentMatchSubject {
     LevelBorderURL: string
     HasFistBumpBuddy: boolean
     HasPresence: boolean
+    Incognito: boolean
 
     EncounterAmount: number
     LastEncounter: number
@@ -27,6 +28,9 @@ interface LoadedCurrentMatchSubject {
     HighestRankIconURL: string
     HighestRankName: string
     HighestRank: ValorantAPICompetitiveTiers.Tier
+
+    CompetitiveUpdates: ValorantCompetitiveUpdates.Match[]
+    Triangles: { [actUuid: string]: { NameShort: string; BestRank: ValorantAPICompetitiveTiers.Tier } }
 
     Level: number
     TagLine: string
