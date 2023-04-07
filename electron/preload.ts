@@ -1,12 +1,19 @@
+import * as child_process from 'child_process'
 import { ipcRenderer } from 'electron'
 import WebSocket from 'ws'
 
-window.isRunning = (pid) => {
+window.isRunning = (pid: number) => {
     try {
         return process.kill(pid, 0)
     } catch {
         return false
     }
+}
+window.taskkill = (task: string, pid?: boolean) => {
+    return new Promise((resolve) => {
+        const command = 'taskkill /F ' + (pid ? '/PID ' : '/IM ') + task + ' /T'
+        child_process.exec(command, (error) => resolve(!error))
+    })
 }
 window.WebSocket = WebSocket as any
 
