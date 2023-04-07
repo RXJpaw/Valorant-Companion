@@ -78,6 +78,11 @@ ipcMain.on('open-external', (event, args) => {
 ipcMain.handle('show-open-dialog', async (event, args) => {
     return dialog.showOpenDialog(args)
 })
+ipcMain.handle('get-path', (event, args) => {
+    //'home' | 'appData' | 'userData' | 'sessionData' | 'temp' | 'exe' | 'module' | 'desktop' |
+    //'documents' | 'downloads' | 'music' | 'pictures' | 'videos' | 'recent' | 'logs' | 'crashDumps'
+    return app.getPath(args)
+})
 
 app.whenReady().then(async () => {
     const version = await getVersions()
