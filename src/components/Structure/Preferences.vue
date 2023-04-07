@@ -289,6 +289,9 @@ export default {
     margin-top: -33px;
 }
 .preferences {
+    position: relative;
+    z-index: 280;
+
     width: 100%;
     height: 100%;
     display: flex;

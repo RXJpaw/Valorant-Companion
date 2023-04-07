@@ -81,6 +81,8 @@ export default {
 
 <style scoped>
 .sidebar {
+    z-index: 50;
+
     position: absolute;
     top: 0;
     left: 0;
