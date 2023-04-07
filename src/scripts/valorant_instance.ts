@@ -185,12 +185,25 @@ export const ValorantInstance = () => {
                   }
                 : getHeaders(connection.token, connection.server!.version)
 
-        const request = await fetch(requestURL + path, {
-            method: method.toUpperCase(),
-            headers: headers,
-            body: JSON.stringify(body)
-        })
+        const do_request = () => {
+            return fetch(requestURL + path, {
+                method: method.toUpperCase(),
+                headers: headers,
+                body: JSON.stringify(body)
+            })
+        }
 
+        let request = await do_request()
+
+        //Handling rare Rate Limitations. This happens... whenever idk, never probably.
+        if (request.status === 429) {
+            const retry_after = Number(request.headers.get('retry-after'))
+            await sleep(retry_after * 1000 || 60000)
+
+            request = await do_request()
+        }
+
+        //Not handling errors on request.json() because errors shouldn't be handled here.
         return request.headers.get('content-length') === '0' ? {} : await request.json()
     }
 
