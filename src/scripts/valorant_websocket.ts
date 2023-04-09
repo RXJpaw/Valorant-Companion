@@ -10,7 +10,7 @@ let friends = [] as ValorantChatFriends.Friend[]
 export const connectWebSocket = (key, port, presetPresences: any[], presetFriends: any[]) => {
     friends = presetFriends
     presences = presetPresences
-    websocket = new WebSocket(`wss://riot:${key}@localhost:${port}`, { rejectUnauthorized: false })
+    websocket = new WebSocket(`wss://riot:${key}@127.0.0.1:${port}`, { rejectUnauthorized: false })
 
     console.debug('[val-ws]: connecting...')
     console.time('[val-ws]')
