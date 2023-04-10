@@ -28,6 +28,8 @@ const connection = {
         connection.ready = 0
         connection.hadFirstPresences = false
 
+        Emitter.emit('presences', connection.presences)
+
         Cache.ContentServiceContent = undefined
         Cache.CoreGameMatch = {}
         Cache.CoreGameLoadouts = {}
