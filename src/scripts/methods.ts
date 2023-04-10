@@ -1,5 +1,6 @@
 import { project_version } from '../../package.json'
 import localForage from 'localforage'
+import path from 'path'
 
 export const HandleError = (functionToHandle, ...args) => {
     try {
@@ -129,4 +130,73 @@ export const cyrb53 = (str: string, seed: number = 0) => {
     h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
 
     return 4294967296 * (2097151 & h2) + (h1 >>> 0)
+}
+
+export const HandleMouseOnElement = (element: HTMLElement, event: MouseEvent): boolean | null => {
+    if (event.target?.['className']?.['includes']?.('ignore-mouse-input')) return null
+    if (!element) return null
+
+    const Rects = element.getBoundingClientRect()
+
+    if (event.x < Rects.x) return false
+    if (event.y < Rects.y) return false
+    if (event.x > Rects.x + Rects.width) return false
+    if (event.y > Rects.y + Rects.height) return false
+
+    return true
+}
+
+export const getPath = async (key: string) => {
+    switch (key) {
+        case 'valorant': {
+            const ProductSettingsPath = 'C:\\ProgramData\\Riot Games\\Metadata\\valorant.live\\valorant.live.product_settings.yaml'
+            const ProductSettings = await fs.readFile(ProductSettingsPath, 'utf-8').catch(() => null)
+            if (!ProductSettings) return null
+
+            const ValorantLivePath = ProductSettings.match(/product_install_full_path:.*?"(.*?)"/)?.[1]
+            if (!ValorantLivePath) return null
+
+            return path.normalize(path.join(ValorantLivePath, 'VALORANT.exe'))
+        }
+        case 'riot-client': {
+            const InstallsPath = 'C:\\ProgramData\\Riot Games\\RiotClientInstalls.json'
+            const Installs = await fs.readFile(InstallsPath, 'utf-8').catch(() => null)
+            if (!Installs) return null
+
+            const RiotClientDefaultPath = Installs.match(/"rc_default":.*?"(.*?)"/)?.[1]
+            if (!RiotClientDefaultPath) return null
+
+            return path.normalize(RiotClientDefaultPath)
+        }
+        default: {
+            return null
+        }
+    }
+}
+
+export const killAllRiotProcesses = async () => {
+    await Promise.all([
+        window.taskkill('LoR.exe'),
+        window.taskkill('VALORANT.exe'),
+        window.taskkill('LeagueClient.exe'),
+        window.taskkill('RiotClientUx.exe'),
+        window.taskkill('RiotClientServices.exe')
+    ])
+}
+
+export const deleteRiotLockFiles = async () => {
+    await fs.rm(path.join(window.env.LOCALAPPDATA, 'VALORANT\\Saved\\Logs\\ShooterGame.log')).catch(() => {})
+}
+
+/* This should never be awaited. */
+export const startRiotClient = async (and?: string) => {
+    const RiotClientPath = await getPath('riot-client')
+    if (!RiotClientPath) return
+
+    let command = '"' + RiotClientPath + '"'
+    if (and === 'valorant') {
+        command = command + ' --launch-product=valorant --launch-patchline=live'
+    }
+
+    await window.exec(command)
 }
