@@ -15,6 +15,14 @@ window.taskkill = (task: string, pid?: boolean) => {
         child_process.exec(command, (error) => resolve(!error))
     })
 }
+window.exec = (command: string, noErrLog?: boolean) => {
+    return new Promise((resolve) => {
+        child_process.exec(command, (error, stdout) => {
+            if (!noErrLog && error) console.error(error)
+            resolve(error ? null : stdout)
+        })
+    })
+}
 window.WebSocket = WebSocket as any
 
 window.electron = {
