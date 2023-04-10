@@ -78,6 +78,7 @@ const connect = async () => {
     }
 
     if (hadFirstPresences && presences.findIndex((p) => p.Subject === token?.subject) === -1) {
+        connection.reset()
         return -2
     }
 
@@ -350,6 +351,14 @@ export const ValorantInstance = () => {
         return await request('delete', 'local', '/chat/v4/friendrequests', {
             puuid: Subject
         })
+    }
+
+    const getAresPlayerSettings = async (): Promise<ValorantAresPlayerSettings> => {
+        return await request('get', 'local', '/player-preferences/v1/data-json/Ares.PlayerSettings')
+    }
+
+    const putAresPlayerSettings = async (settings: ValorantAresPlayerSettings.Data): Promise<any> => {
+        return await request('put', 'local', '/player-preferences/v1/data-json/Ares.PlayerSettings', settings)
     }
 
     const getAccountXP = async (force?: boolean): Promise<ValorantAccountXp> => {
@@ -653,12 +662,15 @@ export const ValorantInstance = () => {
 
     return {
         Client,
+        raw: request,
         Entitlements,
         getSelfLoadout,
         putSelfLoadout,
 
         getChatPresences,
         getFriendList,
+        getAresPlayerSettings,
+        putAresPlayerSettings,
 
         getKnownRiotIDs,
         getFriendFromGnT,
