@@ -12,7 +12,7 @@
                                 :disabled="!game_ready || ingame_settings.working"
                                 class="preset-name-input input"
                                 width="253px"
-                                placeholder="New Preset Name"
+                                :placeholder="getAddPresetPlaceholder()"
                                 v-model:input="ingame_settings.new_preset_name"
                                 type="text"
                             />
@@ -25,12 +25,12 @@
                             />
                             <DropdownInput
                                 ref="ingame-settings-select-preset-input"
-                                :disabled="!game_ready || ingame_settings.working"
+                                :disabled="!game_ready || ingame_settings.working || !ingame_settings.preset_list.length"
                                 class="select-preset-input input"
                                 v-model:input="ingame_settings.preset_list"
                                 v-model:index="ingame_settings.selected"
                                 width="227px"
-                                placeholder="Select Preset"
+                                :placeholder="getUsePresetPlaceholder()"
                                 :modifiable="true"
                                 @splice="splicePresetIngameSettings"
                             ></DropdownInput>
@@ -217,6 +217,22 @@ export default {
         disableActive() {
             if (!this.active) return
             this.$emit('update:active', false)
+        },
+        getAddPresetPlaceholder() {
+            if (!this.game_ready) {
+                return 'Start VALORANT first'
+            } else {
+                return 'New Preset Name'
+            }
+        },
+        getUsePresetPlaceholder() {
+            if (!this.game_ready) {
+                return 'Start VALORANT first'
+            } else if (!this.ingame_settings.preset_list.length) {
+                return 'Add a Preset first'
+            } else {
+                return 'Select Preset'
+            }
         },
         async clickAddPresetInGameSettings() {
             this.ingame_settings.working = true
