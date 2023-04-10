@@ -4,6 +4,45 @@
             <div class="settings-background"></div>
             <div class="settings-window" ref="settings">
                 <div class="settings">
+                    <div class="setting ingame-settings">
+                        <div class="header">In-Game Settings</div>
+                        <div class="inputs" style="flex-direction: row; flex-wrap: wrap">
+                            <TextInput
+                                ref="ingame-settings-preset-name-input"
+                                :disabled="!game_ready || ingame_settings.working"
+                                class="preset-name-input input"
+                                width="253px"
+                                placeholder="New Preset Name"
+                                v-model:input="ingame_settings.new_preset_name"
+                                type="text"
+                            />
+                            <Button
+                                :disabled="!game_ready || ingame_settings.working || ingame_settings.new_preset_name.trim().length < 2"
+                                class="button"
+                                text="Add Preset"
+                                style="min-width: 90px; margin: 2px 0"
+                                @click="clickAddPresetInGameSettings"
+                            />
+                            <DropdownInput
+                                ref="ingame-settings-select-preset-input"
+                                :disabled="!game_ready || ingame_settings.working"
+                                class="select-preset-input input"
+                                v-model:input="ingame_settings.preset_list"
+                                v-model:index="ingame_settings.selected"
+                                width="227px"
+                                placeholder="Select Preset"
+                                :modifiable="true"
+                                @splice="splicePresetIngameSettings"
+                            ></DropdownInput>
+                            <Button
+                                :disabled="!game_ready || ingame_settings.working || ingame_settings.selected === null"
+                                class="button"
+                                text="Apply & Restart"
+                                style="min-width: 116px; margin: 2px 0"
+                                @click="clickUsePresetInGameSettings"
+                            />
+                        </div>
+                    </div>
                     <div class="setting auto-updating">
                         <div class="header">Update-Server Preferences</div>
                         <div class="inputs">
@@ -98,25 +137,40 @@
 </template>
 
 <script lang="ts">
+import { deleteRiotLockFiles, killAllRiotProcesses, sleep, startRiotClient } from '@/scripts/methods'
+import DropdownInput from '@/components/Input/DropdownInput.vue'
 import CheckboxInput from '@/components/Input/CheckboxInput.vue'
+import { ValorantInstance } from '@/scripts/valorant_instance'
 import TextInput from '@/components/Input/TextInput.vue'
 import Button from '@/components/Input/Button.vue'
 import Icon from '@/components/Misc/Icon.vue'
 import Animation from '@/scripts/animations'
-import { sleep } from '@/scripts/methods'
 import { Backup } from '@/scripts/backup'
+import localForage from 'localforage'
 
+const Store = {
+    InGameSettings: localForage.createInstance({ name: 'Valorant', storeName: 'InGameSettings' })
+}
+
+const Valorant = ValorantInstance()
 const PreferencesChannel = new BroadcastChannel('preferences')
 
 export default {
     name: 'Preferences',
-    components: { CheckboxInput, Icon, Button, TextInput },
+    components: { DropdownInput, CheckboxInput, Icon, Button, TextInput },
     props: {
         active: Boolean as () => boolean
     },
     data() {
         return {
             loaded: false,
+            game_ready: false,
+            ingame_settings: {
+                new_preset_name: '',
+                preset_list: [],
+                selected: null,
+                working: false
+            },
             auto_updating: {
                 testing: false,
                 tested: false,
@@ -133,6 +187,12 @@ export default {
         }
     },
     async created() {
+        const { Client } = Valorant
+        Client.on('ready', () => (this.game_ready = true))
+        Client.on('error', () => (this.game_ready = false))
+
+        this.ingame_settings.preset_list = await Store.InGameSettings.keys()
+
         this.database_backup.can_import = Backup.AcceptedFormats.includes('zip')
         this.database_backup.use_folder_import = !this.database_backup.can_import
 
@@ -157,6 +217,51 @@ export default {
         disableActive() {
             if (!this.active) return
             this.$emit('update:active', false)
+        },
+        async clickAddPresetInGameSettings() {
+            this.ingame_settings.working = true
+
+            try {
+                const NewPresetName = this.ingame_settings.new_preset_name.trim()
+                const PlayerSettings = await Valorant.getAresPlayerSettings()
+
+                await Store.InGameSettings.setItem(NewPresetName, {
+                    Data: PlayerSettings,
+                    Version: Date.now()
+                })
+
+                this.ingame_settings.new_preset_name = ''
+                this.ingame_settings.preset_list = (await Store.InGameSettings.keys()).sort()
+            } finally {
+                this.ingame_settings.working = false
+            }
+        },
+        async splicePresetIngameSettings(element: string[]) {
+            await Store.InGameSettings.removeItem(element[0])
+        },
+        async clickUsePresetInGameSettings() {
+            this.ingame_settings.working = true
+
+            try {
+                if (this.ingame_settings.selected === null) return
+
+                const Selected = this.ingame_settings.preset_list[this.ingame_settings.selected]
+                const Settings = await Store.InGameSettings.getItem(Selected)
+                const Data = (<any>Settings)?.Data.data
+                if (!Data) return
+
+                this.ingame_settings.selected = null
+
+                await Valorant.putAresPlayerSettings(Data)
+                await sleep(500)
+                await killAllRiotProcesses()
+                await sleep(500)
+                await deleteRiotLockFiles()
+                await sleep(500)
+                startRiotClient('valorant').then()
+            } finally {
+                this.ingame_settings.working = false
+            }
         },
         async importBackup() {
             this.database_backup.has_dialog_open = true
@@ -405,14 +510,17 @@ export default {
     margin-bottom: 22px;
 }
 .settings > .setting {
-    z-index: 1300;
-
     padding: 11px 22px 22px;
     margin-left: 22px;
     margin-right: 22px;
     border-radius: 6px;
 
     background-color: #121212;
+}
+.settings > *.ingame-settings {
+    --lighter: #90a4ae;
+    --darker: #78909c;
+    --darkest: #607d8b;
 }
 .settings > *.auto-updating {
     --lighter: #9575cd;
@@ -455,6 +563,7 @@ export default {
     gap: 11px;
     margin-top: 11px;
 }
+.settings > .setting > .inputs > .button,
 .settings > .setting > .buttons > .button {
     --button-color: var(--darkest);
 }
@@ -489,6 +598,34 @@ export default {
 }
 .notifications > :nth-child(7) {
     z-index: 1193;
+}
+
+.settings > .setting:nth-child(1) {
+    z-index: 1499;
+}
+.settings > .setting:nth-child(2) {
+    z-index: 1498;
+}
+.settings > .setting:nth-child(3) {
+    z-index: 1497;
+}
+.settings > .setting:nth-child(4) {
+    z-index: 1496;
+}
+.settings > .setting:nth-child(5) {
+    z-index: 1495;
+}
+.settings > .setting:nth-child(6) {
+    z-index: 1494;
+}
+.settings > .setting:nth-child(7) {
+    z-index: 1493;
+}
+.settings > .setting:nth-child(8) {
+    z-index: 1492;
+}
+.settings > .setting:nth-child(9) {
+    z-index: 1491;
 }
 @keyframes backdrop-filter-animation {
     from {
