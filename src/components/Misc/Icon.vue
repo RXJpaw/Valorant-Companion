@@ -41,13 +41,19 @@
     <svg v-else-if="icon === 'check'" :style="getStyle()" viewBox="0 96 960 960">
         <path d="M395 811 185 600l90-90 120 120 291-290 90 90-381 381Z" fill="currentColor" />
     </svg>
+    <svg v-else-if="icon === 'delete'" :style="getStyle()" viewBox="0 0 24 24">
+        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"></path>
+    </svg>
+    <svg v-else-if="icon === 'dropdown'" :style="getStyle()" viewBox="0 0 24 24">
+        <path d="M7 10l5 5l5-5z" fill="currentColor"></path>
+    </svg>
 </template>
 
 <script lang="ts">
 export default {
     props: {
         size: String as () => string,
-        icon: String as () => 'more' | 'next' | 'before' | 'close' | 'more-vert' | 'package' | 'external-url' | 'warning' | 'check'
+        icon: String as () => 'more' | 'next' | 'before' | 'close' | 'more-vert' | 'package' | 'external-url' | 'warning' | 'check' | 'delete' | 'dropdown'
     },
     name: 'Icon',
     methods: {
