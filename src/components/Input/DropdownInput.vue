@@ -165,6 +165,8 @@ export default {
     cursor: pointer;
 }
 .dropdown-input > .dropdown {
+    overflow: auto;
+
     position: absolute;
     top: 100%;
 
@@ -172,11 +174,11 @@ export default {
     flex-direction: column;
 
     width: calc(100% - 4px);
+    max-height: 155px;
     margin-top: 5px;
     border-radius: 6px;
 
     border: 2px solid var(--vibrant-color);
-
     background-color: #1c1c1c;
 }
 .dropdown-input > .dropdown > .item {
@@ -221,12 +223,18 @@ export default {
 .dropdown-input > .dropdown > .item.hover > .remove {
     opacity: 1;
 }
-.dropdown-input > .dropdown > .item:first-child {
-    border-top-right-radius: 6px;
-    border-top-left-radius: 6px;
+
+.dropdown-input > .dropdown::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
 }
-.dropdown-input > .dropdown > .item:last-child {
-    border-bottom-right-radius: 6px;
-    border-bottom-left-radius: 6px;
+.dropdown-input > .dropdown::-webkit-scrollbar-thumb {
+    border: 3px solid #1c1c1c;
+    background-color: #121212;
+    border-radius: 10px;
+}
+.dropdown-input > .dropdown::-webkit-scrollbar-track {
+    background-color: transparent;
+    border-radius: 10px;
 }
 </style>
