@@ -38,8 +38,10 @@
                                 :disabled="!game_ready || ingame_settings.working || ingame_settings.selected === null"
                                 class="button"
                                 text="Apply & Restart"
+                                alternative="Close the Game"
                                 style="min-width: 116px; margin: 2px 0"
-                                @click="clickUsePresetInGameSettings"
+                                @click:primary="clickUsePresetInGameSettings(true)"
+                                @click:secondary="clickUsePresetInGameSettings"
                             />
                         </div>
                     </div>
@@ -255,7 +257,7 @@ export default {
         async splicePresetIngameSettings(element: string[]) {
             await Store.InGameSettings.removeItem(element[0])
         },
-        async clickUsePresetInGameSettings() {
+        async clickUsePresetInGameSettings(restart: boolean) {
             this.ingame_settings.working = true
 
             try {
@@ -273,6 +275,8 @@ export default {
                 await killAllRiotProcesses()
                 await sleep(500)
                 await deleteRiotLockFiles()
+
+                if (!restart) return
                 await sleep(500)
                 startRiotClient('valorant').then()
             } finally {
