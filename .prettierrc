@@ -1,6 +1,6 @@
-"printWidth": 160
-"semi": false
-"singleQuote": true
-"tabWidth": 4
-"trailingComma": "none"
 "sortingMethod": "lineLength"
+"trailingComma": "none"
+"singleQuote": true
+"printWidth": 160
+"tabWidth": 4
+"semi": false
