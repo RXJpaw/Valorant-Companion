@@ -22,5 +22,9 @@
         "signAndEditExecutable": true,
         "target": ["dir"],
         "asar": true
+    },
+    "squirrelWindows": {
+        "iconUrl": "https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/public/favicon.ico",
+        "artifactName": "Valorant Companion Installer.exe"
     }
 }

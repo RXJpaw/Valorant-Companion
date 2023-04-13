@@ -1,6 +1,9 @@
-// Modules to control application life and create native browser window
+//Handling Squirrel Startup
+const { app } = require('electron')
+if (require('electron-squirrel-startup')) app.quit()
 
-import { app, BrowserWindow, protocol, ipcMain, shell, globalShortcut, dialog } from 'electron'
+// Modules to control application life and create native browser window
+import { BrowserWindow, protocol, ipcMain, shell, globalShortcut, dialog } from 'electron'
 import { createProtocol, updateProtocolResourceName } from './createProtocol'
 import { getVersions } from './methods'
 import path from 'path'
