@@ -2,7 +2,7 @@ declare module ValorantInstanceClient {
     export type ListenerReady = (data: string[]) => any
     export type ListenerError = (data: number) => any
     export type ListenerFriends = (data: ValorantChatFriends.Friend[]) => any
-    export type ListenerPresences = (data: ValorantChatPresences.Player[]) => any
+    export type ListenerPresences = (presences: ValorantChatPresences.Player[], eventType: string, affected: string[] | string | undefined | null) => any
 }
 
 interface ValorantInstanceClient {
@@ -21,5 +21,5 @@ interface ValorantInstanceClient {
     off(eventType: 'friends', listener: ValorantInstanceClient.ListenerFriends)
     off(eventType: 'presences', listener: ValorantInstanceClient.ListenerPresences)
 
-    login(noPresences: boolean = false): Promise
+    login(noPresences: boolean | null = false, instanceId?: string): Promise
 }

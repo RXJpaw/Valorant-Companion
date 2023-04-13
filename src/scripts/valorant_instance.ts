@@ -28,7 +28,7 @@ const connection = {
         connection.ready = 0
         connection.hadFirstPresences = false
 
-        Emitter.emit('presences', connection.presences)
+        Emitter.emit('presences', connection.presences, 'reset')
 
         Cache.ContentServiceContent = undefined
         Cache.CoreGameMatch = {}
@@ -112,12 +112,12 @@ const connect = async () => {
         connection.presences = websocket.presences
         connection.friends = websocket.friends
 
-        Emitter.emit('presences', connection.presences)
+        Emitter.emit('presences', connection.presences, 'auth')
         connection.hadFirstPresences = true
 
-        connection.websocket.on('presences', (data) => {
-            Emitter.emit('presences', data)
-            connection.presences = data
+        connection.websocket.on('presences', (presences, eventType, affected) => {
+            Emitter.emit('presences', presences, eventType, affected)
+            connection.presences = presences
         })
         connection.websocket.on('friends', (data) => {
             Emitter.emit('friends', data)
@@ -132,7 +132,7 @@ const connect = async () => {
 }
 
 let isLoginLoopRunning = false
-const login = async (noPresences: boolean = false) => {
+const login = async (noPresences: boolean | null = false, instanceId?: string) => {
     if (!isLoginLoopRunning) {
         isLoginLoopRunning = true
 
@@ -147,8 +147,8 @@ const login = async (noPresences: boolean = false) => {
     if (typeof result === 'number') Emitter.emit('error', result)
     if (typeof result === 'object') Emitter.emit('ready', result)
 
-    if (!noPresences) Emitter.emit('presences', connection.presences)
-    if (!noPresences) Emitter.emit('friends', connection.friends)
+    if (!noPresences) Emitter.emit('presences', connection.presences, 'login', instanceId)
+    if (!noPresences) Emitter.emit('friends', connection.friends, 'login', instanceId)
 
     return result
 }

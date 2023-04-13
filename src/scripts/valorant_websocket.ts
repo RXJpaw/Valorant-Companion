@@ -50,7 +50,7 @@ export const connectWebSocket = (key, port, presetPresences: any[], presetFriend
             const presences = payload?.data?.presences
             const eventType = payload?.eventType
 
-            Emitter.emit('presences', processPresences(eventType, presences))
+            Emitter.emit('presences', ...processPresences(eventType, presences))
         }
         if (eventName === 'OnJsonApiEvent_chat_v3_friendrequests') {
             Emitter.emit('friendrequests', payload?.data?.requests)
@@ -92,7 +92,9 @@ const processFriends = (eventType: string, toProcessFriends: ValorantChatFriends
     return friends
 }
 
-const processPresences = (eventType: string, toProcessPresences: any[]): ValorantChatPresence[] => {
+const processPresences = (eventType: string, toProcessPresences: any[]): [ValorantChatPresence[], string, string[]] => {
+    const subjects: string[] = []
+
     toProcessPresences.forEach((presence) => {
         if (presence.product === 'valorant') {
             const index = presences.findIndex((old) => old.Subject === presence.puuid)
@@ -118,8 +120,10 @@ const processPresences = (eventType: string, toProcessPresences: any[]): Valoran
             if (eventType === 'Delete') {
                 presences.splice(index, 1)
             }
+
+            subjects.push(presence.puuid)
         }
     })
 
-    return presences
+    return [presences, eventType?.toLowerCase(), subjects]
 }
