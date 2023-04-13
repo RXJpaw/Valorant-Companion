@@ -84,7 +84,8 @@ export default {
             inventory_top: 0,
             history_subject: null as LoadedCurrentMatchSubject | null,
             history_left: 0,
-            history_top: 0
+            history_top: 0,
+            queue_handle: null as NodeJS.Timeout | null
         }
     },
     async created() {
@@ -102,26 +103,14 @@ export default {
         }
 
         this.queue.push(Valorant.getCachePresences())
-        Valorant.Client.on('presences', async (data) => {
-            this.queue.push(data)
+        Valorant.Client.on('presences', async (presences, eventType, affected) => {
+            this.queue.push(presences)
         })
 
-        while (1) {
-            if (this.queue.length > 0) {
-                try {
-                    const Presences = this.queue[0]
-                    this.queue.splice(0, 1)
-
-                    await this.processSubjects(Presences)
-                } catch (error) {
-                    console.error(error)
-                }
-            } else {
-                await sleep(250)
-            }
-        }
+        this.initQueue().catch(() => {})
     },
     beforeUnmount() {
+        clearTimeout(this.queue_handle)
         window.removeEventListener('keydown', this.KeyDownListener)
     },
     methods: {
@@ -133,12 +122,22 @@ export default {
                 this.history_subject = null
             }
         },
+        async initQueue() {
+            if (this.queue.length > 0) {
+                const Presences = structuredClone(this.queue[this.queue.length - 1])
+                this.queue = []
+
+                await this.processSubjects(Presences).catch((error) => {
+                    console.error('[queue]', error)
+                })
+            }
+
+            this.queue_handle = setTimeout(this.initQueue, 250)
+        },
         getSides() {
             const SelfSubject = Valorant.getSelfSubject()
-            const SelfPlayer = this.subjects.find((subject) => subject?.Subject === SelfSubject)!
-            if (!SelfPlayer) return
-
-            const SelfTeam = SelfPlayer.TeamID
+            const SelfPlayer = this.subjects.find((subject) => subject?.Subject === SelfSubject)
+            const SelfTeam = SelfPlayer?.TeamID || 'Red'
 
             const TeamLeft = [] as any[]
             const TeamRight = [] as any[]
@@ -262,6 +261,7 @@ export default {
             const SelfSubject = Valorant.getSelfSubject()
             const SelfPresence = Presences.find((presence) => presence.Subject === SelfSubject)
             if (!SelfPresence) return
+
             const GameState = this.mock_state || SelfPresence.sessionLoopState
 
             if (this.game_state !== GameState) {
