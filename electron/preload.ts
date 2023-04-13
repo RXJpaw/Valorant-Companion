@@ -32,7 +32,8 @@ window.electron = {
     minimize: () => ipcRenderer.send('minimize'),
     maximize: () => ipcRenderer.send('maximize'),
     openExternal: (url) => ipcRenderer.send('open-external', url),
-    ipcRenderer: ipcRenderer
+    ipcRenderer: ipcRenderer,
+    fetch: (input: RequestInfo | URL, init?: RequestInit | undefined, output?: 'json' | 'text') => ipcRenderer.invoke('fetch', { input, init, output })
 }
 
 window.env = {

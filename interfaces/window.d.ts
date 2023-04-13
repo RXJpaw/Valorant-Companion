@@ -11,6 +11,7 @@ declare interface Window {
         maximize(): void
         openExternal(url: string): void
         ipcRenderer: Electron.IpcRenderer
+        fetch(input: RequestInfo | URL, init?: RequestInit | undefined, output?: 'json' | 'text'): Promise<ElectronFetch>
     }
     env: {
         LOCALAPPDATA: string
