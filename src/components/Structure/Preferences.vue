@@ -38,10 +38,11 @@
                                 :disabled="!game_ready || ingame_settings.working || ingame_settings.selected === null"
                                 class="button"
                                 text="Apply & Restart"
-                                alternative="Close the Game"
+                                :alternative="ingame_settings.apply_alternate_text"
                                 style="min-width: 116px; margin: 2px 0"
                                 @click:primary="clickUsePresetInGameSettings(true)"
                                 @click:secondary="clickUsePresetInGameSettings"
+                                @mouseenter="hoverUsePresetEasterEgg"
                             />
                         </div>
                     </div>
@@ -168,6 +169,7 @@ export default {
             loaded: false,
             game_ready: false,
             ingame_settings: {
+                apply_alternate_text: 'Exit Instead',
                 new_preset_name: '',
                 preset_list: [],
                 selected: null,
@@ -282,6 +284,9 @@ export default {
             } finally {
                 this.ingame_settings.working = false
             }
+        },
+        async hoverUsePresetEasterEgg() {
+            this.ingame_settings.apply_alternate_text = Math.random() <= 0.04 ? "Apply'n'Bye bye" : 'Exit Instead'
         },
         async importBackup() {
             this.database_backup.has_dialog_open = true
