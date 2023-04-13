@@ -86,6 +86,21 @@ ipcMain.handle('get-path', (event, args) => {
     //'documents' | 'downloads' | 'music' | 'pictures' | 'videos' | 'recent' | 'logs' | 'crashDumps'
     return app.getPath(args)
 })
+ipcMain.handle('fetch', async (event, args) => {
+    const response = await fetch(args.input, args.init)
+
+    return {
+        ok: response.ok,
+        url: response.url,
+        type: response.type,
+        headers: response.headers,
+        redirected: response.redirected,
+        status: response.status,
+        statusText: response.statusText,
+        json: args.output === 'json' ? await response.json().catch(() => null) : undefined,
+        text: args.output === 'text' ? await response.text().catch(() => null) : undefined
+    }
+})
 
 app.whenReady().then(async () => {
     const version = await getVersions()
