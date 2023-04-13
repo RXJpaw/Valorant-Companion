@@ -9,7 +9,7 @@ const Store = {
 }
 
 const cache = {
-    Version: null as never as Promise<string>,
+    Versions: null as never as Promise<ValorantAPIVersion>,
     Maps: null as never as Promise<ValorantAPIMap[]>,
     GameModes: null as never as Promise<ValorantAPIGameMode[]>,
     Seasons: null as never as Promise<ValorantAPISeason[]>,
@@ -22,6 +22,12 @@ const cache = {
     ContentTiers: null as never as Promise<ValorantAPIContentTiers.ContentTier[]>,
     Bundles: null as never as Promise<ValorantAPIBundles.Bundle[]>,
     Contracts: null as never as Promise<ValorantAPIContracts.Contract[]>
+}
+
+export const getVersions = async () => {
+    if (cache.Versions) return await cache.Versions
+    cache.Versions = fetchData('https://valorant-api.com/v1/version')
+    return await cache.Versions
 }
 
 export const getMaps = async (): Promise<ValorantAPIMap[]> => {
@@ -102,13 +108,8 @@ export const mapWeaponSkins = async () => {
 }
 
 const CacheManager = async (key, url) => {
-    if (!cache.Version) {
-        cache.Version = new Promise((resolve) => {
-            fetchData('https://valorant-api.com/v1/version').then((data) => resolve(data.version))
-        })
-    }
-
-    const CurrentVersion = await cache.Version
+    const Versions = await getVersions()
+    const CurrentVersion = Versions.version
 
     const StoreItem = (await Store.ValorantAPIMaps.getItem(key)) ?? ({} as any)
     if (StoreItem.Version !== CurrentVersion) {
