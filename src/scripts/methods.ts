@@ -14,6 +14,11 @@ const fs = window.require('fs/promises') as typeof import('fs/promises')
 const zl = HandleError(window.require, 'zip-lib') as typeof import('zip-lib')
 
 export const Store = {
+    //PersistentCache
+    PersistentCache: localForage.createInstance({ name: 'PersistentCache', storeName: 'Cache' }),
+    RiotAccessToken: localForage.createInstance({ name: 'PersistentCache', storeName: 'RiotAccessToken' }),
+    RiotEntitlementToken: localForage.createInstance({ name: 'PersistentCache', storeName: 'RiotEntitlementToken' }),
+
     //ValorantMatch
     CompetitiveUpdates: localForage.createInstance({ name: 'ValorantMatch', storeName: 'CompetitiveUpdates' }),
     MatchHistory: localForage.createInstance({ name: 'ValorantMatch', storeName: 'History' }),
@@ -21,7 +26,15 @@ export const Store = {
 
     //Valorant
     EncounterHistory: localForage.createInstance({ name: 'Valorant', storeName: 'EncounterHistory' }),
+    AccountDetails: localForage.createInstance({ name: 'Valorant', storeName: 'AccountDetails' }),
+    InGameSettings: localForage.createInstance({ name: 'Valorant', storeName: 'InGameSettings' }),
     RiotIdHistory: localForage.createInstance({ name: 'Valorant', storeName: 'RiotIdHistory' })
+}
+
+export const PATH = {
+    RiotClientPrivateSettings: `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Data\\RiotGamesPrivateSettings.yaml`,
+    RiotClientSettings: `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Config\\RiotClientSettings.yaml`,
+    RiotClientCookies: `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Data\\Cookies\\Cookies`
 }
 
 export const sleep = (duration) => {
@@ -146,8 +159,44 @@ export const HandleMouseOnElement = (element: HTMLElement, event: MouseEvent): b
     return true
 }
 
-export const getPath = async (key: string) => {
+export const fileExists = async (path: string) => {
+    return !!fs.stat(path).catch(() => false)
+}
+
+type DynamicPaths = 'riot-client' | 'valorant' | 'riot-cookies' | 'riot-client-settings' | 'riot-private-settings' | 'account-logins' | 'user-data'
+export const getPath = async (key: DynamicPaths, sub?: string) => {
     switch (key) {
+        case 'user-data': {
+            return window.electron.ipcRenderer.invoke('get-path', 'userData')
+        }
+        case 'account-logins': {
+            const UserDataPath = await getPath('user-data')
+            return `${UserDataPath}\\Account Logins`
+        }
+        case 'riot-private-settings': {
+            if (sub) {
+                const AccountLoginsPath = await getPath('account-logins')
+                return `${AccountLoginsPath}\\${sub}\\PrivateSettings.yaml`
+            } else {
+                return `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Data\\RiotGamesPrivateSettings.yaml`
+            }
+        }
+        case 'riot-client-settings': {
+            if (sub) {
+                const AccountLoginsPath = await getPath('account-logins')
+                return `${AccountLoginsPath}\\${sub}\\ClientSettings.yaml`
+            } else {
+                return `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Config\\RiotClientSettings.yaml`
+            }
+        }
+        case 'riot-cookies': {
+            if (sub) {
+                const AccountLoginsPath = await getPath('account-logins')
+                return `${AccountLoginsPath}\\${sub}\\Cookies.sl3`
+            } else {
+                return `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Data\\Cookies\\Cookies`
+            }
+        }
         case 'valorant': {
             const ProductSettingsPath = 'C:\\ProgramData\\Riot Games\\Metadata\\valorant.live\\valorant.live.product_settings.yaml'
             const ProductSettings = await fs.readFile(ProductSettingsPath, 'utf-8').catch(() => null)
@@ -172,6 +221,20 @@ export const getPath = async (key: string) => {
             return null
         }
     }
+}
+
+export const getJwtPayload = async (JWT: string): Promise<any> => {
+    const PayloadRegExp = /.*?\.(.*?)\./
+    const PayloadMatch = JWT.match(PayloadRegExp)
+    const Payload = PayloadMatch?.[1]
+    if (!Payload) throw { error: 'malformed_token' }
+
+    const DataBuffer = HandleError(Buffer.from, Payload, 'base64')
+    if (!DataBuffer) throw { error: 'malformed_payload' }
+    const Data = HandleError(JSON.parse, DataBuffer) as object
+    if (!Data) throw { error: 'malformed_data' }
+
+    return Data
 }
 
 export const killAllRiotProcesses = async () => {
