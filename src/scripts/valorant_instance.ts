@@ -210,6 +210,14 @@ export const ValorantInstance = () => {
         return request.headers.get('content-length') === '0' ? {} : await request.json()
     }
 
+    const getServers = () => {
+        const pd = connection.server?.pdServer || null
+        const glz = connection.server?.glzServer || null
+        const shared = connection.server?.sharedServer || null
+
+        return pd && glz && shared ? { pd, glz, shared } : null
+    }
+
     const getChatPresences = async (): Promise<ValorantChatPresence[]> => {
         const { presences: chatPresences } = await request('get', 'local', '/chat/v4/presences')
 
@@ -664,6 +672,7 @@ export const ValorantInstance = () => {
 
     return {
         Client,
+        getServers,
         raw: request,
         Entitlements,
         getSelfLoadout,
