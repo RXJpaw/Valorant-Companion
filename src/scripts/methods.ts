@@ -160,7 +160,7 @@ export const HandleMouseOnElement = (element: HTMLElement, event: MouseEvent): b
 }
 
 export const fileExists = async (path: string) => {
-    return !!fs.stat(path).catch(() => false)
+    return !!(await fs.stat(path).catch(() => false))
 }
 
 type DynamicPaths = 'riot-client' | 'valorant' | 'riot-cookies' | 'riot-client-settings' | 'riot-private-settings' | 'account-logins' | 'user-data'
@@ -261,5 +261,5 @@ export const startRiotClient = async (and?: string) => {
         command = command + ' --launch-product=valorant --launch-patchline=live'
     }
 
-    await window.exec(command)
+    await window.exec(command, true)
 }
