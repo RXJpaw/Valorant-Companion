@@ -23,6 +23,8 @@ export const Backup = {
 
                 //Valorant
                 EncounterHistory: {},
+                AccountDetails: {},
+                InGameSettings: {},
                 RiotIdHistory: {}
             }
 
@@ -144,6 +146,8 @@ export const Backup = {
 
                 //Valorant
                 EncounterHistory: {},
+                AccountDetails: {},
+                InGameSettings: {},
                 RiotIdHistory: {}
             }
 
