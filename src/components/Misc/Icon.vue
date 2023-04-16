@@ -47,13 +47,61 @@
     <svg v-else-if="icon === 'dropdown'" :style="getStyle()" viewBox="0 0 24 24">
         <path d="M7 10l5 5l5-5z" fill="currentColor"></path>
     </svg>
+    <svg v-else-if="icon === 'val-collection'" :style="getStyle()" viewBox="0 0 24.95 22.57" fill="currentColor">
+        <path d="M281.3,418.52v8.14s-2.94-1.4-2.94-4.34A4.14,4.14,0,0,1,281.3,418.52Z" transform="translate(-278.36 -405.8)" />
+        <polygon points="14.83 0 12.48 0 10.12 0 7.99 2.13 9.74 2.13 10.23 1.63 12.48 1.63 14.72 1.63 15.22 2.13 16.96 2.13 14.83 0" />
+        <path d="M290.83,409.56h-9.37v4s7.13,1.49,7.13,4.92h4.49c0-3.43,7.13-4.92,7.13-4.92v-4Z" transform="translate(-278.36 -405.8)" />
+        <path d="M294.31,420.55h-6.95s-.21-4-4-4v11.86h15V416.51C294.52,416.51,294.31,420.55,294.31,420.55Z" transform="translate(-278.36 -405.8)" />
+        <path d="M300.37,418.52v8.14s2.94-1.4,2.94-4.34A4.14,4.14,0,0,0,300.37,418.52Z" transform="translate(-278.36 -405.8)" />
+    </svg>
+    <svg v-else-if="icon === 'val-career'" :style="getStyle()" viewBox="0 -1.5 22.55 32.17" fill="currentColor">
+        <polygon points="0 0 10.08 0 10.08 12.94 7.33 13.26 0 7.46 0 0" />
+        <polygon points="22.55 0 12.47 0 12.47 12.94 15.22 13.26 22.55 7.46 22.55 0" />
+        <path
+            d="m11.34,15.08c-4.17,0-7.54,3.38-7.54,7.54s3.38,7.54,7.54,7.54,7.54-3.38,7.54-7.54-3.38-7.54-7.54-7.54Zm0,11.18l-3.72-3.72,3.72-3.72,3.72,3.72-3.72,3.72Z"
+        />
+    </svg>
+    <svg v-else-if="icon === 'val-store'" :style="getStyle()" viewBox="0 0 31.23 30.6" fill="currentColor">
+        <circle cx="26.89" cy="27.76" r="2.84" />
+        <circle cx="8.69" cy="27.76" r="2.84" />
+        <polygon points="9.45 3.8 12.79 15.33 28.15 15.33 31.23 3.8 9.45 3.8" />
+        <polygon
+            points="0 0 6.33 0 10.19 15.33 10.19 17.48 9.45 20.17 28.93 20.17 27.85 22.7 7.04 22.7 7.04 20.59 7.83 17.48 7.83 15.33 4.43 2.14 0 2.14 0 0"
+        />
+    </svg>
+    <svg v-else-if="icon === 'val-special'" :style="getStyle()" viewBox="0 0 15.64 23.74" fill="currentColor">
+        <path d="m0,0v23.74h15.64V0H0Zm7.82,18.37L1.32,11.87l6.5-6.5,6.5,6.5-6.5,6.5Z" />
+    </svg>
+    <svg v-else-if="icon === 'play'" :style="getStyle()" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z" fill="currentColor"></path>
+    </svg>
+    <svg v-else-if="icon === 'plus'" :style="getStyle()" viewBox="0 0 24 24">
+        <path d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z" fill="currentColor"></path>
+    </svg>
 </template>
 
 <script lang="ts">
 export default {
     props: {
         size: String as () => string,
-        icon: String as () => 'more' | 'next' | 'before' | 'close' | 'more-vert' | 'package' | 'external-url' | 'warning' | 'check' | 'delete' | 'dropdown'
+        icon: String as () =>
+            | 'more'
+            | 'next'
+            | 'before'
+            | 'close'
+            | 'more-vert'
+            | 'package'
+            | 'external-url'
+            | 'warning'
+            | 'check'
+            | 'delete'
+            | 'dropdown'
+            | 'val-collection'
+            | 'val-career'
+            | 'val-store'
+            | 'val-special'
+            | 'play'
+            | 'plus'
     },
     name: 'Icon',
     methods: {
