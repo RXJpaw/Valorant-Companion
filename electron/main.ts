@@ -93,7 +93,7 @@ ipcMain.handle('fetch', async (event, args) => {
         ok: response.ok,
         url: response.url,
         type: response.type,
-        headers: response.headers,
+        headers: Object.fromEntries(response.headers.entries()),
         redirected: response.redirected,
         status: response.status,
         statusText: response.statusText,

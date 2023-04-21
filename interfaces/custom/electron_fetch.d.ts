@@ -2,7 +2,7 @@ interface ElectronFetch {
     ok: boolean
     url: string
     type: ResponseType
-    headers: Headers
+    headers: { [header: string]: string }
     redirected: boolean
     status: number
     statusText: string
