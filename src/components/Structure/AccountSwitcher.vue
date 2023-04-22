@@ -188,7 +188,7 @@ export default {
         this.loaded = true
     },
     mounted() {
-        //keyboard evenets
+        //keyboard events
         window.addEventListener('keydown', (event) => {
             if (event.code === 'F2') {
                 if (this.active) {
