@@ -16,6 +16,9 @@ export const Backup = {
         const TempDirName = `.temp;rxjvmw;compress;${StartTime}`
         const execute = async () => {
             const BackupStore = {
+                //Settings
+                AccountSwitcherSettings: {},
+
                 //ValorantMatch
                 CompetitiveUpdates: {},
                 MatchHistory: {},
@@ -139,6 +142,9 @@ export const Backup = {
             }
 
             const BackupStore = {
+                //Settings
+                AccountSwitcherSettings: {},
+
                 //ValorantMatch
                 CompetitiveUpdates: {},
                 MatchHistory: {},
@@ -285,5 +291,3 @@ export const Backup = {
     getChecksum: (Object: object) => Number((JSON.stringify(Object).length / 7).toFixed(8).replace('.', '').substring(0, 9)),
     getIntegrity: (Object: object, seed: number) => cyrb53(JSON.stringify(Object), seed)
 }
-
-window['test'] = Backup

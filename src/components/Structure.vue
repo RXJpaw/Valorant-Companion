@@ -4,10 +4,12 @@
         <Content :active-button="activeButton" :match-history-tabs="matchHistoryTabs" :active-match-history-tab="activeMatchHistoryTab" />
 
         <Preferences v-model:active="showPreferences" />
+        <AccountSwitcher v-model:active="showAccountSwitcher" />
     </div>
 </template>
 
 <script lang="ts">
+import AccountSwitcher from '@/components/Structure/AccountSwitcher.vue'
 import Preferences from '@/components/Structure/Preferences.vue'
 import { ValorantInstance } from '@/scripts/valorant_instance'
 import Content from '@/components/Structure/Content.vue'
@@ -16,10 +18,12 @@ import Sidebar from '@/components/Structure/Sidebar.vue'
 const Valorant = ValorantInstance()
 const PreferencesChannel = new BroadcastChannel('preferences')
 const MatchHistoryChannel = new BroadcastChannel('match-history')
+const AccountSwitcherChannel = new BroadcastChannel('account-switcher')
 
 export default {
     name: 'Structure',
     components: {
+        AccountSwitcher,
         Preferences,
         Content,
         Sidebar
@@ -27,10 +31,19 @@ export default {
     data() {
         return {
             showPreferences: false,
+            showAccountSwitcher: false,
             // activeButton: 'loadout-manager',
             activeButton: 'current-match',
             matchHistoryTabs: [],
             activeMatchHistoryTab: 0
+        }
+    },
+    watch: {
+        showPreferences(current) {
+            if (current && this.showAccountSwitcher) this.showPreferences = false
+        },
+        showAccountSwitcher(current) {
+            if (current && this.showPreferences) this.showAccountSwitcher = false
         }
     },
     async created() {
@@ -68,6 +81,19 @@ export default {
                 }
                 case 'open': {
                     this.showPreferences = true
+                    break
+                }
+            }
+        }
+
+        AccountSwitcherChannel.onmessage = ({ data: message }) => {
+            switch (message) {
+                case 'close': {
+                    this.showAccountSwitcher = false
+                    break
+                }
+                case 'open': {
+                    this.showAccountSwitcher = true
                     break
                 }
             }

@@ -43,6 +43,9 @@
                             <icon icon="external-url" />
                         </div>
                     </div>
+                    <div class="entry" @click="openAccountSwitcher">
+                        <div class="text">Switch Account</div>
+                    </div>
                     <div class="entry" @click="openPreferences">
                         <div class="text">Preferences</div>
                     </div>
@@ -62,6 +65,7 @@ import Icon from '@/components/Misc/Icon.vue'
 
 const Valorant = ValorantInstance()
 const PreferencesChannel = new BroadcastChannel('preferences')
+const AccountSwitcherChannel = new BroadcastChannel('account-switcher')
 
 export default {
     name: 'Profile',
@@ -91,7 +95,10 @@ export default {
         },
         openPreferences() {
             PreferencesChannel.postMessage('open')
-
+            if (this.hover) this.hover = false
+        },
+        openAccountSwitcher() {
+            AccountSwitcherChannel.postMessage('open')
             if (this.hover) this.hover = false
         },
         async processAccount() {

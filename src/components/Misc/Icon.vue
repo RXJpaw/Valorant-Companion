@@ -69,7 +69,7 @@
             points="0 0 6.33 0 10.19 15.33 10.19 17.48 9.45 20.17 28.93 20.17 27.85 22.7 7.04 22.7 7.04 20.59 7.83 17.48 7.83 15.33 4.43 2.14 0 2.14 0 0"
         />
     </svg>
-    <svg v-else-if="icon === 'val-special'" :style="getStyle()" viewBox="0 0 15.64 23.74" fill="currentColor">
+    <svg v-else-if="icon === 'val-bonus'" :style="getStyle()" viewBox="0 0 15.64 23.74" fill="currentColor">
         <path d="m0,0v23.74h15.64V0H0Zm7.82,18.37L1.32,11.87l6.5-6.5,6.5,6.5-6.5,6.5Z" />
     </svg>
     <svg v-else-if="icon === 'play'" :style="getStyle()" viewBox="0 0 24 24">
@@ -77,6 +77,9 @@
     </svg>
     <svg v-else-if="icon === 'plus'" :style="getStyle()" viewBox="0 0 24 24">
         <path d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z" fill="currentColor"></path>
+    </svg>
+    <svg v-else-if="icon === 'import-export'" :style="getStyle()" viewBox="0 0 24 24">
+        <path d="M9 3L5 6.99h3V14h2V6.99h3L9 3zm7 14.01V10h-2v7.01h-3L15 21l4-3.99h-3z" fill="currentColor"></path>
     </svg>
 </template>
 
@@ -99,9 +102,10 @@ export default {
             | 'val-collection'
             | 'val-career'
             | 'val-store'
-            | 'val-special'
+            | 'val-bonus'
             | 'play'
             | 'plus'
+            | 'import-export'
     },
     name: 'Icon',
     methods: {

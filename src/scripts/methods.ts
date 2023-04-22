@@ -1,4 +1,3 @@
-import { project_version } from '../../package.json'
 import localForage from 'localforage'
 import path from 'path'
 
@@ -9,11 +8,15 @@ export const HandleError = (functionToHandle, ...args) => {
         return null
     }
 }
-
-const fs = window.require('fs/promises') as typeof import('fs/promises')
-const zl = HandleError(window.require, 'zip-lib') as typeof import('zip-lib')
+export const Cryptr = window.require('cryptr') as typeof import('cryptr')
+export const fsSync = window.require('fs') as typeof import('fs')
+export const fs = window.require('fs/promises') as typeof import('fs/promises')
+export const zl = HandleError(window.require, 'zip-lib') as typeof import('zip-lib')
 
 export const Store = {
+    //Settings
+    AccountSwitcherSettings: localForage.createInstance({ name: 'Settings', storeName: 'AccountSwitcher' }),
+
     //PersistentCache
     PersistentCache: localForage.createInstance({ name: 'PersistentCache', storeName: 'Cache' }),
     RiotAccessToken: localForage.createInstance({ name: 'PersistentCache', storeName: 'RiotAccessToken' }),
@@ -41,6 +44,10 @@ export const sleep = (duration) => {
     return new Promise((resolve) => {
         setTimeout(resolve, duration)
     })
+}
+
+export const getValueForKeyPath = (target: object, path: string) => {
+    return path.split('.').reduce((previous, current) => previous?.[current], target)
 }
 
 export const parseDecimal = (decimal: number) => {
@@ -171,28 +178,33 @@ export const getPath = async (key: DynamicPaths, sub?: string) => {
         }
         case 'account-logins': {
             const UserDataPath = await getPath('user-data')
-            return `${UserDataPath}\\Account Logins`
+
+            if (sub) {
+                return `${UserDataPath}\\Account Logins\\${sub}`
+            } else {
+                return `${UserDataPath}\\Account Logins`
+            }
         }
         case 'riot-private-settings': {
             if (sub) {
-                const AccountLoginsPath = await getPath('account-logins')
-                return `${AccountLoginsPath}\\${sub}\\PrivateSettings.yaml`
+                const AccountLoginsPath = await getPath('account-logins', sub)
+                return `${AccountLoginsPath}\\PrivateSettings.yaml`
             } else {
                 return `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Data\\RiotGamesPrivateSettings.yaml`
             }
         }
         case 'riot-client-settings': {
             if (sub) {
-                const AccountLoginsPath = await getPath('account-logins')
-                return `${AccountLoginsPath}\\${sub}\\ClientSettings.yaml`
+                const AccountLoginsPath = await getPath('account-logins', sub)
+                return `${AccountLoginsPath}\\ClientSettings.yaml`
             } else {
                 return `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Config\\RiotClientSettings.yaml`
             }
         }
         case 'riot-cookies': {
             if (sub) {
-                const AccountLoginsPath = await getPath('account-logins')
-                return `${AccountLoginsPath}\\${sub}\\Cookies.sl3`
+                const AccountLoginsPath = await getPath('account-logins', sub)
+                return `${AccountLoginsPath}\\Cookies.sl3`
             } else {
                 return `${window.env.LOCALAPPDATA}\\Riot Games\\Riot Client\\Data\\Cookies\\Cookies`
             }
@@ -263,3 +275,6 @@ export const startRiotClient = async (and?: string) => {
 
     await window.exec(command, true)
 }
+
+export const HexSplit = '778ca67667439702'
+export const BufferSplit = Buffer.from('778ca67667439702', 'hex')
