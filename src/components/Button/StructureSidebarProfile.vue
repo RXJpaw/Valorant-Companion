@@ -179,6 +179,7 @@ export default {
     border-radius: 22px;
     background-color: #18191c;
 
+    transform: translateZ(10px);
     transition: background-color 0.15s ease-in-out;
     transform-style: preserve-3d;
 }

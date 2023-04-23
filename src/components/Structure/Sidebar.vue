@@ -98,6 +98,8 @@ export default {
 
     height: auto;
     width: inherit;
+
+    transform-style: preserve-3d;
 }
 
 .sidebar > .lower {

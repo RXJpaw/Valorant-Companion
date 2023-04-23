@@ -68,18 +68,10 @@
                         </div>
                         <div class="buttons">
                             <Button
-                                v-if="!auto_updating.tested"
                                 :disabled="auto_updating.testing"
                                 class="button"
-                                text="Test Server"
-                                @click="clickTestAutoUpdating"
-                            />
-                            <Button
-                                v-if="auto_updating.tested"
-                                :disabled="auto_updating.testing"
-                                class="button"
-                                text="Save Server"
-                                @click="clickSaveAutoUpdating"
+                                :text="auto_updating.tested ? 'Save Server' : 'Test Server'"
+                                @click="auto_updating.tested ? clickSaveAutoUpdating() : clickTestAutoUpdating()"
                             />
                         </div>
                     </div>
@@ -131,6 +123,21 @@
                                 Exports will save in "C:/Valorant Companion Backups/" due to the limitations of auto-updating. You'll be able to select your
                                 preferred backup destination once you rebuilt the client. We recommend making a backup first.
                             </div>
+                        </div>
+                    </div>
+                    <div class="setting fidget-toys">
+                        <div class="header">Fidget-Toys</div>
+                        <div class="inputs">
+                            <TextInput
+                                ref="fidget-toy-input"
+                                class="fidget-toy-input input"
+                                width="100%"
+                                placeholder="I-I don't even like you, baka!"
+                                type="text"
+                            />
+                        </div>
+                        <div class="buttons">
+                            <Button class="button" text="Noo! >w< Don't click me! :3" />
                         </div>
                     </div>
                 </div>
@@ -206,6 +213,14 @@ export default {
 
         window.addEventListener('keydown', (event) => {
             if (event.code === 'Escape') this.disableActive()
+
+            if (event.code === 'F1') {
+                if (this.active) {
+                    this.disableActive()
+                } else {
+                    this.enableActive()
+                }
+            }
         })
         window.addEventListener('mousedown', (event) => {
             if (!this.loaded || !this.active || !this.$refs.settings) return
@@ -218,6 +233,10 @@ export default {
         })
     },
     methods: {
+        enableActive() {
+            if (this.active) return
+            this.$emit('update:active', true)
+        },
         disableActive() {
             if (!this.active) return
             this.$emit('update:active', false)
@@ -556,6 +575,11 @@ export default {
     --lighter: #7986cb;
     --darker: #5c6bc0;
     --darkest: #3f51b5;
+}
+.settings > *.fidget-toys {
+    --lighter: #aed581;
+    --darker: #8bc34a;
+    --darkest: #689f38;
 }
 .settings > .setting > .header {
     font-size: 13px;

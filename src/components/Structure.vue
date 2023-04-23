@@ -40,10 +40,12 @@ export default {
     },
     watch: {
         showPreferences(current) {
-            if (current && this.showAccountSwitcher) this.showPreferences = false
+            if (!current) return
+            this.showAccountSwitcher = false
         },
         showAccountSwitcher(current) {
-            if (current && this.showPreferences) this.showAccountSwitcher = false
+            if (!current) return
+            this.showPreferences = false
         }
     },
     async created() {
@@ -109,6 +111,7 @@ export default {
 <style scoped>
 .structure {
     position: absolute;
+    overflow: hidden;
     top: 22px;
 
     height: calc(100% - 22px);

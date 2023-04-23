@@ -1,9 +1,24 @@
 <template>
     <div class="button" ref="button" :class="{ disabled }" @mouseenter="hoverButton = true" @mouseleave="hoverButton = false">
-        <div class="background" @click="$emit('click:primary')"></div>
+        <div class="background" @click="clickPrimary" @mousedown="queueAnimation"></div>
+        <div
+            v-for="animation in getAnimationsArray()"
+            class="background-animation"
+            :key="animation.id"
+            :style="{
+                top: `${animation.top - animation.size / 2}px`,
+                left: `${animation.left - animation.size / 2}px`,
+
+                width: `${animation.size}px`,
+                height: `${animation.size}px`,
+
+                opacity: animation.opacity,
+                '--animation-time': `${animation.time}s`
+            }"
+        ></div>
         <div class="text">{{ text }}</div>
         <transition>
-            <div v-if="alternative && hoverButton && !disabled" class="alternative" @click="$emit('click:secondary')">
+            <div v-if="alternative && hoverButton && !disabled" class="alternative" @click="clickSecondary">
                 <div class="text">{{ alternative }}</div>
             </div>
         </transition>
@@ -20,29 +35,92 @@ export default {
     },
     data() {
         return {
-            hoverButton: false
+            hoverButton: false,
+            animations: {}
+        }
+    },
+    mounted() {},
+    beforeUnmount() {},
+    methods: {
+        clickPrimary() {
+            this.$emit('click:primary')
+        },
+        clickSecondary() {
+            this.$emit('click:secondary')
+        },
+        queueAnimation(event: MouseEvent) {
+            const clientWidth = event.target?.['clientWidth']
+            const animationTime = 0.0025 * clientWidth
+
+            const uuid = crypto.randomUUID()
+            this.animations[uuid] = {
+                id: uuid,
+                top: event.offsetY,
+                left: event.offsetX,
+                size: 0,
+                time: animationTime,
+                opacity: 1,
+                timestamp: Date.now()
+            }
+
+            window.addEventListener(
+                'mouseup',
+                () => {
+                    setTimeout(() => (this.animations[uuid].opacity = 0), animationTime * 500)
+                    setTimeout(() => delete this.animations[uuid], animationTime * 1500)
+                },
+                { once: true }
+            )
+
+            setTimeout(() => (this.animations[uuid].size = clientWidth * 2), 5)
+        },
+        getAnimationsArray() {
+            return Object.values(this.animations).sort((a: any, b: any) => b.timestamp - a.timestamp)
         }
     }
 }
 </script>
 
 <style scoped>
+:root {
+    --animation-time: UwU;
+}
+
 .button > .alternative:is(.v-enter-from, .v-leave-to) {
     margin-top: -11px;
     opacity: 0;
 }
 
+.button > .background-animation {
+    position: absolute;
+    overflow: hidden;
+
+    border-radius: 100%;
+
+    transition: height var(--animation-time) ease-in-out, width var(--animation-time) ease-in-out, top var(--animation-time) ease-in-out,
+        left var(--animation-time) ease-in-out, opacity var(--animation-time) ease-in-out;
+    background-color: var(--animation-color);
+
+    user-select: none;
+    pointer-events: none;
+}
+
 .button {
+    --animation-color: #00000026;
     --button-color: #43a047;
     --font-color: #eceff1;
 
     position: relative;
+    overflow: hidden;
 
     width: fit-content;
     height: 29px;
+    border-radius: 6px;
 
     cursor: pointer;
     transform-style: preserve-3d;
+
+    user-select: none;
 }
 
 .button > .alternative {
