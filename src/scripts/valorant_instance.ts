@@ -714,3 +714,5 @@ export const ValorantInstance = () => {
         getCacheFriends
     }
 }
+
+window['ValorantInstance'] = ValorantInstance
