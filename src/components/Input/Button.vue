@@ -1,21 +1,23 @@
 <template>
     <div class="button" ref="button" :class="{ disabled }" @mouseenter="hoverButton = true" @mouseleave="hoverButton = false">
         <div class="background" @click="clickPrimary" @mousedown="queueAnimation"></div>
-        <div
-            v-for="animation in getAnimationsArray()"
-            class="background-animation"
-            :key="animation.id"
-            :style="{
-                top: `${animation.top - animation.size / 2}px`,
-                left: `${animation.left - animation.size / 2}px`,
+        <div class="animation-wrapper">
+            <div
+                v-for="animation in getAnimationsArray()"
+                class="animation"
+                :key="animation.id"
+                :style="{
+                    top: `${animation.top - animation.size / 2}px`,
+                    left: `${animation.left - animation.size / 2}px`,
 
-                width: `${animation.size}px`,
-                height: `${animation.size}px`,
+                    width: `${animation.size}px`,
+                    height: `${animation.size}px`,
 
-                opacity: animation.opacity,
-                '--animation-time': `${animation.time}s`
-            }"
-        ></div>
+                    opacity: animation.opacity,
+                    '--animation-time': `${animation.time}s`
+                }"
+            ></div>
+        </div>
         <div class="text">{{ text }}</div>
         <transition>
             <div v-if="alternative && hoverButton && !disabled" class="alternative" @click="clickSecondary">
@@ -91,9 +93,20 @@ export default {
     opacity: 0;
 }
 
-.button > .background-animation {
+.button > .animation-wrapper {
     position: absolute;
     overflow: hidden;
+
+    height: 100%;
+    width: 100%;
+
+    border-radius: 6px;
+
+    pointer-events: none;
+    user-select: none;
+}
+.button > .animation-wrapper > .animation {
+    position: absolute;
 
     border-radius: 100%;
 
@@ -111,7 +124,6 @@ export default {
     --font-color: #eceff1;
 
     position: relative;
-    overflow: hidden;
 
     width: fit-content;
     height: 29px;
