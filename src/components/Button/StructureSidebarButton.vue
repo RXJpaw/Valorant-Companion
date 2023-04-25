@@ -33,6 +33,17 @@ export default {
     },
     watch: {
         active(current) {
+            this.checkActive(current)
+        }
+    },
+    mounted() {
+        this.checkActive(this.active)
+    },
+    methods: {
+        clickButton() {
+            this.$emit('update:active', this.name)
+        },
+        checkActive(current) {
             if (this.animation && this.animation.opacity !== 0 && current !== this.name) {
                 const id = this.animation.id
                 this.animation.opacity = 0
@@ -57,11 +68,6 @@ export default {
 
                 setTimeout(() => (this.animation.opacity = 1), 5)
             }
-        }
-    },
-    methods: {
-        clickButton() {
-            this.$emit('update:active', this.name)
         },
         mouseDownButton(event: MouseEvent) {
             const clientWidth = event.target?.['clientWidth']
@@ -81,6 +87,7 @@ export default {
                 'mouseup',
                 (event) => {
                     if (this.$refs.button.isEqualNode(event.target)) return
+                    if (this.active === this.name) return
                     const id = this.animation.id
                     this.animation.opacity = 0
 
