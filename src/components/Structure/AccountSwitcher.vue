@@ -212,7 +212,7 @@ export default {
 
             if (event.code === 'Escape') {
                 if (this.drag.subject) {
-                    this.stopDrag(true)
+                    this.stopDrag(true, true)
                 } else {
                     this.disableActive()
                 }
