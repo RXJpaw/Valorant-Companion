@@ -3,7 +3,7 @@
     <transition>
         <div v-if="loaded && active" class="account-switcher">
             <div class="accounts-background"></div>
-            <div class="accounts-window" ref="account-window">
+            <div class="accounts-window" ref="account-window" :class="{ drag_outside: !!drag.subject && drag.outside }">
                 <div class="accounts" ref="accounts">
                     <div
                         v-for="(account, index) in getAccountArray()"
@@ -93,6 +93,10 @@
                     <div v-if="new_login" class="text">Remember to 'Stay signed in' before proceeding!</div>
                     <div v-else-if="game_ready" class="text">Accounts can be added when Valorant is closed!</div>
                     <Icon v-else icon="plus" size="29px" />
+                </div>
+
+                <div class="deletion-zone" ref="deletion-zone">
+                    <Icon class="icon" icon="delete" size="192px" />
                 </div>
             </div>
         </div>
@@ -260,8 +264,7 @@ export default {
             if (!this.loaded || !this.active || !this.holdingFile) return
             event.preventDefault()
 
-            this.drag.x = event.x
-            this.drag.y = event.y
+            this.moveDrag({ x: event.x, y: event.y } as MouseEvent)
         })
         window.addEventListener('drop', async (event) => {
             if (!this.loaded || !this.active || !this.holdingFile) return
@@ -275,7 +278,7 @@ export default {
             } else {
                 const AccountLogins = await getPath('account-logins', '.rac')
                 await fs.cp(filePath!, AccountLogins)
-                await this.stopDrag()
+                await this.stopDrag(this.drag.outside)
             }
         })
     },
@@ -286,6 +289,7 @@ export default {
         },
         disableActive() {
             if (!this.active) return
+            this.stopDrag(true, true)
             this.$emit('update:active', false)
         },
         scrollDrag() {
@@ -325,6 +329,9 @@ export default {
             this.drag.index = this.getAccountArray().findIndex((acc) => acc.Subject === subject)
             this.drag.subject = subject
 
+            const handle = HandleMouseOnElement(this.$refs['account-window'], event)
+            this.drag.outside = !handle
+
             this.drag.timeout = setTimeout(this.scrollDrag, 10)
         },
         moveDrag(event: MouseEvent) {
@@ -339,7 +346,7 @@ export default {
             const Rect = this.$refs.accounts.getBoundingClientRect()
             this.drag.index = Math.max(0, Math.min(this.getAccountArray().length - 1, Math.floor((this.drag.y - Rect.y + this.$refs.accounts.scrollTop) / 109)))
         },
-        async stopDrag(cancel?: boolean) {
+        async stopDrag(cancel?: boolean, force_no_deletion?: boolean) {
             if (!this.drag.subject) return
             const Subject = this.drag.subject
 
@@ -347,6 +354,14 @@ export default {
             clearTimeout(this.drag.timeout)
 
             if (cancel) {
+                if (!force_no_deletion) {
+                    const DeletionZoneHandler = HandleMouseOnElement(this.$refs['deletion-zone'], { x: this.drag.x, y: this.drag.y } as MouseEvent)
+                    if (DeletionZoneHandler) {
+                        delete this.accounts[Subject]
+                        await Store.AccountDetails.removeItem(Subject)
+                    }
+                }
+
                 await this.applyOrder(this.accounts)
                 await this.updateAccounts()
             } else {
@@ -620,6 +635,30 @@ export default {
     border-radius: 6px;
 
     background-color: #0a0a0a;
+}
+
+.accounts-window > .deletion-zone {
+    position: absolute;
+    left: calc(100% + 44px);
+    top: 44px;
+
+    width: 331px;
+    height: 566px;
+    border-radius: 6px;
+
+    background-color: #0000;
+    outline: 0 solid #2f313645;
+    outline-offset: -2px;
+
+    transition: background-color 0.15s ease-in-out, outline 0.15s ease-in-out;
+}
+.accounts-window.drag_outside > .deletion-zone {
+    background-color: #2f313630;
+    outline: 2px solid #2f313645;
+}
+.accounts-window > .deletion-zone > .icon {
+    color: #2f313645;
+    margin-top: 55%;
 }
 
 .accounts-window > .add-account {
