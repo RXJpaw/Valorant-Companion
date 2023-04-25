@@ -1,5 +1,5 @@
 <template>
-    <div class="button" :class="active === name ? 'active' : null" @click="clickButton" @mousedown="mouseDownButton">
+    <div class="button" ref="button" :class="active === name ? 'active' : null" @click="clickButton" @mousedown="mouseDownButton">
         <div
             v-if="animation"
             class="background-animation"
@@ -33,14 +33,30 @@ export default {
     },
     watch: {
         active(current) {
-            if (!this.animation || this.animation.opacity === 0 || current === this.name) return
-            const id = this.animation.id
-            this.animation.opacity = 0
+            if (this.animation && this.animation.opacity !== 0 && current !== this.name) {
+                const id = this.animation.id
+                this.animation.opacity = 0
 
-            setTimeout(() => {
-                if (this.animation.id !== id) return
-                this.animation = null
-            }, this.animation.time * 1000)
+                setTimeout(() => {
+                    if (this.animation.id !== id) return
+                    this.animation = null
+                }, this.animation.time * 1000)
+            } else if (!this.animation && current === this.name) {
+                const clientWidth = this.$refs.button.clientWidth
+                const animationTime = 0.00167 * clientWidth
+
+                const uuid = crypto.randomUUID()
+                this.animation = {
+                    id: uuid,
+                    top: 0,
+                    left: 0,
+                    size: clientWidth * 2,
+                    time: animationTime,
+                    opacity: 0
+                }
+
+                setTimeout(() => (this.animation.opacity = 1), 5)
+            }
         }
     },
     methods: {
@@ -60,6 +76,21 @@ export default {
                 time: animationTime,
                 opacity: 1
             }
+
+            window.addEventListener(
+                'mouseup',
+                (event) => {
+                    if (this.$refs.button.isEqualNode(event.target)) return
+                    const id = this.animation.id
+                    this.animation.opacity = 0
+
+                    setTimeout(() => {
+                        if (this.animation.id !== id) return
+                        this.animation = null
+                    }, this.animation.time * 1000)
+                },
+                { once: true }
+            )
 
             setTimeout(() => (this.animation.size = clientWidth * 2), 5)
         }
