@@ -336,8 +336,7 @@ export default {
                 this.database_backup.processing_backup = false
                 this.database_backup.processing_percent = 0
 
-                window.electron.hide()
-                window.electron.ipcRenderer.send('apply-update')
+                location.reload()
             })
 
             Import.execute()
