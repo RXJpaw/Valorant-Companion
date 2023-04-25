@@ -164,6 +164,12 @@ export default {
             }
         }
     },
+    watch: {
+        active(current) {
+            if (current) return
+            this.stopDrag(true, true)
+        }
+    },
     async created() {
         this.updateAccounts().then()
         this.checkForNightMarket().then()
@@ -289,7 +295,6 @@ export default {
         },
         disableActive() {
             if (!this.active) return
-            this.stopDrag(true, true)
             this.$emit('update:active', false)
         },
         scrollDrag() {
