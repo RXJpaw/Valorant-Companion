@@ -211,8 +211,8 @@ export const Backup = {
                         throw { error: { type: 'dirent/item', name: `${Dirent.name}/${Item.name}`, message: 'Item is malformed.' } }
                     }
 
-                    if (typeof backup['Data'] !== 'object') {
-                        throw { error: { type: 'dirent/item', name: `${Dirent.name}/${Item.name}`, message: 'Item.Data is not an object.' } }
+                    if (!['object', 'number', 'string', 'boolean'].includes(typeof backup['Data'])) {
+                        throw { error: { type: 'dirent/item', name: `${Dirent.name}/${Item.name}`, message: 'Item.Data is not a valid type' } }
                     }
                     if (typeof backup['Version'] !== 'number') {
                         throw { error: { type: 'dirent/item', name: `${Dirent.name}/${Item.name}`, message: 'Item.Version is not a number.' } }
