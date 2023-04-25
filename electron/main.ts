@@ -20,9 +20,11 @@ protocol.registerSchemesAsPrivileged([{ scheme: customProtocol, privileges: { se
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = '1'
 
+let mainWindow = null as never as BrowserWindow
+
 async function createWindow() {
     // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 720 * zoomFactor * (16 / 9),
         height: 720 * zoomFactor,
         minWidth: 720 * zoomFactor * (16 / 9),
@@ -105,24 +107,37 @@ ipcMain.handle('fetch', async (event, args) => {
     }
 })
 
-app.whenReady().then(async () => {
-    const version = await getVersions()
-    if (!isDevelopment) {
-        createProtocol(customProtocol, version.asarFileName)
-    }
+const SingleInstanceLock = app.requestSingleInstanceLock()
+if (!SingleInstanceLock) {
+    app.quit()
+} else {
+    app.on('second-instance', () => {
+        if (!mainWindow) return
 
-    const mainWindow = await createWindow()
-
-    if (!isDevelopment) {
-        await mainWindow.webContents.executeJavaScript(`console.debug('Using ${version.asarFileName}.asar')`)
-    }
-
-    app.on('activate', function () {
-        // On macOS it's common to re-create a window in the app when the
-        // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+        if (!mainWindow.isVisible()) mainWindow.show()
+        if (mainWindow.isMaximized()) mainWindow.restore()
+        if (!mainWindow.isFocused()) mainWindow.focus()
     })
-})
+
+    app.whenReady().then(async () => {
+        const version = await getVersions()
+        if (!isDevelopment) {
+            createProtocol(customProtocol, version.asarFileName)
+        }
+
+        const mainWindow = await createWindow()
+
+        if (!isDevelopment) {
+            await mainWindow.webContents.executeJavaScript(`console.debug('Using ${version.asarFileName}.asar')`)
+        }
+
+        app.on('activate', function () {
+            // On macOS it's common to re-create a window in the app when the
+            // dock icon is clicked and there are no other windows open.
+            if (BrowserWindow.getAllWindows().length === 0) createWindow()
+        })
+    })
+}
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
