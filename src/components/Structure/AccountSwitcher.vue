@@ -3,7 +3,11 @@
     <transition>
         <div v-if="loaded && active" class="account-switcher">
             <div class="accounts-background"></div>
-            <div class="accounts-window" ref="account-window" :class="{ drag_outside: !!drag.subject && drag.outside }">
+            <div
+                class="accounts-window"
+                ref="account-window"
+                :class="{ drag_outside: !!drag.subject && drag.outside, over_delete: !!drag.subject && drag.over_delete }"
+            >
                 <div class="accounts" ref="accounts">
                     <div
                         v-for="(account, index) in getAccountArray()"
@@ -155,6 +159,7 @@ export default {
             rac_importing: false,
 
             drag: {
+                over_delete: false,
                 outside: false,
                 subject: null,
                 index: 0,
@@ -344,8 +349,11 @@ export default {
             this.drag.x = event.x
             this.drag.y = event.y
 
-            const handle = HandleMouseOnElement(this.$refs['account-window'], event)
-            if (!handle) return (this.drag.outside = true)
+            const DeletionHandle = HandleMouseOnElement(this.$refs['deletion-zone'], event)
+            this.drag.over_delete = !!DeletionHandle
+
+            const WindowHandle = HandleMouseOnElement(this.$refs['account-window'], event)
+            if (!WindowHandle) return (this.drag.outside = true)
             this.drag.outside = false
 
             const Rect = this.$refs.accounts.getBoundingClientRect()
@@ -657,12 +665,22 @@ export default {
 
     transition: background-color 0.15s ease-in-out, outline 0.15s ease-in-out;
 }
+.accounts-window > .deletion-zone > .icon {
+    color: #2f313645;
+    margin-top: 55%;
+
+    transition: color 0.15s ease-in-out;
+}
 .accounts-window.drag_outside > .deletion-zone {
     background-color: #2f313630;
     outline: 2px solid #2f313645;
 }
-.accounts-window > .deletion-zone > .icon {
-    color: #2f313645;
+.accounts-window.over_delete > .deletion-zone {
+    background-color: #e5393530;
+    outline: 2px solid #e5393545;
+}
+.accounts-window.over_delete > .deletion-zone > .icon {
+    color: #e5393545;
     margin-top: 55%;
 }
 
