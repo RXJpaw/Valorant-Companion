@@ -21,7 +21,9 @@ const cache = {
     Themes: null as never as Promise<ValorantAPIThemes.Theme[]>,
     ContentTiers: null as never as Promise<ValorantAPIContentTiers.ContentTier[]>,
     Bundles: null as never as Promise<ValorantAPIBundles.Bundle[]>,
-    Contracts: null as never as Promise<ValorantAPIContracts.Contract[]>
+    Contracts: null as never as Promise<ValorantAPIContracts.Contract[]>,
+    PlayerCards: null as never as Promise<ValorantAPIPlayerCard[]>,
+    PlayerTitles: null as never as Promise<ValorantAPIPlayerTitle[]>
 }
 
 export const getVersions = async () => {
@@ -100,6 +102,18 @@ export const getContracts = async () => {
     if (cache.Contracts) return await cache.Contracts
     cache.Contracts = CacheManager('contracts', 'https://valorant-api.com/v1/contracts')
     return await cache.Contracts
+}
+
+export const getPlayerCards = async () => {
+    if (cache.PlayerCards) return await cache.PlayerCards
+    cache.PlayerCards = CacheManager('playercards', 'https://valorant-api.com/v1/playercards')
+    return await cache.PlayerCards
+}
+
+export const getPlayerTitles = async () => {
+    if (cache.PlayerTitles) return await cache.PlayerTitles
+    cache.PlayerTitles = CacheManager('playertitles', 'https://valorant-api.com/v1/playertitles')
+    return await cache.PlayerTitles
 }
 
 export const mapWeaponSkins = async () => {
