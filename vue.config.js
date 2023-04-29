@@ -7,5 +7,14 @@ module.exports = defineConfig({
     productionSourceMap: false,
     configureWebpack: (config) => {
         config.devtool = 'source-map'
+    },
+    chainWebpack: (config) => {
+        config.module //
+            .rule('images')
+            .set('parser', {
+                dataUrlCondition: {
+                    maxSize: -1
+                }
+            })
     }
 })
