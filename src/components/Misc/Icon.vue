@@ -81,6 +81,11 @@
     <svg v-else-if="icon === 'import-export'" :style="getStyle()" viewBox="0 0 24 24">
         <path d="M9 3L5 6.99h3V14h2V6.99h3L9 3zm7 14.01V10h-2v7.01h-3L15 21l4-3.99h-3z" fill="currentColor"></path>
     </svg>
+    <svg v-else-if="icon === 'locked'" :style="getStyle()" viewBox="0 0 17.75 28.76" fill="currentColor">
+        <path
+            d="m15.87,10.42v-4.16C15.87,2.02,12.83-.02,8.88,0,4.92-.02,1.89,2.02,1.89,6.25v4.16H0v13.04l8.88,5.31,8.88-5.31v-13.04h-1.89Zm-5.24,10.71v2.33h-3.49v-2.33c-1.1-.62-1.86-1.78-1.86-3.14,0-1.99,1.61-3.61,3.61-3.61s3.61,1.61,3.61,3.61c0,1.35-.76,2.52-1.86,3.14Zm2.12-10.71h-7.74v-4.16s.14-3.01,3.87-3.01,3.87,3.01,3.87,3.01v4.16Z"
+        />
+    </svg>
 </template>
 
 <script lang="ts">
@@ -106,6 +111,7 @@ export default {
             | 'play'
             | 'plus'
             | 'import-export'
+            | 'locked'
     },
     name: 'Icon',
     methods: {
