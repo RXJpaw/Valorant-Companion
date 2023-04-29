@@ -154,7 +154,12 @@ const login = async (noPresences: boolean | null = false, instanceId?: string) =
 }
 
 export const ValorantInstance = () => {
-    const request = async (method: string, valorant_server: 'local' | 'pd' | 'glz' | 'shared', path: string, body?: any): Promise<object | any | null> => {
+    const request = async (
+        method: string,
+        valorant_server: 'local' | 'pd' | 'glz' | 'shared' | 'custom',
+        path: string,
+        body?: any
+    ): Promise<object | any | null> => {
         const { server, token, auth } = connection
 
         if (typeof (await connect()) !== 'object') return null
@@ -176,6 +181,10 @@ export const ValorantInstance = () => {
             }
             case 'shared': {
                 requestURL = server!.sharedServer
+                break
+            }
+            case 'custom': {
+                requestURL = ''
                 break
             }
         }
