@@ -179,11 +179,20 @@ export default {
                 this.match_history[MatchID].MatchDetails = await this.getSubjectMatchDetails(MatchDetails)
             }
         },
+        async getGameModeIconURL(queueUuid: string) {
+            const GameModes = await Cache.GameModes
+
+            if (queueUuid === 'premier') {
+                return require('@/assets/images/premier.png')
+            } else {
+                const GameMode = GameModes.find((gamemode) => gamemode.uuid === queueUuid)
+                return GameMode?.displayIcon
+            }
+        },
         async getSubjectMatchDetails(MatchDetails: ValorantMatchDetails): Promise<ValorantSubjectMatchDetails | null> {
             if (MatchDetails.httpStatus) return null
 
             const Maps = await Cache.Maps
-            const GameModes = await Cache.GameModes
             const CompetitiveTiers = await Cache.CompetitiveTiers
             const CompetitiveSeasons = await Cache.CompetitiveSeasons
 
@@ -201,8 +210,8 @@ export default {
             const Map = Maps.find((map) => map.mapUrl === MatchDetails.matchInfo.mapId)!
             const MapBannerURL = Map.listViewIcon
 
-            const GameMode = GameModes.find((gamemode) => gamemode.uuid === GAMEMODE[MatchDetails.matchInfo.queueID])!
-            const GameModeIconURL = GameMode?.displayIcon
+            const GameMode = GAMEMODE[MatchDetails.matchInfo.queueID]
+            const GameModeIconURL = await this.getGameModeIconURL(GameMode)
 
             const CompetitiveSeason = CompetitiveSeasons.find((season) => season.seasonUuid === MatchDetails.matchInfo.seasonId)!
             const CompetitiveTier = CompetitiveTiers.find((tier) => tier.uuid === CompetitiveSeason.competitiveTiersUuid)!
