@@ -179,10 +179,15 @@ export default {
                 this.match_history[MatchID].MatchDetails = await this.getSubjectMatchDetails(MatchDetails)
             }
         },
-        async getGameModeIconURL(queueUuid: string) {
+        async getGameModeIconURL(MatchDetails: ValorantMatchDetails) {
             const GameModes = await Cache.GameModes
 
-            if (queueUuid === 'premier') {
+            const queueUuid = GAMEMODE[MatchDetails.matchInfo.queueID]
+            const provisioningFlowID = MatchDetails.matchInfo.provisioningFlowID
+
+            if (provisioningFlowID === 'Tournament') {
+                return require('@/assets/images/tournament.png')
+            } else if (queueUuid === 'premier') {
                 return require('@/assets/images/premier.png')
             } else {
                 const GameMode = GameModes.find((gamemode) => gamemode.uuid === queueUuid)
@@ -210,8 +215,7 @@ export default {
             const Map = Maps.find((map) => map.mapUrl === MatchDetails.matchInfo.mapId)!
             const MapBannerURL = Map.listViewIcon
 
-            const GameMode = GAMEMODE[MatchDetails.matchInfo.queueID]
-            const GameModeIconURL = await this.getGameModeIconURL(GameMode)
+            const GameModeIconURL = await this.getGameModeIconURL(MatchDetails)
 
             const CompetitiveSeason = CompetitiveSeasons.find((season) => season.seasonUuid === MatchDetails.matchInfo.seasonId)!
             const CompetitiveTier = CompetitiveTiers.find((tier) => tier.uuid === CompetitiveSeason.competitiveTiersUuid)!
