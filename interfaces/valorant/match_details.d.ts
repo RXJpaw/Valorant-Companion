@@ -21,8 +21,15 @@ declare module ValorantMatchDetails {
         seasonId: string
         completionState: string
         platformType: string
+        premierMatchInfo?: PremierMatchInfo
         partyRRPenalties: PartyRRPenalties
         shouldMatchDisablePenalties: boolean
+        tournamentId?: string
+    }
+
+    export interface PremierMatchInfo {
+        matchupId: string
+        tournamentId: string
     }
 
     export interface PlatformInfo {
