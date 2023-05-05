@@ -8,6 +8,7 @@ import { EventEmitter } from 'events'
 const Emitter = new EventEmitter()
 
 const connection = {
+    pid: null as number | null, //VALORANT PID
     auth: null as never as AuthFileData,
     server: null as never as LogFileData,
     token: null as never as GameAuthData,
@@ -19,6 +20,7 @@ const connection = {
     reset() {
         connection.websocket?.removeAllListeners()
 
+        connection.pid = null
         connection.auth = null
         connection.server = null
         connection.token = null
@@ -65,8 +67,28 @@ const Cache = {
 }
 
 const connect = async () => {
-    let { auth, server, token, presences, hadFirstPresences } = connection
+    let { pid, auth, server, token } = connection
     let refreshed = <string[]>[]
+
+    if (!pid) {
+        const Console = await window.exec('tasklist /FI "IMAGENAME eq VALORANT.exe" | findstr /I /C:"VALORANT.exe"', true)
+        if (!Console) return -1
+
+        const PIDMatch = Console.match(/VALORANT\.exe.*?(\d+)/)
+        if (!PIDMatch) return -11
+
+        const PID = Number(PIDMatch[1])
+        if (!PID) return -12
+
+        pid = PID
+
+        refreshed.push('pid')
+    }
+
+    if (!window.isRunning(pid)) {
+        connection.reset()
+        return -2
+    }
 
     if (!auth) {
         auth = getAuthFileData()
@@ -76,12 +98,7 @@ const connect = async () => {
 
     if (!window.isRunning(auth.PID)) {
         connection.reset()
-        return -1
-    }
-
-    if (hadFirstPresences && presences.findIndex((p) => p.Subject === token?.subject) === -1) {
-        connection.reset()
-        return -2
+        return -3
     }
 
     if (!server) {
@@ -96,6 +113,7 @@ const connect = async () => {
         refreshed.push('token')
     }
 
+    connection.pid = pid
     connection.auth = auth
     connection.server = server
     connection.token = token
@@ -126,6 +144,9 @@ const connect = async () => {
         connection.websocket.on('friendrequests', (data) => {
             Emitter.emit('friendrequests', data)
         })
+    }
+    if (refreshed.includes('pid')) {
+        console.debug('VALORANT running with PID', pid)
     }
 
     return refreshed
@@ -668,6 +689,18 @@ export const ValorantInstance = () => {
     const putSelfLoadout = async (PlayerLoadout: ValorantPersonalizationPlayerLoadoutSettings) => {
         return await request('put', 'pd', `/personalization/v2/players/${getSelfSubject()}/playerloadout`, PlayerLoadout)
     }
+
+    const getFavourites = async (): Promise<string[]> => {
+        const Favourites: ValorantFavorites = await request('get', 'pd', `/favorites/v1/players/${getSelfSubject()}/favorites`)
+        return Object.values(Favourites.FavoritedContent).map((fav) => fav.ItemID)
+    }
+    const addFavourite = async (itemId: string) => {
+        return await request('post', 'pd', `/favorites/v1/players/${getSelfSubject()}/favorites`, { ItemID: itemId })
+    }
+    const deleteFavourite = async (itemId: string) => {
+        return await request('delete', 'pd', `/favorites/v1/players/${getSelfSubject()}/favorites/${itemId}`)
+    }
+
     const getContracts = async () => {
         return await request('get', 'pd', `/contracts/v1/contracts/${getSelfSubject()}`)
     }
@@ -686,6 +719,10 @@ export const ValorantInstance = () => {
         Entitlements,
         getSelfLoadout,
         putSelfLoadout,
+
+        getFavourites,
+        addFavourite,
+        deleteFavourite,
 
         getChatPresences,
         getFriendList,
