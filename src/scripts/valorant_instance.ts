@@ -1,5 +1,6 @@
 import { DivisionOrder, fetchGameAuthData, fetchHelp, getAuthFileData, getHeaders, getLogFileData } from './valorant'
 import { EncounterHistory, RiotIdHistory, sleep } from '@/scripts/methods'
+import ENTITLEMENTS from '@/assets/valorant_api/entitlements.json'
 import { connectWebSocket } from '@/scripts/valorant_websocket'
 import * as ValorantAPI from '@/scripts/valorant_api'
 import PersistentCache from './cache_manager'
@@ -657,23 +658,33 @@ export const ValorantInstance = () => {
          * This method will return all ever owned entitlements instead of those you currently have.
          * Use the other Entitlement-methods to get your current entitlements at the price of Rate-Limit.
          */
-        getAll: async (): Promise<ValorantStoreEntitlementsAll['EntitlementsByTypes']> => {
+        getAll: async (): Promise<ValorantStoreEntitlementsAll.EntitlementsByType[]> => {
             const { EntitlementsByTypes } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}`)
 
             return EntitlementsByTypes
         },
-        getBuddies: async (): Promise<ValorantStoreEntitlementsBuddies['Entitlements']> => {
-            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/dd3bf334-87f3-40bd-b043-682a57a8dc3a`)
+        getTitles: async (): Promise<ValorantStoreEntitlementsTitles.Entitlement[]> => {
+            // const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.titles}`)
+
+            return []
+        },
+        getBanners: async (): Promise<ValorantStoreEntitlementsBanners.Entitlement[]> => {
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.banners}`)
 
             return Entitlements
         },
-        getSkinLevels: async (): Promise<ValorantStoreEntitlementsSkinLevels['Entitlements']> => {
-            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/e7c63390-eda7-46e0-bb7a-a6abdacd2433`)
+        getBuddies: async (): Promise<ValorantStoreEntitlementsBuddies.Entitlement[]> => {
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.buddies}`)
 
             return Entitlements
         },
-        getSkinChromas: async (): Promise<ValorantStoreEntitlementsSkinChromas['Entitlements']> => {
-            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/3ad1b2b2-acdb-4524-852f-954a76ddae0a`)
+        getSkinLevels: async (): Promise<ValorantStoreEntitlementsSkinLevels.Entitlement[]> => {
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.skin_levels}`)
+
+            return Entitlements
+        },
+        getSkinChromas: async (): Promise<ValorantStoreEntitlementsSkinChromas.Entitlement[]> => {
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.skin_chromas}`)
 
             return Entitlements
         }
