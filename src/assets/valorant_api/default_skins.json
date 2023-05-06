@@ -1,0 +1,96 @@
+{
+    "classic": {
+        "base": "24aee897-4cdc-b0fd-e596-1ba90fa6d1b2",
+        "level": "51cbccad-487c-50ed-2ffd-c88b4240fab3",
+        "chroma": "4b2d5b4f-4955-4208-286c-abadec250cdd"
+    },
+    "shorty": {
+        "base": "48ad078a-4dae-2b85-a945-f4b6d1efecbb",
+        "level": "a7f92a1c-4465-5ea3-7745-bd876117f4a7",
+        "chroma": "95608504-4c8b-1408-1612-0f8200421c49"
+    },
+    "frenzy": {
+        "base": "f06657f3-48b6-6314-7235-a9a2749df5b9",
+        "level": "80fabd74-4438-a2dd-0c39-42ab449f9ec6",
+        "chroma": "dc99ed5a-4d75-87a0-c921-75963ea3c1e1"
+    },
+    "ghost": {
+        "base": "1c63b43b-43c4-04e4-01c9-7aa1bffa5ac1",
+        "level": "0a7e786c-444e-6a80-8bda-e2b714d68332",
+        "chroma": "947a28b6-4e0f-61fb-e795-bc9a5e7b7129"
+    },
+    "sheriff": {
+        "base": "1ef6ba68-4dbe-30c7-6bc8-93a6c6f13f04",
+        "level": "feaf05a1-492f-d154-a9f5-0eb1fe9a603e",
+        "chroma": "5a59bd61-48a9-af61-c00f-4aa21deca9a8"
+    },
+
+    "stinger": {
+        "base": "940fb417-4a9c-3004-41f5-3e8f1f4178b2",
+        "level": "471fc2a5-47a7-5b12-2895-0899117d2f57",
+        "chroma": "31bb2115-4c62-d37c-43c4-11b8fee7f212"
+    },
+    "spectre": {
+        "base": "f01d1307-4299-42f5-2c5e-7dab7e69ab19",
+        "level": "1dc45e18-4a07-c85f-0020-6da4db1486ce",
+        "chroma": "a9aaccca-4cdc-02ea-1d7e-89bbacecc0e2"
+    },
+    "bucky": {
+        "base": "70c97fb2-4d79-d4bb-5173-a1888cd4bfd9",
+        "level": "2f5078c7-4381-492d-cc00-9f96966ba1ec",
+        "chroma": "3d8ffcfe-4786-0180-42d7-e1be18dd1cab"
+    },
+    "judge": {
+        "base": "acd26127-48ff-8b9e-7ba6-b989af8a4b24",
+        "level": "6942d8d1-4370-a144-2140-22a6d2be2697",
+        "chroma": "b71ae8d6-44bb-aa4c-0d2a-dc9ed9e66410"
+    },
+
+    "bulldog": {
+        "base": "724a7f42-4315-eccf-0e76-77bdd3ec2e09",
+        "level": "c8e6ac70-48ef-9d96-d964-a88e8890b885",
+        "chroma": "bf35f404-4a14-6953-ced2-5bafd21639a0"
+    },
+    "guardian": {
+        "base": "3bf1e8e0-47e8-f27a-6054-929575f41a54",
+        "level": "414d888a-41ce-fcf0-e545-c49018ec9cf4",
+        "chroma": "0f934388-418a-a9e7-42a7-21b27402e46c"
+    },
+    "phantom": {
+        "base": "337cb216-4a6e-d85d-88c2-f29ab317784c",
+        "level": "871e73ed-452d-eb5a-3d6b-1d87060f35ce",
+        "chroma": "52221ba2-4e4c-ec76-8c81-3483506d5242"
+    },
+    "vandal": {
+        "base": "27f21d97-4c4b-bd1c-1f08-31830ab0be84",
+        "level": "1ab72e66-4da3-33a0-164f-908113e075a4",
+        "chroma": "19629ae1-4996-ae98-7742-24a240d41f99"
+    },
+
+    "marshal": {
+        "base": "fd44b2d5-49ee-77ab-fa56-588f3ac0c268",
+        "level": "f0389390-49eb-a43e-27fa-fc9f9f8aa9de",
+        "chroma": "1afec971-4170-f29b-1c94-07a0eff270ab"
+    },
+    "operator": {
+        "base": "d1f2920f-469a-3431-ad96-96afbd0017f2",
+        "level": "88cba358-4f4d-4d0e-69fc-b48f4c65cb2d",
+        "chroma": "4914f50d-49f9-6424-ca80-9486c45a138d"
+    },
+    "ares": {
+        "base": "5305d9c4-4f46-fbf4-9e9a-dea772c263b5",
+        "level": "0f5f60f4-4c94-e4b2-ceab-e2b4e8b41784",
+        "chroma": "b33de820-4061-8b85-31ce-808f1a2c58f5"
+    },
+    "odin": {
+        "base": "f454efd1-49cb-372f-7096-d394df615308",
+        "level": "d91fb318-4e40-b4c9-8c0b-bb9da28bac55",
+        "chroma": "2f93861d-4b2f-2175-af0c-3ba0c736e257"
+    },
+
+    "melee": {
+        "base": "12cc9ed2-4430-d2fe-3064-f7a19b1ba7c7",
+        "level": "854938f3-4532-b300-d9a2-379d987d7469",
+        "chroma": "cac83e5c-47a1-3519-5420-1db1fdbc4892"
+    }
+}
