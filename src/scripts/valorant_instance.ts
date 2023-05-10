@@ -668,23 +668,28 @@ export const ValorantInstance = () => {
 
             return []
         },
+        getSprays: async (): Promise<ValorantStoreEntitlementsSprays.Entitlement[]> => {
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.sprays}?sprays`)
+
+            return Entitlements
+        },
         getBanners: async (): Promise<ValorantStoreEntitlementsBanners.Entitlement[]> => {
-            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.banners}`)
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.banners}?banners`)
 
             return Entitlements
         },
         getBuddies: async (): Promise<ValorantStoreEntitlementsBuddies.Entitlement[]> => {
-            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.buddies}`)
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.buddies}?buddies`)
 
             return Entitlements
         },
         getSkinLevels: async (): Promise<ValorantStoreEntitlementsSkinLevels.Entitlement[]> => {
-            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.skin_levels}`)
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.skin_levels}?skin-levels`)
 
             return Entitlements
         },
         getSkinChromas: async (): Promise<ValorantStoreEntitlementsSkinChromas.Entitlement[]> => {
-            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.skin_chromas}`)
+            const { Entitlements } = await request('get', 'pd', `/store/v1/entitlements/${getSelfSubject()}/${ENTITLEMENTS.skin_chromas}?skin-chromas`)
 
             return Entitlements
         }
