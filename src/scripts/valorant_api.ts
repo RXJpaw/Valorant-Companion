@@ -22,6 +22,7 @@ const cache = {
     ContentTiers: null as never as Promise<ValorantAPIContentTiers.ContentTier[]>,
     Bundles: null as never as Promise<ValorantAPIBundles.Bundle[]>,
     Contracts: null as never as Promise<ValorantAPIContracts.Contract[]>,
+    Sprays: null as never as Promise<ValorantAPISpray[]>,
     PlayerCards: null as never as Promise<ValorantAPIPlayerCard[]>,
     PlayerTitles: null as never as Promise<ValorantAPIPlayerTitle[]>
 }
@@ -102,6 +103,12 @@ export const getContracts = async () => {
     if (cache.Contracts) return await cache.Contracts
     cache.Contracts = CacheManager('contracts', 'https://valorant-api.com/v1/contracts')
     return await cache.Contracts
+}
+
+export const getSprays = async () => {
+    if (cache.Sprays) return await cache.Sprays
+    cache.Sprays = CacheManager('sprays', 'https://valorant-api.com/v1/sprays')
+    return await cache.Sprays
 }
 
 export const getPlayerCards = async () => {
