@@ -26,13 +26,13 @@ make your lobby feel awkward by exposing Rito-Buddy-Owners and possible VALORANT
 
 ## Installation
 
-### Use provided executables
+### Using the provided installer:
 
-1. Download the [latest version](https://github.com/RXJpaw/Valorant-Companion/releases/latest) and follow the version's instructions.
-2. Extract the downloaded file with f.e. [7zip](https://www.7-zip.org/download.html).
-3. Execute `Valorant Companion.exe`.
+1. Go to the [latest version](https://github.com/RXJpaw/Valorant-Companion/releases/latest).
+2. Download `valorant_companion-win64_installer_vX.X.X.exe`.
+3. Run the downloaded installer, a shortcut will be created automatically.
 
-### Building the executables yourself
+### Building the executables yourself:
 
 Requirements: `windows@>=19044`, `node.js@>=18.12.1`, `git`.
 
