@@ -36,13 +36,20 @@ export default {
         Client.on('friends', (data) => console.debug('friends', structuredClone(data)))
         Client.on('presences', (presences, eventType, affected) => console.debug('presences', structuredClone(presences), { [eventType]: affected }))
 
-        GameStateChangeChannel.addEventListener('message', ({ data }) => {
+        GameStateChangeChannel.addEventListener('message', async ({ data }) => {
             const { from, to } = data
 
             if (from === 'INGAME' && to === 'MENUS') {
-                Valorant.getSelfLoadout(true)
-                Valorant.getAccountXP(true)
-                Valorant.getMMR(Valorant.getSelfSubject(), true)
+                await sleep(1000)
+
+                await Promise.all([
+                    //Force-Updating Loadout, AccountXP and MMR
+                    Valorant.getSelfLoadout(true),
+                    Valorant.getAccountXP(true),
+                    Valorant.getMMR(Valorant.getSelfSubject(), true)
+                ])
+
+                await Valorant.Client.login(null, instanceId)
             }
         })
 
