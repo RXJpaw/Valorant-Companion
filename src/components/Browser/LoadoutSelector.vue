@@ -101,6 +101,8 @@ export default {
 
                     if (current.WeaponID === before?.WeaponID) return
                     if (current.WeaponCategory === 'melee') this.selector = 'weapons'
+
+                    if (this.selector === 'buddies') return
                     this.$refs.items?.scrollTo({ top: 0, behavior: 'auto' })
                     this.scrolled = false
                 }

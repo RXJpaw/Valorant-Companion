@@ -115,6 +115,8 @@ export default {
                     this.processBanners()
                     this.processSprays()
 
+                    if (before) return
+
                     this.$refs.items?.scrollTo({ top: 0, behavior: 'auto' })
                     this.scrolled = false
                 }
