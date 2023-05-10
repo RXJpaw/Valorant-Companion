@@ -55,13 +55,24 @@ The project is built and located at `dist_electron\win-unpacked`.
 ## Preview Images
 
 ### Current Match
-<img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_current_match.png" width="854" height="480">
+Show other's level, current/worst/best rank, equipped skins and details of their past 9 competitive games.
+
+<img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_current_match.png">
+
+### Account Manager
+Automatically adds accounts you're playing on. Share accounts with other Valorant Companion users with the integrated export-feature and see the shops and nightmarkets of accounts without logging into them. Can be opened by pressing F2 or in the Account Dropdown-Menu.
+
+<img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_account_manager.png">
+
+### Loadout Manager
+Manage skins, update favourites, equip buddies, change pre-/mid-/post-round sprays and pick your banner.
+
+<img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_loadout_manager.png">
 
 ### Match History
-<img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_match_history.png" width="854" height="480">
+See all your recorded valorant matches and some details. More information be available soonTM.
 
-### Loadout Manager (Incomplete)
-<img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_loadout_manager.png" width="854" height="480">
+<img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_match_history.png">
 
 ## Acknowledgements
 
