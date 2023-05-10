@@ -10,6 +10,8 @@ import path from 'path'
 import fs from 'fs'
 import './updater'
 
+app.commandLine.appendSwitch('high-dpi-support', '1')
+app.commandLine.appendSwitch('force-device-scale-factor', '1')
 app.commandLine.appendSwitch('ignore-certificate-errors')
 
 const zoomFactor = 1
@@ -29,6 +31,7 @@ async function createWindow() {
         height: 720 * zoomFactor,
         minWidth: 720 * zoomFactor * (16 / 9),
         minHeight: 720 * zoomFactor,
+        maxHeight: 720 * zoomFactor,
         autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
