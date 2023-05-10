@@ -1,463 +1,481 @@
 <template>
-    <div v-if="weapons.length > 0" class="loadout-manager">
+    <div v-if="isReady()" class="loadout-manager" @click="clickOutside">
+        <div class="identity">
+            <div class="banner" :style="`--bgi: url('${identity.BannerImageURL}')`" @click="clickIdentity($event, 'banner')"></div>
+            <div v-if="identity.TitleText" class="title">{{ identity.TitleText }}</div>
+        </div>
+        <div class="sprays">
+            <div
+                class="spray pre"
+                :class="{ active: selected_identity.type === 'pre-spray' }"
+                :style="`--bgi: url('${identity.PreRoundSprayImageURL}')`"
+                @click="clickIdentity($event, 'pre-spray')"
+            >
+                <div class="display-name">
+                    <div class="name">{{ identity.PreRoundSprayName.replace(/ Spray$/, '') }}</div>
+                </div>
+            </div>
+            <div
+                class="spray mid"
+                :class="{ active: selected_identity.type === 'mid-spray' }"
+                :style="`--bgi: url('${identity.MidRoundSprayImageURL}')`"
+                @click="clickIdentity($event, 'mid-spray')"
+            >
+                <div class="display-name">
+                    <div class="name">{{ identity.MidRoundSprayName.replace(/ Spray$/, '') }}</div>
+                </div>
+            </div>
+            <div
+                class="spray post"
+                :class="{ active: selected_identity.type === 'post-spray' }"
+                :style="`--bgi: url('${identity.PostRoundSprayImageURL}')`"
+                @click="clickIdentity($event, 'post-spray')"
+            >
+                <div class="display-name">
+                    <div class="name">{{ identity.PostRoundSprayName.replace(/ Spray$/, '') }}</div>
+                </div>
+            </div>
+        </div>
         <div class="weapons">
-            <LoadoutWeapon v-for="(weapon, index) in weapons" :weapon="weapon" @click="openSelector(weapon.WeaponUUID, $event.target)" />
+            <LoadoutWeapon v-for="gun in getWeaponsArray()" :weapon="gun" @click="clickWeapon($event, gun.WeaponID)" />
         </div>
-        <div class="interactions">
-            <div class="buttons">
-                <div class="button discard" :class="{ disabled: !hasChanges }" @click="discardLoadout">Discard Changes</div>
-                <div class="button apply" :class="{ disabled: !hasChanges }" @click="applyLoadout">Apply Loadout</div>
-            </div>
+        <IdentitySelector
+            :type="selected_identity.type"
+            :active="!!selected_identity.identity"
+            :identity="selected_identity.identity"
+            :left="selected_identity.left"
+            :top="selected_identity.top"
+            :gap="selected_identity.gap"
+            :Inventory="Inventory"
+            :LoadoutManager="LoadoutManager"
+            @update:LoadoutManager="LoadoutManagerUpdate"
+        />
+        <LoadoutSelector
+            :active="!!selected_weapon.weapon"
+            :weapon="selected_weapon.weapon"
+            :left="selected_weapon.left"
+            :top="selected_weapon.top"
+            :gap="selected_weapon.gap"
+            :Inventory="Inventory"
+            :LoadoutManager="LoadoutManager"
+            @update:LoadoutManager="LoadoutManagerUpdate"
+        />
+        <div class="buttons">
+            <Button class="undo" :disabled="!has_changes" text="Discard Changes" @click="undoChanges" />
+            <Button class="save" :disabled="!has_changes" text="Apply Loadout" @click="saveChanges" />
         </div>
-
-        <transition-group>
-            <div v-if="selector_show" class="selection-menu-background" @click="selector_show = false"></div>
-            <div v-if="selector_show" class="selection-menu" :style="`transform-origin: ${selector_last_click}`">
-                <div class="selected-weapon-flex">
-                    <div class="selected-weapon">
-                        <LoadoutWeapon :weapon="selected_weapon" :preview="true" />
-                        <div v-if="selected_weapon.Levels.length > 1" class="levels">
-                            <div class="button">
-                                <div class="level">Level {{ selected_weapon.LevelIndex + 1 }}</div>
-                            </div>
-                        </div>
-                        <div v-if="selected_weapon.Chromas.length > 1" class="chromas">
-                            <div
-                                class="button"
-                                v-for="(chroma, index) in selected_weapon.Chromas"
-                                :class="{ disabled: index !== 0 && !selected_weapon.ChromasOwned.find((c) => c === chroma.uuid) }"
-                                @click="setSelectedSkinLevel(selected_weapon.Levels.at(-1).uuid, chroma.uuid)"
-                            >
-                                <div class="chroma" :style="`--bgi: url('${chroma.swatch}')`"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="entitlements-wrapper">
-                    <div class="entitlements weapon mini" :class="selected_weapon.WeaponCategory">
-                        <LoadoutWeapon
-                            v-for="(entitlement, index) in entitlements"
-                            :weapon="entitlement"
-                            :mini="true"
-                            @click="setSelectedSkin(entitlement.WeaponSkin)"
-                        />
-                    </div>
-                </div>
-            </div>
-        </transition-group>
     </div>
     <NotReady v-else text="Waiting for VALORANT loadout data..."></NotReady>
 </template>
 
 <script lang="ts">
 import { InventoryInstance, LoadoutManagerInstance } from '@/scripts/loadout_manager'
-import LoadoutWeapon from '@/components/Browser/LoadoutWeapon.vue'
+import SPRAY_EQUIP_SLOTS from '@/assets/valorant_api/spray_equip_slots.json'
+import IdentitySelector from '@/components/Browser/IdentitySelector.vue'
+import LoadoutSelector from '@/components/Browser/LoadoutSelector.vue'
+import LoadoutWeapon from '@/components/Button/LoadoutWeapon.vue'
 import { ValorantInstance } from '@/scripts/valorant_instance'
 import WEAPONS from '@/assets/valorant_api/weapons.json'
 import NotReady from '@/components/Content/NotReady.vue'
 import * as ValorantAPI from '@/scripts/valorant_api'
+import Button from '@/components/Input/Button.vue'
 
 const Valorant = ValorantInstance()
 
 const Cache = {
     Themes: ValorantAPI.getThemes(),
+    Sprays: ValorantAPI.getSprays(),
     Bundles: ValorantAPI.getBundles(),
     Weapons: ValorantAPI.getWeapons(),
     Buddies: ValorantAPI.getBuddies(),
     WeaponSkins: ValorantAPI.mapWeaponSkins(),
-    ContentTiers: ValorantAPI.getContentTiers()
+    ContentTiers: ValorantAPI.getContentTiers(),
+    PlayerCards: ValorantAPI.getPlayerCards(),
+    PlayerTitles: ValorantAPI.getPlayerTitles()
 }
 
 export default {
     name: 'LoadoutManager',
-    components: { LoadoutWeapon, NotReady },
+    components: { IdentitySelector, NotReady, Button, LoadoutSelector, LoadoutWeapon },
     props: {
         isVisible: Boolean as () => boolean
     },
     data() {
         return {
-            weapons: [],
-            entitlements: [],
-            hasChanges: false,
-            inventory: InventoryInstance(),
-            loadout_manager: LoadoutManagerInstance(),
-            selector_last_click: '0 0',
-            selected_weapon: {},
-            selector_show: false
+            selected_identity: {
+                type: null as 'banner' | 'pre-spray' | 'mid-spray' | 'post-spray' | null,
+                identity: null as ProcessedIdentity | null,
+                left: 0,
+                top: 0,
+                gap: 0
+            },
+
+            selected_weapon: {
+                weapon: null as ProcessedLoadoutWeapon | null,
+                left: 0,
+                top: 0,
+                gap: 0
+            },
+
+            weapons: {} as { [weaponId: string]: ProcessedLoadoutWeapon },
+            identity: null as ProcessedIdentity | null,
+
+            has_changes: false,
+
+            Inventory: null as InventoryInstance | null,
+            LoadoutManager: null as LoadoutManagerInstance | null
         }
     },
     async created() {
-        window.addEventListener('keydown', this.KeyDownListener)
+        this.Inventory = await InventoryInstance()
+        this.LoadoutManager = await LoadoutManagerInstance()
 
-        this.weapons = await this.getWeapons()
+        await this.processIdentity()
+        await this.processWeapons()
+    },
+    mounted() {
+        window.addEventListener('keydown', this.WindowKeyDownListener)
     },
     beforeUnmount() {
-        window.removeEventListener('keydown', this.KeyDownListener)
+        window.removeEventListener('keydown', this.WindowKeyDownListener)
     },
     methods: {
-        KeyDownListener(event: KeyboardEvent) {
+        WindowKeyDownListener(event: KeyboardEvent) {
             if (!this.isVisible) return
 
             if (event.key === 'Escape') {
-                this.selector_show = false
+                this.clearIdentity()
+                this.clearWeapon()
             }
         },
-        async openSelector(weapon_uuid, ref: Element) {
-            const ElementRect = ref.getBoundingClientRect()
+        undoChanges() {
+            this.LoadoutManager.reset()
+            this.LoadoutManagerUpdate(this.LoadoutManager)
+        },
+        saveChanges() {
+            this.LoadoutManager.apply()
+            this.LoadoutManagerUpdate(this.LoadoutManager)
+        },
+        async LoadoutManagerUpdate(LoadoutManager: LoadoutManagerInstance) {
+            this.LoadoutManager = LoadoutManager
+            this.has_changes = LoadoutManager.hasChanges()
 
-            this.selector_last_click = `${-256 + ElementRect.x + ElementRect.width / 2}px ${-32 + ElementRect.y}px`
-            this.selected_weapon = this.weapons.find((weapon) => weapon.WeaponUUID === weapon_uuid)
-            this.selector_show = true
+            await this.processIdentity()
+            await this.processWeapons()
 
-            this.entitlements = await this.getEntitlements(weapon_uuid)
+            if (this.selected_identity.identity) this.selected_identity.identity = this.identity
+            if (this.selected_weapon.weapon) this.selected_weapon.weapon = this.weapons[this.selected_weapon.weapon.WeaponID]
+        },
+        isReady() {
+            return Object.values(this.weapons).length === 18 && this.identity
+        },
+        clickOutside(event: PointerEvent) {
+            if (event.target?.['className'] !== 'loadout-manager') return
+            this.clearIdentity()
+            this.clearWeapon()
+        },
+        clearIdentity() {
+            this.selected_identity.type = null
+            this.selected_identity.identity = null
+        },
+        clickIdentity(event: PointerEvent, type: string) {
+            const Target = event.target as Element
+            if (!Target?.classList.contains('banner') && !Target?.classList.contains('spray')) return
+
+            this.clearWeapon()
+
+            if (this.selected_identity.type === type) {
+                this.clearIdentity()
+            } else {
+                this.selected_identity.type = type
+
+                this.selected_identity.identity = this.identity
+                this.selected_identity.left = event.x - event.offsetX
+                this.selected_identity.top = event.y - event.offsetY
+                this.selected_identity.gap = event.target?.['clientWidth']
+
+                if (type === 'mid-spray') this.selected_identity.top -= 83
+                if (type === 'post-spray') this.selected_identity.top -= 166
+            }
+        },
+        clearWeapon() {
+            this.selected_weapon.weapon = null
+        },
+        clickWeapon(event: PointerEvent, weaponId: string) {
+            const Target = event.target as Element
+            if (!Target?.classList.contains('weapon')) return
+
+            this.clearIdentity()
+
+            if (this.selected_weapon.weapon?.WeaponID === weaponId) {
+                this.clearWeapon()
+            } else {
+                this.selected_weapon.weapon = this.weapons[weaponId]
+                this.selected_weapon.left = event.x - event.offsetX
+                this.selected_weapon.top = event.y - event.offsetY
+                this.selected_weapon.gap = event.target?.['clientWidth']
+
+                if ([WEAPONS.sheriff, WEAPONS.melee].includes(weaponId)) this.selected_weapon.top -= 51
+            }
         },
         parseEquippableCategory(category: string) {
             return category.replace('EEquippableCategory::', '').toLowerCase()
         },
-        async applyLoadout() {
-            if (!this.hasChanges) return
-            this.hasChanges = false
-
-            const LoadoutManager = await this.loadout_manager
-            await LoadoutManager.apply()
-        },
-        async discardLoadout() {
-            if (!this.hasChanges) return
-            this.hasChanges = false
-
-            const LoadoutManager = await this.loadout_manager
-            LoadoutManager.reset()
-
-            this.weapons = await this.getWeapons()
-        },
-        async setSelectedSkinLevel(level, chroma) {
-            const SelectedWeapon = this.selected_weapon
-            const Inventory = await this.inventory
-            if (SelectedWeapon.Chromas[0].uuid !== chroma && !Inventory.SkinChromas.find((c) => c.ItemID === chroma)) return
-            if (SelectedWeapon.Levels[0].uuid !== level && !Inventory.SkinLevels.find((l) => l.ItemID === level)) return
-
-            const LoadoutManager = await this.loadout_manager
-
-            LoadoutManager.getWeapon(SelectedWeapon.WeaponUUID) //
-                .setSkin(SelectedWeapon.WeaponSkin)
-                .setSkinLevel(level)
-                .setSkinChroma(chroma)
-
-            this.weapons = await this.getWeapons()
-            this.selected_weapon = this.weapons.find((weapon) => weapon.WeaponUUID === SelectedWeapon.WeaponUUID)
-        },
-        async setSelectedSkin(skin) {
-            const SelectedWeapon = this.selected_weapon
-            const WeaponSkins = await Cache.WeaponSkins
-
-            const LoadoutManager = await this.loadout_manager
-            const WeaponSkin = WeaponSkins.find((s) => s.uuid === skin)
-            if (!WeaponSkin) return
-
-            LoadoutManager.getWeapon(SelectedWeapon.WeaponUUID) //
-                .setSkin(skin)
-                .setSkinLevel(WeaponSkin.levels[0].uuid)
-                .setSkinChroma(WeaponSkin.chromas[0].uuid)
-
-            this.weapons = await this.getWeapons()
-            this.selected_weapon = this.weapons.find((weapon) => weapon.WeaponUUID === SelectedWeapon.WeaponUUID)
-        },
-        async getWeapons() {
-            const Themes = await Cache.Themes
-            const Bundles = await Cache.Bundles
-            const Weapons = await Cache.Weapons
-            const WeaponSkins = await Cache.WeaponSkins
-            const ContentTiers = await Cache.ContentTiers
-
-            const LoadoutManager = await this.loadout_manager
-            const Inventory = await this.inventory
-            const Loadout = LoadoutManager.getLoadout()
-            this.hasChanges = LoadoutManager.hasChanges()
-
+        getWeaponsArray() {
             const WeaponsOrder = Object.values(WEAPONS)
-            const LoadoutWeapons = Loadout.Guns.sort((a, b) => {
-                const indexA = WeaponsOrder.findIndex((uuid) => uuid === a.ID)
-                const indexB = WeaponsOrder.findIndex((uuid) => uuid === b.ID)
+            const Weapons: ProcessedLoadoutWeapon[] = Object.values(this.weapons)
+
+            return Weapons.sort((a, b) => {
+                const indexA = WeaponsOrder.findIndex((uuid) => uuid === a.WeaponID)
+                const indexB = WeaponsOrder.findIndex((uuid) => uuid === b.WeaponID)
 
                 return indexA - indexB
             })
-
-            return LoadoutWeapons.map((entitlement) => {
-                const WeaponSkin = WeaponSkins.find((skin) => skin.uuid === entitlement.SkinID)
-                if (!WeaponSkin) return
-
-                const Weapon = Weapons.find((w) => w.uuid === entitlement.ID)
-                if (!Weapon) return
-
-                // const Theme = Themes.find((theme) => theme.uuid === WeaponSkin.themeUuid)
-                // const Bundle = Bundles.find((bundle) => Valorant.compareThemeAndBundleAssetPath(Theme?.assetPath, bundle.assetPath))
-                const ContentTier = ContentTiers.find((tier) => tier.uuid === WeaponSkin.contentTierUuid)
-
-                return {
-                    WeaponUUID: entitlement.ID,
-                    WeaponSkin: entitlement.SkinID,
-                    DisplayName: WeaponSkin.displayName,
-                    WeaponCategory: this.parseEquippableCategory(Weapon.category),
-
-                    hasBuddy: !!entitlement.CharmID,
-                    hasWallpaper: !!WeaponSkin.wallpaper,
-
-                    Levels: WeaponSkin.levels,
-                    LevelIndex: WeaponSkin.levels.findIndex((level) => level.uuid === entitlement.SkinLevelID),
-                    LevelsOwned: Inventory.SkinLevels.filter((level) => WeaponSkin.levels.find((l) => l.uuid === level.ItemID)).map((T) => T.ItemID),
-                    Chromas: WeaponSkin.chromas,
-                    ChromaIndex: WeaponSkin.chromas.findIndex((chroma) => chroma.uuid === entitlement.ChromaID),
-                    ChromasOwned: Inventory.SkinChromas.filter((chroma) => WeaponSkin.chromas.find((c) => c.uuid === chroma.ItemID)).map((T) => T.ItemID),
-
-                    WallpaperURL: WeaponSkin.wallpaper,
-                    BuddyIconURL: `https://media.valorant-api.com/buddies/${entitlement.CharmID}/displayicon.png`,
-                    DisplayIconURL: `https://media.valorant-api.com/weaponskinchromas/${entitlement.ChromaID}/fullrender.png`,
-                    ContentTierName: ContentTier?.devName.toLowerCase(),
-                    ContentTierRank: ContentTier?.rank || 0
-                }
-            })
         },
-        async getEntitlements(weapon_uuid) {
-            const Themes = await Cache.Themes
-            const Bundles = await Cache.Bundles
+        async processIdentity() {
+            if (!this.LoadoutManager) return
+            const Sprays = await Cache.Sprays
+            const PlayerCards = await Cache.PlayerCards
+            const PlayerTitles = await Cache.PlayerTitles
+
+            const LoadoutManager: LoadoutManagerInstance = this.LoadoutManager
+            const Loadout = LoadoutManager.getLoadout()
+
+            const LoadoutSpraysMap = new Map(Loadout.Sprays.map((spray) => [spray.EquipSlotID, spray.SprayID]))
+            const PlayerTitlesMap = new Map(PlayerTitles.map((title) => [title.uuid, title]))
+            const PlayerCardsMap = new Map(PlayerCards.map((card) => [card.uuid, card]))
+            const SpraysMap = new Map(Sprays.map((spray) => [spray.uuid, spray]))
+
+            const PlayerTitle = PlayerTitlesMap.get(Loadout.Identity.PlayerTitleID) || PlayerTitlesMap.get('d13e579c-435e-44d4-cec2-6eae5a3c5ed4')!
+            const PlayerCard = PlayerCardsMap.get(Loadout.Identity.PlayerCardID) || PlayerCardsMap.get('0819fbcd-4bd4-c379-5384-52803440f2b2')!
+
+            const PreRoundSpray = SpraysMap.get(LoadoutSpraysMap.get(SPRAY_EQUIP_SLOTS.preround)!)!
+            const MidRoundSpray = SpraysMap.get(LoadoutSpraysMap.get(SPRAY_EQUIP_SLOTS.midround)!)!
+            const PostRoundSpray = SpraysMap.get(LoadoutSpraysMap.get(SPRAY_EQUIP_SLOTS.postround)!)!
+
+            this.identity = {
+                TitleID: PlayerTitle.uuid,
+                TitleText: PlayerTitle.titleText,
+
+                BannerID: PlayerCard.uuid,
+                BannerImageURL: PlayerCard.largeArt,
+
+                PreRoundSprayID: PreRoundSpray.uuid,
+                PreRoundSprayName: PreRoundSpray.displayName,
+                PreRoundSprayImageURL: PreRoundSpray.fullTransparentIcon || PreRoundSpray.displayIcon,
+
+                MidRoundSprayID: MidRoundSpray.uuid,
+                MidRoundSprayName: MidRoundSpray.displayName,
+                MidRoundSprayImageURL: MidRoundSpray.fullTransparentIcon || MidRoundSpray.displayIcon,
+
+                PostRoundSprayID: PostRoundSpray.uuid,
+                PostRoundSprayName: PostRoundSpray.displayName,
+                PostRoundSprayImageURL: PostRoundSpray.fullTransparentIcon || PostRoundSpray.displayIcon
+            }
+        },
+        async processWeapons() {
+            if (!this.LoadoutManager) return
             const Weapons = await Cache.Weapons
+            const WeaponSkins = await Cache.WeaponSkins
             const ContentTiers = await Cache.ContentTiers
 
-            const Weapon = Weapons.find((weapon) => weapon.uuid === weapon_uuid)
-            if (!Weapon) return
+            const LoadoutManager: LoadoutManagerInstance = this.LoadoutManager
+            const Loadout = LoadoutManager.getLoadout()
 
-            const WeaponSkins = Weapon.skins
+            for (const Gun of Loadout.Guns) {
+                const Weapon = Weapons.find((w) => w.uuid === Gun.ID)
+                if (!Weapon) continue
+                const WeaponSkin = WeaponSkins.find((skin) => skin.uuid === Gun.SkinID)
+                if (!WeaponSkin) continue
+                const ContentTier = ContentTiers.find((tier) => tier.uuid === WeaponSkin.contentTierUuid)
 
-            const Inventory = await this.inventory
-            const Skins = Inventory.SkinLevels.map((level) => WeaponSkins.find((skin) => skin.levels[0].uuid === level.ItemID)).filter((T) => T)
-
-            return Skins.map((skin) => {
-                // const Theme = Themes.find((theme) => theme.uuid === skin.themeUuid)
-                // const Bundle = Bundles.find((bundle) => Valorant.compareThemeAndBundleAssetPath(Theme?.assetPath, bundle.assetPath))
-                const WeaponSkin = WeaponSkins.find((s) => s.uuid === skin.uuid)
-                if (!WeaponSkin) return
-
-                const ContentTier = ContentTiers.find((tier) => tier.uuid === skin.contentTierUuid)
-
-                return {
-                    WeaponUUID: weapon_uuid,
-                    WeaponSkin: skin.uuid,
-                    DisplayName: skin.displayName,
-                    ContentTier: skin.contentTierUuid,
+                const Override = {
+                    WeaponID: Gun.ID,
                     WeaponCategory: this.parseEquippableCategory(Weapon.category),
 
-                    hasBuddy: null,
-                    hasWallpaper: !!WeaponSkin.wallpaper,
+                    SkinID: Gun.SkinID,
+                    SkinName: WeaponSkin.displayName,
+                    SkinImageURL: `https://media.valorant-api.com/weaponskinchromas/${Gun.ChromaID}/fullrender.png`,
 
-                    WallpaperURL: WeaponSkin.wallpaper,
-                    BuddyIconURL: null,
-                    DisplayIconURL: skin.chromas[0].fullRender,
+                    LevelID: Gun.SkinLevelID,
+                    ChromaID: Gun.ChromaID,
+
+                    hasBuddy: !!Gun.CharmID,
+                    BuddyImageURL: `https://media.valorant-api.com/buddies/${Gun.CharmID}/displayicon.png`,
+
                     ContentTierName: ContentTier?.devName.toLowerCase(),
                     ContentTierRank: ContentTier?.rank || 0
                 }
-            }).sort((a, b) => {
-                const scoreA = a.ContentTierRank * 100
-                const scoreB = b.ContentTierRank * 100
 
-                return a.DisplayName.localeCompare(b.DisplayName) + scoreB - scoreA
-            })
+                this.weapons[Gun.ID] = Override
+            }
         }
     }
 }
 </script>
 
 <style scoped>
-.selection-menu-background:is(.v-enter-active, .v-leave-active) {
-    transition: opacity 0.3s ease;
-}
-.selection-menu-background:is(.v-enter-from, .v-leave-to) {
-    opacity: 0;
-}
-.selection-menu:is(.v-enter-active, .v-leave-active) {
-    transition: transform 0.15s ease, opacity 0.15s ease;
-}
-.selection-menu:is(.v-enter-from, .v-leave-to) {
-    transform: scale(0.5);
-    opacity: 0;
-}
-
 .loadout-manager {
-}
+    --banner-width: 120px; /* 120px*/
+    --weapon-height: 72px; /*  72px*/
 
-.loadout-manager > .selection-menu-background {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
 
     width: 100%;
     height: 100%;
-
-    background-color: #000000d0;
 }
 
-.loadout-manager > .selection-menu {
-    overflow: hidden;
+.loadout-manager > .buttons {
     position: absolute;
-    top: 44px;
-    left: 44px;
-
-    width: 936px;
-    height: 610px;
-    background-color: #2f3136;
-
-    border: 0 solid;
-    border-radius: 6px;
-}
-.loadout-manager > .selection-menu > .selected-weapon-flex {
-    position: absolute;
-    top: 0;
-    left: 0;
+    left: 765px;
+    top: 647px;
 
     display: flex;
-    justify-content: center;
-    align-items: center;
+    gap: 7px;
+}
+.loadout-manager > .buttons > .undo {
+    --button-color: #18191c;
+}
+.loadout-manager > .buttons > .save {
+    --button-color: #388e3c;
+}
+
+.loadout-manager > .sprays {
+    position: absolute;
+    left: 22px;
+    top: 326px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+
+    width: var(--banner-width);
+}
+.loadout-manager > .sprays > .spray {
+    position: relative;
 
     width: 100%;
-    height: 142px;
-    background: #202225;
-}
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon {
-    position: relative;
-}
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .chromas {
-    position: absolute;
-    top: 30px;
-    left: 100%;
-
-    display: flex;
-    align-content: flex-start;
-    flex-wrap: wrap;
-    gap: 10px;
-
-    margin-left: 10px;
-    height: 30px;
-    width: max-content;
-}
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .levels {
-    position: absolute;
-    top: 0;
-    left: 100%;
-
-    margin-left: 10px;
-    height: 20px;
-    width: max-content;
-}
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .levels > .button,
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .chromas > .button {
-    background-color: #121314;
+    height: 61px;
     border-radius: 6px;
-    overflow: hidden;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: var(--bgi);
+    background-size: 80%;
+
+    background-color: #202225;
+
     cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
 }
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .levels > .button {
-    height: 20px;
-    width: 150px;
+.loadout-manager > .sprays > .spray.active {
+    background-color: #18191c;
 }
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .chromas > .button {
-    height: 30px;
-    width: 30px;
+.loadout-manager > .sprays > .spray > .display-name {
+    display: flex;
+    justify-content: center;
+
+    position: absolute;
+    bottom: -6px;
+    left: 6px;
+
+    height: 16px;
+    width: calc(100% - 12px);
+
+    pointer-events: none;
 }
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .levels > .button > .level {
-    font-size: 14px;
-    line-height: 10px;
-    margin: 5px 0;
+.loadout-manager > .sprays > .spray > .display-name > .name {
+    height: 12px;
+    padding: 2px 6px;
+    border-radius: 6px;
+
+    font-size: 11px;
+    line-height: 12px;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    background-color: #18191c;
+
+    transition: background-color 0.15s ease-in-out;
 }
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .chromas > .button > .chroma {
-    transition: filter 0.05s ease-in-out, background-image 0.05s ease-in-out;
+.loadout-manager > .sprays > .spray.active > .display-name > .name {
+    background-color: #121314;
+}
+
+/**
+    banner-width: 268px
+
+    banner-height: 640px | 2.38806
+ */
+.loadout-manager > .identity {
+    position: absolute;
+    left: 22px;
+    top: 22px;
+
+    height: calc(var(--banner-width) * 2.38806);
+    width: var(--banner-width);
+
+    pointer-events: none;
+}
+.loadout-manager > .identity > .banner {
+    height: 98.5%;
+    width: 100%;
 
     background-image: var(--bgi);
     background-size: cover;
 
-    height: 100%;
-    width: 100%;
-}
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .chromas > .button.disabled {
-    cursor: not-allowed;
-}
-.loadout-manager > .selection-menu > .selected-weapon-flex > .selected-weapon > .chromas > .button.disabled > .chroma {
-    filter: blur(4px) brightness(0.5) grayscale(1);
-}
-
-.loadout-manager > .selection-menu > .entitlements-wrapper {
-    overflow: var(--webkit-overlay);
-    position: absolute;
-    top: 142px;
-
-    width: 100%;
-    height: calc(100% - 142px);
-}
-
-.loadout-manager > .selection-menu > .entitlements-wrapper > .entitlements {
-    position: absolute;
-
-    display: grid;
-    grid-template-columns: repeat(auto-fill, var(--weapon-width));
-    grid-template-rows: repeat(auto-fill, 64px);
-    justify-content: center;
-    gap: 22px;
-
-    width: calc(100% - 44px);
-    margin: 22px;
-    padding-bottom: 22px;
-}
-.loadout-manager > .interactions {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-
-    margin: 22px;
-    height: 32px;
-    width: 980px;
-}
-.loadout-manager > .interactions > .buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 22px;
-}
-.loadout-manager > .interactions > .buttons > .button {
-    font-size: 14px;
-    line-height: 10px;
-
-    padding: 11px;
     border-radius: 6px;
 
-    transition: background-color 0.15s ease-in-out, opacity 0.15s ease-in-out;
     cursor: pointer;
+    pointer-events: all;
 }
-.loadout-manager > .interactions > .buttons > .button.apply {
-    background-color: #2e8048;
-    width: 100px;
-}
-.loadout-manager > .interactions > .buttons > .button:not(.disabled).apply:active {
-    background-color: #205932;
-}
-.loadout-manager > .interactions > .buttons > .button.discard {
-    background-color: #202225;
-    width: 114px;
-}
-.loadout-manager > .interactions > .buttons > .button:not(.disabled).discard:active {
-    background-color: #18191c;
-}
-.loadout-manager > .interactions > .buttons > .button.disabled {
-    cursor: not-allowed;
-    filter: opacity(0.75);
-    background-color: #202225;
+.loadout-manager > .identity > .title {
+    overflow-wrap: break-word;
+
+    position: absolute;
+    bottom: 90px;
+
+    width: 100%;
+    padding: 2px 0;
+    font-size: 11px;
+    line-height: 10px;
+
+    backdrop-filter: blur(2px) brightness(0.666);
 }
 
+/**
+    default-height: 160px
+
+    sidearm-width: 270px | 1.6875
+        smg-width: 433px | 2.70625
+    shotgun-width: 433px | 2.70625
+      rifle-width: 487px | 3.04375
+     sniper-width: 526px | 3.2875
+      heavy-width: 526px | 3.2875
+      melee-width: 526px | 3.2875
+ */
 .loadout-manager > .weapons {
+    position: absolute;
+    left: calc(var(--banner-width) + 22px);
+    top: 0;
+
+    --row1-width: calc(var(--weapon-height) * 1.6875);
+    --row2-width: calc(var(--weapon-height) * 2.70625);
+    --row3-width: calc(var(--weapon-height) * 3.04375);
+    --row4-width: calc(var(--weapon-height) * 3.2875);
+
     display: grid;
     grid-auto-flow: column;
-    grid-template-columns: 142px 232px 260px 280px;
-    grid-template-rows: repeat(5, 98px);
+    grid-template-columns: var(--row1-width) var(--row2-width) var(--row3-width) var(--row4-width);
+    grid-template-rows: repeat(5, var(--weapon-height));
     grid-column-gap: 22px;
     grid-row-gap: 22px;
 
     margin: 22px;
+
+    pointer-events: none;
 }
 .loadout-manager > .weapons :nth-child(n + 6) {
     grid-column: 2;
@@ -467,54 +485,5 @@ export default {
 }
 .loadout-manager > .weapons :nth-child(n + 14) {
     grid-column: 4;
-}
-
-.weapon:not(.mini) {
-    --weapon-height: 98px;
-}
-.weapon:not(.mini).sidearm {
-    --weapon-width: 142px;
-}
-.weapon:not(.mini).smg {
-    --weapon-width: 232px;
-}
-.weapon:not(.mini).shotgun {
-    --weapon-width: 232px;
-}
-.weapon:not(.mini).rifle {
-    --weapon-width: 260px;
-}
-.weapon:not(.mini).sniper {
-    --weapon-width: 280px;
-}
-.weapon:not(.mini).heavy {
-    --weapon-width: 280px;
-}
-.weapon:not(.mini).melee {
-    --weapon-width: 280px;
-}
-.weapon.mini {
-    --weapon-height: 64px;
-}
-.weapon.mini.sidearm {
-    --weapon-width: 94px;
-}
-.weapon.mini.smg {
-    --weapon-width: 154px;
-}
-.weapon.mini.shotgun {
-    --weapon-width: 154px;
-}
-.weapon.mini.rifle {
-    --weapon-width: 172px;
-}
-.weapon.mini.sniper {
-    --weapon-width: 186px;
-}
-.weapon.mini.heavy {
-    --weapon-width: 186px;
-}
-.weapon.mini.melee {
-    --weapon-width: 186px;
 }
 </style>
