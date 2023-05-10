@@ -59,8 +59,8 @@ Show other's level, current/worst/best rank, equipped skins and details of their
 
 <img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_current_match.png">
 
-### Account Manager
-Automatically adds accounts you're playing on. Share accounts with other Valorant Companion users with the integrated export-feature and see the shops and nightmarkets of accounts without logging into them. Can be opened by pressing F2 or in the Account Dropdown-Menu.
+### Account Switcher
+Automatically adds accounts you're playing on. Share accounts with other Valorant Companion users with the integrated export-feature and see the shops and nightmarkets of accounts without logging into them. Can be opened by pressing F2 or in the Account Dropdown-Menu. (Drag'n'Drop your accounts in your desired order.)
 
 <img src="https://raw.githubusercontent.com/RXJpaw/Valorant-Companion/master/assets/preview_account_manager.png">
 
