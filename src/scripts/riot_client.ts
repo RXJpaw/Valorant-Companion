@@ -22,7 +22,7 @@ export const RiotClient = (subject?: string) => {
     const setSubject = (newSubject: string) => {
         subject = newSubject
     }
-    const request = async (method: string, server: 'geo' | 'auth' | 'pd' | 'glz' | 'shared' | 'test', path?: string, body?: any) => {
+    const request = async (method: string, server: 'custom' | 'geo' | 'auth' | 'pd' | 'glz' | 'shared' | 'test', path?: string, body?: any) => {
         if (!subject) throw { error: 'no_subject_set' }
 
         if (Object.keys(Servers).length < 3) {
@@ -81,6 +81,10 @@ export const RiotClient = (subject?: string) => {
         let requestURL: string
 
         switch (server) {
+            case 'custom': {
+                requestURL = ''
+                break
+            }
             case 'geo': {
                 requestURL = `https://riot-geo.pas.si.riotgames.com`
                 break
