@@ -14,22 +14,16 @@
 </template>
 
 <script lang="ts">
+import { EncounterHistory, Store, sleep } from '@/scripts/methods'
 import MatchDetails from '@/components/Browser/MatchDetails.vue'
 import { ValorantInstance } from '@/scripts/valorant_instance'
 import Pagination from '@/components/Browser/Pagination.vue'
 import GAMEMODE from '@/assets/valorant_api/gamemodes.json'
-import { EncounterHistory, sleep } from '@/scripts/methods'
 import NotReady from '@/components/Content/NotReady.vue'
 import * as ValorantAPI from '@/scripts/valorant_api'
-import localForage from 'localforage'
 
 const Valorant = ValorantInstance()
 
-const Store = {
-    CompetitiveUpdates: localForage.createInstance({ name: 'ValorantMatch', storeName: 'CompetitiveUpdates' }),
-    MatchHistory: localForage.createInstance({ name: 'ValorantMatch', storeName: 'History' }),
-    MatchDetails: localForage.createInstance({ name: 'ValorantMatch', storeName: 'Details' })
-}
 const Cache = {
     Maps: ValorantAPI.getMaps(),
     GameModes: ValorantAPI.getGameModes(),
@@ -99,29 +93,44 @@ export default {
 
                 await this.processMatchHistory(true)
 
+                //index is 0 if it's the subject's own match history-tab
                 if (this.index === 0) {
+                    const DebugTime = Date.now()
+
+                    const OwnedAccountSubjects = await Store.AccountDetails.keys()
+
                     await EncounterHistory.clear()
 
-                    for (const MatchKey in this.match_history) {
-                        const Match = this.match_history[MatchKey]
+                    const MatchHistoryList = {}
+                    const MatchDetailsList = {} as { [matchId: string]: ValorantMatchDetails }
+                    for (const Subject of OwnedAccountSubjects) {
+                        const MatchHistory: ValorantMatchHistory.History[] = Object.values(<never>await Store.MatchHistory.getItem(Subject))
 
-                        const MatchDetailsStore = (await Store.MatchDetails.getItem(Match.MatchID)) as ValorantMatchDetails
-                        if (!MatchDetailsStore || MatchDetailsStore.httpStatus) continue
+                        for (const HistoryEntry of MatchHistory) {
+                            MatchHistoryList[HistoryEntry.MatchID] = HistoryEntry.QueueID
 
-                        for (const player of MatchDetailsStore.players) {
-                            await EncounterHistory.add(
-                                player.subject,
-                                MatchDetailsStore.matchInfo.matchId,
-                                MatchDetailsStore.matchInfo.gameStartMillis + MatchDetailsStore.matchInfo.gameLengthMillis
-                            )
+                            const MatchDetails: ValorantMatchDetails = <never>await Store.MatchDetails.getItem(HistoryEntry.MatchID)
+                            if (!MatchDetails) continue
+
+                            MatchDetailsList[MatchDetails.matchInfo.matchId] = MatchDetails
                         }
                     }
+
+                    for (const MatchDetails of Object.values(MatchDetailsList)) {
+                        for (const Player of MatchDetails.players) {
+                            const MeetTimestamp = MatchDetails.matchInfo.gameStartMillis + MatchDetails.matchInfo.gameLengthMillis
+
+                            await EncounterHistory.add(Player.subject, MatchDetails.matchInfo.matchId, MeetTimestamp)
+                        }
+                    }
+
+                    const MatchCount = Object.keys(MatchHistoryList).length
+                    const DetailsCount = Object.keys(MatchDetailsList).length
+                    console.debug(`[match-history] processed ${DetailsCount}/${MatchCount} matches in ${((Date.now() - DebugTime) / 1000).toFixed(1)} seconds.`)
                 }
 
                 this.using_unlimited = false
                 this.current_page = 1
-
-                console.debug('downloaded all available match history data')
             }
         },
         async GameStateChangeListener({ data }) {
