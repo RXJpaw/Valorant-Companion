@@ -3,28 +3,31 @@
         <div class="upper">
             <Profile />
             <div class="current-match">
-                <StructureSidebarButton name="current-match" v-model:active="activeButton" text="Current Match" />
+                <StructureSidebarButton name="current-match" :active="activeButton" @update:active="emitActiveButtonUpdate" text="Current Match" />
             </div>
             <div class="player-lookup">
-                <StructureSidebarButton name="player-lookup" v-model:active="activeButton" text="Player Lookup" />
+                <StructureSidebarButton name="player-lookup" :active="activeButton" @update:active="emitActiveButtonUpdate" text="Player Lookup" />
             </div>
             <div class="match-history">
-                <StructureSidebarButton name="match-history" v-model:active="activeButton" text="Match History" />
+                <StructureSidebarButton name="match-history" :active="activeButton" @update:active="emitActiveButtonUpdate" text="Match History" />
                 <div v-if="matchHistoryTabs.length > 1" class="tabs">
                     <StructureSidebarTab
                         v-for="(tab, index) in matchHistoryTabs"
                         group-name="match-history"
                         :index="index"
-                        v-model:tabs="matchHistoryTabs"
-                        v-model:active="activeMatchHistoryTab"
-                        v-model:group-active="activeButton"
+                        :tabs="matchHistoryTabs"
+                        :active="activeMatchHistoryTab"
+                        :group-active="activeButton"
                         :text="tab.GameName"
                         :key="tab.Subject"
+                        @update:tabs="emitMatchHistoryTabsUpdate"
+                        @update:active="emitActiveMatchHistoryTabUpdate"
+                        @update:group-active="emitActiveButtonUpdate"
                     ></StructureSidebarTab>
                 </div>
             </div>
             <div class="loadout-manager">
-                <StructureSidebarButton name="loadout-manager" v-model:active="activeButton" text="Loadout Manager" />
+                <StructureSidebarButton name="loadout-manager" :active="activeButton" @update:active="emitActiveButtonUpdate" text="Loadout Manager" />
             </div>
         </div>
         <div class="lower">
@@ -57,24 +60,22 @@ export default {
         activeMatchHistoryTab: Number,
         activeButton: String as () => string
     },
-    watch: {
-        activeButton(data, from) {
-            this.$emit('update:active-button', data)
-        },
-        matchHistoryTabs(data, from) {
-            this.$emit('update:match-history-tabs', data)
-        },
-        activeMatchHistoryTab(data, from) {
-            this.$emit('update:active-match-history-tab', data)
-        }
-    },
     data() {
         return {
             version: project_version
         }
     },
     methods: {
-        openExternal: window.electron.openExternal
+        openExternal: window.electron.openExternal,
+        emitActiveButtonUpdate(data) {
+            this.$emit('update:active-button', data)
+        },
+        emitMatchHistoryTabsUpdate(data) {
+            this.$emit('update:match-history-tabs', data)
+        },
+        emitActiveMatchHistoryTabUpdate(data) {
+            this.$emit('update:active-match-history-tab', data)
+        }
     }
 }
 </script>

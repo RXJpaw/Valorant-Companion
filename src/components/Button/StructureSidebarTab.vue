@@ -2,10 +2,10 @@
     <div class="tab" :class="[isActive() ? 'active' : null, isCloseable() ? 'closeable' : null].join(' ')">
         <div class="icon" :style="`--bgi: url('${tabs[index].Icon}')`"></div>
 
-        <div class="switch" @click=";[(active = index), (groupActive = this.groupName)]">
+        <div class="switch" @click="clickSwitch">
             <div class="text">{{ text }}</div>
         </div>
-        <div v-if="isCloseable()" class="close" @click=";[(active = 0), tabs.splice(index, 1)]">
+        <div v-if="isCloseable()" class="close" @click="clickClose">
             <Icon icon="close" size="14" />
         </div>
     </div>
@@ -26,18 +26,27 @@ export default {
         index: Number,
         text: String
     },
-    watch: {
-        active(data, from) {
+    methods: {
+        clickClose() {
+            const Tabs = this.tabs
+            Tabs.splice(this.index, 1)
+
+            this.updateTabs(Tabs)
+            this.updateActive(0)
+        },
+        clickSwitch() {
+            this.updateActive(this.index)
+            this.updateGroupActive(this.groupName)
+        },
+        updateActive(data) {
             this.$emit('update:active', data)
         },
-        tabs(data, from) {
+        updateTabs(data) {
             this.$emit('update:tabs', data)
         },
-        groupActive(data, from) {
+        updateGroupActive(data) {
             this.$emit('update:group-active', data)
-        }
-    },
-    methods: {
+        },
         isActive() {
             if (this.groupName !== this.groupActive) return
             return this.index === this.active
