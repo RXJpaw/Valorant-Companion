@@ -55,6 +55,8 @@ export default {
         },
         open: {
             async handler(current) {
+                await this.$nextTick()
+
                 this.was_opened = this.was_opened || current
                 if (!current) return
 
