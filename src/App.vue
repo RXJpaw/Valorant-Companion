@@ -58,7 +58,7 @@ export default {
             const selfSubject = Valorant.getSelfSubject()
             if (!selfSubject) return
 
-            if (['update', 'create'].includes(eventType) && affected?.includes(selfSubject)) return
+            if (['update', 'create'].includes(eventType) && !affected?.includes(selfSubject)) return
             if (eventType === 'login' && affected !== instanceId) return
             if (!presences.length) return
 
