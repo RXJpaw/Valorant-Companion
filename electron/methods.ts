@@ -1,10 +1,15 @@
-import fsSync from 'original-fs'
+import fsOriginal from 'original-fs'
 import fs from 'fs/promises'
 import path from 'path'
+import fsSync from 'fs'
+
+const packageFilePath = path.resolve(__dirname, '../package.json')
+const updaterFilePath = path.resolve(__dirname, '../../UPDATER')
+const versionFilePath = path.resolve(__dirname, '../../VERSION')
 
 export const fileExists = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
-        fsSync.stat(filePath, (err) => {
+        fsOriginal.stat(filePath, (err) => {
             resolve(!err)
         })
     })
@@ -19,10 +24,17 @@ export const getVersionAsarFileName = async (version) => {
     return versionAsarExists ? version : 'app'
 }
 
-export const getVersions = async () => {
-    const versionFilePath = path.resolve(__dirname, '../../VERSION')
-    const packageFilePath = path.resolve(__dirname, '../package.json')
+export const getRepository = () => {
+    const { repository } = JSON.parse(fsSync.readFileSync(packageFilePath, 'utf-8') || '{}')
 
+    return repository
+}
+export const getAuthor = () => {
+    const { author } = JSON.parse(fsSync.readFileSync(packageFilePath, 'utf-8') || '{}')
+
+    return author
+}
+export const getVersions = async () => {
     const versionFileExists = await fileExists(versionFilePath)
 
     if (versionFileExists) {
@@ -53,7 +65,6 @@ export const getVersions = async () => {
 }
 
 export const getUpdater = async () => {
-    const updaterFilePath = path.resolve(__dirname, '../../UPDATER')
     const updaterFileExists = await fileExists(updaterFilePath)
 
     if (updaterFileExists) {
@@ -69,7 +80,7 @@ export const getUpdater = async () => {
     }
 
     return {
-        url: 'https://api.github.com/repos/RXJpaw/Valorant-Companion/releases/latest',
+        url: `https://api.github.com/repos/${getRepository()}/releases/latest`,
         key: String(Date.now()),
         source: 'github'
     }

@@ -1,4 +1,4 @@
-import { fileExists, getRevisionFromVersion, getUpdater, getVersions } from './methods'
+import { fileExists, getAuthor, getRepository, getRevisionFromVersion, getUpdater, getVersions } from './methods'
 import { updateProtocolResourceName } from './createProtocol'
 import { setTimeout as sleep } from 'node:timers/promises'
 import httpAxios from 'axios/lib/adapters/http'
@@ -10,7 +10,7 @@ import path from 'path'
 axios.defaults.adapter = httpAxios
 
 const isDevelopment = !app.isPackaged
-const autoUpdateExternal = 'https://github.com/RXJpaw'
+const autoUpdateExternal = getRepository()
 
 const fallbackExternal = (url?) => shell.openExternal(url || autoUpdateExternal)
 
@@ -56,7 +56,7 @@ const checkForUpdate = async (Sender: Electron.WebContents) => {
     let project
 
     if (updater.source === 'github') {
-        backupDownload = 'https://github.com/RXJpaw/Valorant-Companion'
+        backupDownload = getAuthor().url
         electron = getRevisionFromVersion(latest.name)
         project = latest.tag_name
     } else {
