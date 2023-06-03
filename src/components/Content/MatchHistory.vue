@@ -110,7 +110,7 @@ export default {
                             MatchHistoryList[HistoryEntry.MatchID] = HistoryEntry.QueueID
 
                             const MatchDetails: ValorantMatchDetails = <never>await Store.MatchDetails.getItem(HistoryEntry.MatchID)
-                            if (!MatchDetails) continue
+                            if (!MatchDetails || !MatchDetails.matchInfo) continue
 
                             MatchDetailsList[MatchDetails.matchInfo.matchId] = MatchDetails
                         }
