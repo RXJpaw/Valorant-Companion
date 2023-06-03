@@ -317,17 +317,15 @@ export default {
     opacity: 0;
 }
 .profile > .level {
-    display: flex;
-    justify-content: center;
-
     position: absolute;
     bottom: -8px;
     left: -6px;
 
+    font-family: BRAVEdigits, BRAVE, sans-serif;
     line-height: 8px;
     font-size: 8px;
 
-    width: 56px;
+    width: 55.5px;
     margin: 8px 0;
 
     transition: opacity 0.15s ease-in-out;

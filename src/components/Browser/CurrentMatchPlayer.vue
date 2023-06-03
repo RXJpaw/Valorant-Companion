@@ -14,11 +14,7 @@
         <div v-else class="agent-wrapper">
             <div class="agent-icon" :style="`--bgi: url('${subject.AgentIconURL}')`"></div>
             <div class="level-border" :style="`--bgi: url('${subject.LevelBorderURL}')`"></div>
-            <div class="level">
-                <div v-for="number in String(subject.Level).split('')" :class="number === '1' ? 'num1' : null">
-                    {{ number }}
-                </div>
-            </div>
+            <div class="level">{{ subject.Level }}</div>
 
             <transition>
                 <div v-if="!subject.HasPresence" class="no-presence-indicator"></div>
@@ -548,16 +544,14 @@ export default {
 }
 
 .player > .agent-wrapper > .level {
-    display: flex;
-    justify-content: center;
-
     position: absolute;
     bottom: -12px;
     left: 21px;
 
+    font-family: BRAVEdigits, BRAVE, sans-serif;
     line-height: 8px;
     font-size: 11px;
-    width: 56px;
+    width: 55.5px;
 
     /*letter-spacing: -1px;*/
     margin: 8px 0;

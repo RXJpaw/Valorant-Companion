@@ -38,9 +38,7 @@
                                 :style="`--bgi: url('https://media.valorant-api.com/levelborders/${account.LevelBorderID}/levelnumberappearance.png')`"
                             ></div>
                             <div class="level">
-                                <div v-for="number in String(account.Level).split('')" :class="number === '1' ? 'num1' : null">
-                                    {{ number }}
-                                </div>
+                                {{ account.Level }}
                             </div>
                             <div v-if="account.hasLogin" class="play" :class="{ disabled: !can_login }" @click="switchToAccount(account.Subject)">
                                 <Icon icon="play" size="23px" />
@@ -968,15 +966,14 @@ export default {
     max-width: 89px;
 }
 .accounts > .account-wrapper > .account > .level {
-    display: flex;
-    justify-content: center;
-
     position: absolute;
     bottom: -1px;
     left: 15px;
 
-    width: 57px;
+    width: 56.5px;
     margin: 8px 0;
+
+    font-family: BRAVEdigits, BRAVE, sans-serif;
     font-size: 11px;
     line-height: 8px;
 

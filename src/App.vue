@@ -105,8 +105,12 @@ export default {
 
 <style>
 @font-face {
-    font-family: 'Valorant';
-    src: url(~@/assets/fonts/valorant.woff2) format('woff2');
+    font-family: 'BRAVE';
+    src: url(~@/assets/fonts/brave.woff) format('woff');
+}
+@font-face {
+    font-family: 'BRAVEdigits';
+    src: url(~@/assets/fonts/brave_digits.woff) format('woff');
 }
 
 ::-webkit-scrollbar {
@@ -133,7 +137,7 @@ body {
     --webkit-overlay: overlay;
     image-rendering: var(--webkit-optimize-contrast);
 
-    font-family: Valorant, Avenir, Helvetica, Arial, sans-serif;
+    font-family: BRAVE, Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
