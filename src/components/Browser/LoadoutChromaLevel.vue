@@ -40,7 +40,10 @@ export default {
     name: 'LoadoutChromaLevel',
     components: { Icon },
     props: {
-        weapon: Object as () => ProcessedLoadoutWeapon,
+        weapon: {
+            required: true,
+            type: Object as () => ProcessedLoadoutWeapon
+        },
         owned_skins: Object as () => { [uuid: string]: ProcessedLoadoutSkin },
         owned_levels: Object as () => string[],
         owned_chromas: Object as () => string[]

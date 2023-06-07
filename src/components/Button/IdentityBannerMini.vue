@@ -24,7 +24,10 @@ export default {
     name: 'IdentityBannerMini',
     components: { Icon },
     props: {
-        banner: Object as () => ProcessedIdentityBanner,
+        banner: {
+            required: true,
+            type: Object as () => ProcessedIdentityBanner
+        },
         initiallyInvisible: Boolean as () => boolean
     },
     data() {

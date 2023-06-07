@@ -24,7 +24,10 @@ export default {
     components: { Icon },
     props: {
         weapon_category: String as () => string,
-        skin: Object as () => ProcessedLoadoutSkin
+        skin: {
+            required: true,
+            type: Object as () => ProcessedLoadoutSkin
+        }
     },
     data() {
         return {

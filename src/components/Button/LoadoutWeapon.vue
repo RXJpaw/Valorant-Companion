@@ -17,7 +17,10 @@ export default {
     name: 'LoadoutWeapon',
     props: {
         hide_name: Boolean as () => boolean,
-        weapon: Object as () => ProcessedLoadoutWeapon
+        weapon: {
+            required: true,
+            type: Object as () => ProcessedLoadoutWeapon
+        }
     }
 }
 </script>

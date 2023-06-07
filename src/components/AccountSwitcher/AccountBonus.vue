@@ -34,7 +34,7 @@ export default {
     name: 'AccountBonus',
     props: {
         open: Boolean as () => boolean,
-        subject: String as () => string
+        subject: String as () => string | null
     },
     data() {
         return {

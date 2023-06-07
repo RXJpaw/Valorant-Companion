@@ -72,7 +72,10 @@ const Valorant = ValorantInstance()
 export default {
     name: 'CurrentMatchHistory',
     props: {
-        subject: Object as () => LoadedCurrentMatchSubject,
+        subject: {
+            required: true,
+            type: Object as () => LoadedCurrentMatchSubject
+        },
         top: 0,
         left: 0
     },

@@ -19,7 +19,7 @@
                     @delfav:banner="deleteFavourite($event)"
                 />
             </div>
-            <div v-else-if="type.endsWith('spray')" class="sprays" ref="items" @scroll="processSelectorScroll()">
+            <div v-else-if="type?.endsWith('spray')" class="sprays" ref="items" @scroll="processSelectorScroll()">
                 <IdentitySprayMini
                     v-for="(spray, index) in getSpraysQuery()"
                     :key="spray.entry.uuid"
@@ -53,7 +53,7 @@ export default {
     props: {
         type: String as () => 'banner' | 'pre-spray' | 'mid-spray' | 'post-spray' | null,
         active: Boolean as () => boolean,
-        identity: Object as () => ProcessedIdentity,
+        identity: Object as () => ProcessedIdentity | null,
         left: Number as () => number,
         top: Number as () => number,
         gap: Number as () => number,

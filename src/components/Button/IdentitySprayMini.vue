@@ -24,7 +24,10 @@ export default {
     name: 'IdentitySprayMini',
     components: { Icon },
     props: {
-        spray: Object as () => ProcessedIdentitySpray,
+        spray: {
+            required: true,
+            type: Object as () => ProcessedIdentitySpray
+        },
         initiallyInvisible: Boolean as () => boolean
     },
     data() {

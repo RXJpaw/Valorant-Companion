@@ -30,7 +30,10 @@ export default {
     name: 'LoadoutBuddyMini',
     components: { Icon },
     props: {
-        buddy: Object as () => ProcessedLoadoutBuddy
+        buddy: {
+            required: true,
+            type: Object as () => ProcessedLoadoutBuddy
+        }
     },
     data() {
         return {

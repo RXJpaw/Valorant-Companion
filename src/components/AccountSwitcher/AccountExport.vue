@@ -49,7 +49,7 @@ export default {
     components: { TextInput, Button },
     props: {
         open: Boolean as () => boolean,
-        subject: String as () => string
+        subject: String as () => string | null
     },
     data() {
         return {

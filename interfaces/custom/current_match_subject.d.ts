@@ -44,4 +44,4 @@ interface LoadedCurrentMatchSubject {
     index: number
 }
 
-type CurrentMatchSubject = UnloadedCurrentMatchSubject | LoadedCurrentMatchSubject
+type CurrentMatchSubject = UnloadedCurrentMatchSubject & LoadedCurrentMatchSubject

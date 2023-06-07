@@ -19,7 +19,10 @@ export default {
     components: { Icon },
     props: {
         active: Number,
-        tabs: Array,
+        tabs: {
+            required: true,
+            type: Array
+        },
 
         groupName: String,
         groupActive: String,

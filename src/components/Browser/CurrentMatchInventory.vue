@@ -32,7 +32,10 @@
 export default {
     name: 'CurrentMatchInventory',
     props: {
-        subject: Object as () => LoadedCurrentMatchSubject,
+        subject: {
+            required: true,
+            type: Object as () => LoadedCurrentMatchSubject
+        },
         top: 0,
         left: 0
     }, //446

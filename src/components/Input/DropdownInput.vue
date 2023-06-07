@@ -46,7 +46,7 @@ export default {
         return {
             open: false,
             hoverOverInput: false,
-            hoverOverItem: null
+            hoverOverItem: null as number | null
         }
     },
     watch: {

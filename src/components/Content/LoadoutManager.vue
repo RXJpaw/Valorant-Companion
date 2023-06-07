@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isReady()" class="loadout-manager" @click="clickOutside">
+    <div v-if="Object.values(weapons).length === 18 && identity" class="loadout-manager" @click="clickOutside">
         <div class="identity">
             <div class="banner" :style="`--bgi: url('${identity.BannerImageURL}')`" @click="clickIdentity($event, 'banner')"></div>
             <div v-if="identity.TitleText" class="title">{{ identity.TitleText }}</div>
@@ -122,8 +122,8 @@ export default {
 
             has_changes: false,
 
-            Inventory: null as InventoryInstance | null,
-            LoadoutManager: null as LoadoutManagerInstance | null
+            Inventory: null as never as InventoryInstance,
+            LoadoutManager: null as never as LoadoutManagerInstance
         }
     },
     async created() {
@@ -165,9 +165,6 @@ export default {
 
             if (this.selected_identity.identity) this.selected_identity.identity = this.identity
             if (this.selected_weapon.weapon) this.selected_weapon.weapon = this.weapons[this.selected_weapon.weapon.WeaponID]
-        },
-        isReady() {
-            return Object.values(this.weapons).length === 18 && this.identity
         },
         clickOutside(event: PointerEvent) {
             if (event.target?.['className'] !== 'loadout-manager') return

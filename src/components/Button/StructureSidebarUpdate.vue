@@ -24,8 +24,8 @@ export default {
     name: 'StructureSidebarUpdate',
     data() {
         return {
-            updateInfo: {},
-            updateProgress: null,
+            updateInfo: {} as any,
+            updateProgress: null as null | any,
             updateApplicable: null
         }
     },

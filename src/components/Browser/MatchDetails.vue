@@ -46,7 +46,10 @@ import { parseDecimal } from '@/scripts/methods'
 export default {
     name: 'MatchDetails.vue',
     props: {
-        match: Object as () => ValorantMatchHistoryWithSubjectMatchDetails
+        match: {
+            required: true,
+            type: Object as () => ValorantMatchHistoryWithSubjectMatchDetails
+        }
     },
     methods: {
         parseDecimal: parseDecimal,

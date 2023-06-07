@@ -10,7 +10,7 @@
             </div>
             <div class="match-history">
                 <StructureSidebarButton name="match-history" :active="activeButton" @update:active="emitActiveButtonUpdate" text="Match History" />
-                <div v-if="matchHistoryTabs.length > 1" class="tabs">
+                <div v-if="matchHistoryTabs && matchHistoryTabs.length > 1" class="tabs">
                     <StructureSidebarTab
                         v-for="(tab, index) in matchHistoryTabs"
                         group-name="match-history"
@@ -56,7 +56,7 @@ export default {
         StructureSidebarTab
     },
     props: {
-        matchHistoryTabs: Array,
+        matchHistoryTabs: Array as () => any[],
         activeMatchHistoryTab: Number,
         activeButton: String as () => string
     },

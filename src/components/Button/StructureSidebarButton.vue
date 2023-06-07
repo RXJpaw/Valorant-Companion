@@ -28,7 +28,7 @@ export default {
     },
     data() {
         return {
-            animation: null
+            animation: null as null | any
         }
     },
     watch: {

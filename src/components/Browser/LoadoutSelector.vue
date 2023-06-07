@@ -1,6 +1,6 @@
 <template>
     <transition>
-        <div v-if="active" class="loadout-selector" :class="{ [weapon.WeaponCategory]: true }" :style="getSelectorStyle()">
+        <div v-if="active && weapon" class="loadout-selector" :class="{ [weapon.WeaponCategory]: true }" :style="getSelectorStyle()">
             <div class="preview">
                 <LoadoutWeapon :hide_name="true" :weapon="weapon" />
                 <LoadoutChromaLevel
@@ -66,7 +66,7 @@ export default {
     components: { LoadoutChromaLevel, LoadoutBuddyMini, LoadoutWeapon, LoadoutWeaponMini },
     props: {
         active: Boolean as () => boolean,
-        weapon: Object as () => ProcessedLoadoutWeapon,
+        weapon: Object as () => ProcessedLoadoutWeapon | null,
         left: Number as () => number,
         top: Number as () => number,
         gap: Number as () => number,
