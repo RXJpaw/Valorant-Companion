@@ -37,9 +37,7 @@
                                 class="level-border"
                                 :style="`--bgi: url('https://media.valorant-api.com/levelborders/${account.LevelBorderID}/levelnumberappearance.png')`"
                             ></div>
-                            <div class="level">
-                                {{ account.Level }}
-                            </div>
+                            <AbsoluteCenterHelper name="level" :text="account.Level" />
                             <div v-if="account.hasLogin" class="play" :class="{ disabled: !can_login }" @click="switchToAccount(account.Subject)">
                                 <Icon icon="play" size="23px" />
                             </div>
@@ -117,6 +115,7 @@ import {
     startRiotClient,
     Store
 } from '@/scripts/methods'
+import AbsoluteCenterHelper from '@/components/Misc/AbsoluteCenterHelper.vue'
 import AccountExport from '@/components/AccountSwitcher/AccountExport.vue'
 import AccountBonus from '@/components/AccountSwitcher/AccountBonus.vue'
 import AccountStore from '@/components/AccountSwitcher/AccountStore.vue'
@@ -134,7 +133,7 @@ const AccountSwitcherChannel = new BroadcastChannel('account-switcher')
 
 export default {
     name: 'AccountSwitcher',
-    components: { AccountExport, Button, TextInput, AccountBonus, AccountStore, Icon },
+    components: { AbsoluteCenterHelper, AccountExport, Button, TextInput, AccountBonus, AccountStore, Icon },
     props: {
         active: Boolean as () => boolean
     },
@@ -965,17 +964,29 @@ export default {
 
     max-width: 89px;
 }
-.accounts > .account-wrapper > .account > .level {
+.accounts > .account-wrapper > .account > .level-flex.even-width {
+    --width-adjustment: -0.5px;
+}
+.accounts > .account-wrapper > .account > .level-flex.odd-width {
+    --width-adjustment: 0px;
+}
+.accounts > .account-wrapper > .account > .level-flex {
     position: absolute;
     bottom: -1px;
     left: 15px;
 
-    width: 56.5px;
-    margin: 8px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
+    width: calc(57px + var(--width-adjustment));
+    height: 24px;
+}
+.accounts > .account-wrapper > .account > .level-flex:deep(.level) {
     font-family: BRAVEdigits, BRAVE, sans-serif;
-    font-size: 11px;
     line-height: 8px;
+    font-size: 11px;
+    width: fit-content;
 
     user-select: text;
 }

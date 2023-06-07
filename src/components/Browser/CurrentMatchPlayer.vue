@@ -1,5 +1,6 @@
 <template>
     <div
+        v-if="subject"
         class="player"
         :class="`${enemy ? 'enemy' : 'ally'} team-${subject.TeamID?.toLowerCase()} subject-${subject.Subject}`"
         @mouseenter="hoverOverCard(true)"
@@ -14,7 +15,7 @@
         <div v-else class="agent-wrapper">
             <div class="agent-icon" :style="`--bgi: url('${subject.AgentIconURL}')`"></div>
             <div class="level-border" :style="`--bgi: url('${subject.LevelBorderURL}')`"></div>
-            <div class="level">{{ subject.Level }}</div>
+            <AbsoluteCenterHelper name="level" :text="subject.Level" />
 
             <transition>
                 <div v-if="!subject.HasPresence" class="no-presence-indicator"></div>
@@ -122,10 +123,11 @@
 </template>
 
 <script lang="ts">
+import AbsoluteCenterHelper from '@/components/Misc/AbsoluteCenterHelper.vue'
 import Icon from '@/components/Misc/Icon.vue'
 export default {
     name: 'CurrentMatchPlayer',
-    components: { Icon },
+    components: { AbsoluteCenterHelper, Icon },
     props: {
         history_subject: Object as () => LoadedCurrentMatchSubject | null,
         history_left: Number as () => number,
@@ -134,7 +136,7 @@ export default {
         inventory_left: Number as () => number,
         inventory_top: Number as () => number,
         game_state: String as () => string,
-        subject: Object as () => CurrentMatchSubject,
+        subject: Object as unknown as () => CurrentMatchSubject,
         enemy: Boolean as () => boolean
     },
     data() {
@@ -543,19 +545,33 @@ export default {
     background-repeat: no-repeat;
 }
 
-.player > .agent-wrapper > .level {
+.player > .agent-wrapper > .level-flex.even-width {
+    --width-adjustment: 0px;
+}
+.player > .agent-wrapper > .level-flex.odd-width {
+    --width-adjustment: -0.5px;
+}
+.player > .agent-wrapper > .level-flex {
     position: absolute;
     bottom: -12px;
     left: 21px;
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: calc(56px + var(--width-adjustment));
+    height: 24px;
+}
+.player > .agent-wrapper > .level-flex:deep(.level) {
     font-family: BRAVEdigits, BRAVE, sans-serif;
     line-height: 8px;
     font-size: 11px;
-    width: 55.5px;
+    width: fit-content;
 
-    /*letter-spacing: -1px;*/
-    margin: 8px 0;
+    user-select: text;
 }
+
 /* this exists because the number 1 in levels always seemed off and the font i use has same width for all numbers idk */
 .player > .agent-wrapper > .level > .num1 {
     width: 3px;

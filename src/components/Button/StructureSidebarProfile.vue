@@ -6,7 +6,7 @@
             <div class="tag">#{{ presence.TagLine }}</div>
         </div>
         <div class="level-border" :style="`--bgi: url('${account.level_border_url}')`"></div>
-        <div class="level">{{ presence.AccountLevel }}</div>
+        <AbsoluteCenterHelper name="level" :text="presence.AccountLevel" />
         <div class="idle-status" :class="presence.isIdle ? 'idle' : 'online'">{{ presence.isIdle ? 'Away' : 'Available' }}</div>
 
         <transition>
@@ -60,6 +60,7 @@
 </template>
 
 <script lang="ts">
+import AbsoluteCenterHelper from '@/components/Misc/AbsoluteCenterHelper.vue'
 import { ValorantInstance } from '@/scripts/valorant_instance'
 import Icon from '@/components/Misc/Icon.vue'
 
@@ -69,13 +70,13 @@ const AccountSwitcherChannel = new BroadcastChannel('account-switcher')
 
 export default {
     name: 'Profile',
-    components: { Icon },
+    components: { AbsoluteCenterHelper, Icon },
     props: {
         presences: Array as () => ValorantChatPresences.Player[]
     },
     data() {
         return {
-            presence: null,
+            presence: null as any,
             account: {
                 level_border_url: 'https://media.valorant-api.com/levelborders/ebc736cd-4b6a-137b-e2b0-1486e31312c9/levelnumberappearance.png',
                 level: 1,
@@ -316,21 +317,36 @@ export default {
 .profile.hover > .level-border {
     opacity: 0;
 }
-.profile > .level {
+.profile > .level-flex.even-width {
+    --width-adjustment: 0px;
+}
+.profile > .level-flex.odd-width {
+    --width-adjustment: -0.5px;
+}
+.profile > .level-flex {
     position: absolute;
-    bottom: -8px;
-    left: -6px;
+    bottom: -4px;
+    left: 1px;
 
-    font-family: BRAVEdigits, BRAVE, sans-serif;
-    line-height: 8px;
-    font-size: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    width: 55.5px;
-    margin: 8px 0;
+    width: calc(42px + var(--width-adjustment));
+    height: 18px;
 
     transition: opacity 0.15s ease-in-out;
 }
-.profile.hover > .level {
+.profile > .level-flex:deep(.level) {
+    font-family: BRAVEdigits, BRAVE, sans-serif;
+    line-height: 6px;
+    font-size: 8.2px;
+    width: fit-content;
+
+    user-select: text;
+}
+
+.profile.hover > .level-flex {
     opacity: 0;
 }
 
