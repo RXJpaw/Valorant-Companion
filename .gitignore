@@ -11,6 +11,7 @@ node_modules
 /src/**/*.js.map
 /src/**/*.d.ts
 !/src/shims-vue.d.ts
+!/src/assets/libs/*.js
 
 # local env files
 .env.local
