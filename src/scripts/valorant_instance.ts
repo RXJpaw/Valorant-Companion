@@ -4,8 +4,9 @@ import ENTITLEMENTS from '@/assets/valorant_api/entitlements.json'
 import { connectWebSocket } from '@/scripts/valorant_websocket'
 import * as ValorantAPI from '@/scripts/valorant_api'
 import PersistentCache from './cache_manager'
-import Pako from '@/assets/libs/pako'
 import { EventEmitter } from 'events'
+
+const Pako = require('@/assets/libs/pako')
 
 const Emitter = new EventEmitter()
 
