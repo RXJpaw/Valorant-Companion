@@ -4,6 +4,7 @@ import ENTITLEMENTS from '@/assets/valorant_api/entitlements.json'
 import { connectWebSocket } from '@/scripts/valorant_websocket'
 import * as ValorantAPI from '@/scripts/valorant_api'
 import PersistentCache from './cache_manager'
+import Pako from '@/assets/libs/pako'
 import { EventEmitter } from 'events'
 
 const Emitter = new EventEmitter()
@@ -211,13 +212,9 @@ export const ValorantInstance = () => {
             }
         }
 
-        const headers =
-            valorant_server === 'local'
-                ? {
-                      Authorization: `Basic ${auth!.basic}`,
-                      'content-type': 'application/json'
-                  }
-                : getHeaders(connection.token, connection.server!.version)
+        const headers = valorant_server === 'local' ? { Authorization: `Basic ${auth!.basic}` } : getHeaders(connection.token, connection.server!.version)
+
+        if (body) headers['Content-Type'] = 'application/json'
 
         const do_request = () => {
             return fetch(requestURL + path, {
@@ -395,11 +392,27 @@ export const ValorantInstance = () => {
     }
 
     const getAresPlayerSettings = async (): Promise<ValorantAresPlayerSettings> => {
-        return await request('get', 'local', '/player-preferences/v1/data-json/Ares.PlayerSettings')
+        const PlayerPreferences = await request('get', 'custom', 'https://playerpreferences.riotgames.com/playerPref/v3/getPreference/Ares.PlayerSettings')
+        const DataDeflated = Buffer.from(PlayerPreferences.data, 'base64')
+        const DataInflated = Pako.inflateRaw(DataDeflated, { to: 'string' })
+
+        return {
+            data: JSON.parse(DataInflated as string),
+            modified: PlayerPreferences.modified,
+            type: PlayerPreferences.type
+        }
     }
 
     const putAresPlayerSettings = async (settings: ValorantAresPlayerSettings.Data): Promise<any> => {
-        return await request('put', 'local', '/player-preferences/v1/data-json/Ares.PlayerSettings', settings)
+        const DataInflated = JSON.stringify(settings)
+        const DataDeflated = Pako.deflateRaw(DataInflated)
+
+        const PlayerPreferences = {
+            type: 'Ares.PlayerSettings',
+            data: Buffer.from(DataDeflated as ArrayBuffer).toString('base64')
+        }
+
+        return request('put', 'custom', 'https://playerpreferences.riotgames.com/playerPref/v3/savePreference', PlayerPreferences)
     }
 
     const getAccountXP = async (force?: boolean): Promise<ValorantAccountXp> => {
