@@ -1,6 +1,6 @@
 import localForage from 'localforage'
 
-const fetchData = async (path) => {
+const fetchData = async (path: string) => {
     return (await (await fetch(`${path}?timestamp=${Date.now()}`)).json())?.data
 }
 
@@ -128,13 +128,15 @@ export const mapWeaponSkins = async () => {
     return Weapons.map((weapon) => weapon.skins).flat(1)
 }
 
-const CacheManager = async (key, url) => {
+const CacheManager = async (key: string, url: string) => {
     const Versions = await getVersions()
     const CurrentVersion = Versions.version
 
     const StoreItem = (await Store.ValorantAPIMaps.getItem(key)) ?? ({} as any)
     if (StoreItem.Version !== CurrentVersion) {
         const StoreData = await fetchData(url)
+        if (!StoreData) throw { error: 'ValorantAPI is currently unreachable.' }
+
         return (
             await Store.ValorantAPIMaps.setItem(key, {
                 Version: CurrentVersion,
