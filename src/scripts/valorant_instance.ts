@@ -5,8 +5,7 @@ import { connectWebSocket } from '@/scripts/valorant_websocket'
 import * as ValorantAPI from '@/scripts/valorant_api'
 import PersistentCache from './cache_manager'
 import { EventEmitter } from 'events'
-
-const Pako = require('@/assets/libs/pako')
+import Pako from 'pako'
 
 const Emitter = new EventEmitter()
 
@@ -236,7 +235,7 @@ export const ValorantInstance = () => {
         }
 
         //Not handling errors on request.json() because errors shouldn't be handled here.
-        return request.headers.get('content-length') === '0' ? {} : await request.json()
+        return request.headers.get('content-length') === '0' || request.status === 204 ? {} : await request.json()
     }
 
     const getServers = () => {
@@ -493,6 +492,12 @@ export const ValorantInstance = () => {
         const { MatchID } = await request('get', 'glz', `/pregame/v1/players/${connection.token?.subject}`)
 
         return MatchID
+    }
+
+    const quitPreGameMatch = async (): Promise<void> => {
+        const currentPreGameMatchId = await getPreGameMatchId()
+
+        return request('post', 'glz', `/pregame/v1/matches/${currentPreGameMatchId}/quit`)
     }
 
     const getCoreGameMatch = async (ingame_match_id, force?: boolean): Promise<ValorantCoreGameMatch> => {
@@ -777,6 +782,7 @@ export const ValorantInstance = () => {
         getCoreGameMatchId,
         getPreGameLoadouts,
         getCoreGameLoadouts,
+        quitPreGameMatch,
 
         getMMR,
         parseMMR,
