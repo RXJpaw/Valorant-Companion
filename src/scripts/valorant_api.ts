@@ -133,14 +133,26 @@ const CacheManager = async (key: string, url: string) => {
     const CurrentVersion = Versions.version
 
     const StoreItem = (await Store.ValorantAPIMaps.getItem(key)) ?? ({} as any)
-    if (StoreItem.Version !== CurrentVersion) {
-        const StoreData = await fetchData(url)
-        if (!StoreData) throw { error: 'ValorantAPI is currently unreachable.' }
 
+    if (StoreItem.Version !== CurrentVersion) {
+        StoreItem.Data = await fetchData(url)
+    }
+
+    if (!StoreItem.Data || typeof StoreItem.Data !== 'object') {
+        console.error('[val-api]:', 'https://valorant-api.com/ responded with unexpected data, retrying in 1 second..')
+
+        return new Promise(async (resolve) => {
+            await Store.ValorantAPIMaps.removeItem(key)
+
+            setTimeout(() => resolve(CacheManager(key, url)), 1000)
+        })
+    }
+
+    if (StoreItem.Version !== CurrentVersion) {
         return (
             await Store.ValorantAPIMaps.setItem(key, {
                 Version: CurrentVersion,
-                Data: StoreData
+                Data: StoreItem.Data
             })
         ).Data
     } else {
