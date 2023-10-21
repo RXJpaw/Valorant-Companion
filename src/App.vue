@@ -1,9 +1,11 @@
 <template>
     <Titlebar />
     <Structure />
+    <FreeToastingService />
 </template>
 
 <script lang="ts">
+import FreeToastingService from '@/components/Misc/FreeToastingService.vue'
 import { ValorantInstance } from './scripts/valorant_instance'
 import PersistentCache from './scripts/cache_manager'
 import Structure from '@/components/Structure.vue'
@@ -16,11 +18,13 @@ const Store = {
 }
 
 const Valorant = ValorantInstance()
+const ErrorChannel = new BroadcastChannel('error')
 const AccountSwitcherChannel = new BroadcastChannel('account-switcher')
 const GameStateChangeChannel = new BroadcastChannel('game-state-change')
 
 export default {
     components: {
+        FreeToastingService,
         Structure,
         Titlebar
     },
@@ -96,6 +100,13 @@ export default {
     },
     async mounted() {
         window.electron.show()
+
+        window.addEventListener('error', (event) => {
+            ErrorChannel.postMessage(FreeToastingService.presets.UNEXPECTED_ERROR)
+        })
+        window.addEventListener('unhandledrejection', (event) => {
+            ErrorChannel.postMessage(FreeToastingService.presets.UNEXPECTED_ERROR)
+        })
 
         await sleep(3000)
         await PersistentCache.delete_expired()

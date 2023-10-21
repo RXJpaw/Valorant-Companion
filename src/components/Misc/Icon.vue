@@ -95,6 +95,12 @@
     <svg v-else-if="icon === 'star'" :style="getStyle()" viewBox="0 0 24 24">
         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21z" fill="currentColor"></path>
     </svg>
+    <svg v-else-if="icon === 'report'" :style="getStyle()" viewBox="0 0 24 24">
+        <path
+            d="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3s.58-1.3 1.3-1.3s1.3.58 1.3 1.3s-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z"
+            fill="currentColor"
+        ></path>
+    </svg>
 </template>
 
 <script lang="ts">
@@ -123,6 +129,7 @@ export default {
             | 'locked'
             | 'star-outline'
             | 'star'
+            | 'report'
     },
     name: 'Icon',
     methods: {

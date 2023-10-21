@@ -1,4 +1,7 @@
+import FreeToastingService from '@/components/Misc/FreeToastingService.vue'
 import localForage from 'localforage'
+
+const ErrorChannel = new BroadcastChannel('error')
 
 const fetchData = async (path: string) => {
     return (await (await fetch(`${path}?timestamp=${Date.now()}`)).json())?.data
@@ -140,6 +143,7 @@ const CacheManager = async (key: string, url: string) => {
 
     if (!StoreItem.Data || typeof StoreItem.Data !== 'object') {
         console.error('[val-api]:', 'https://valorant-api.com/ responded with unexpected data, retrying in 1 second..')
+        ErrorChannel.postMessage(FreeToastingService.presets.FAILED_ASSET_LOAD)
 
         return new Promise(async (resolve) => {
             await Store.ValorantAPIMaps.removeItem(key)
