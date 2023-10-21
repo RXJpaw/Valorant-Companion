@@ -319,7 +319,7 @@ export const ValorantInstance = () => {
 
                     if (friendRequest) {
                         Emitter.off('friendrequests', FriendRequestListener)
-                        invokeFriendRequest(friendRequest.puuid).then()
+                        revokeFriendRequest(friendRequest.puuid).then()
 
                         return resolve({
                             Subject: friendRequest.puuid,
@@ -385,7 +385,7 @@ export const ValorantInstance = () => {
             game_tag: GameTag
         })
     }
-    const invokeFriendRequest = async (Subject): Promise<void> => {
+    const revokeFriendRequest = async (Subject): Promise<void> => {
         return await request('delete', 'local', '/chat/v4/friendrequests', {
             puuid: Subject
         })
@@ -759,8 +759,12 @@ export const ValorantInstance = () => {
         addFavourite,
         deleteFavourite,
 
-        getChatPresences,
         getFriendList,
+        getFriendRequests,
+        sendFriendRequest,
+        revokeFriendRequest,
+
+        getChatPresences,
         getAresPlayerSettings,
         putAresPlayerSettings,
 
