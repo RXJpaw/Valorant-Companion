@@ -1,5 +1,5 @@
 <template>
-    <div v-if="Object.values(weapons).length === 18 && identity" class="loadout-manager" @click="clickOutside">
+    <div v-if="Object.values(weapons).length === 19 && identity" class="loadout-manager" @click="clickOutside">
         <div class="identity">
             <div class="banner" :style="`--bgi: url('${identity.BannerImageURL}')`" @click="clickIdentity($event, 'banner')"></div>
             <div v-if="identity.TitleText" class="title">{{ identity.TitleText }}</div>
@@ -212,7 +212,7 @@ export default {
                 this.selected_weapon.top = event.y - event.offsetY
                 this.selected_weapon.gap = event.target?.['clientWidth']
 
-                if ([WEAPONS.sheriff, WEAPONS.melee].includes(weaponId)) this.selected_weapon.top -= 51
+                if ([WEAPONS.sheriff, WEAPONS.odin, WEAPONS.melee].includes(weaponId)) this.selected_weapon.top -= 51
             }
         },
         parseEquippableCategory(category: string) {
@@ -480,7 +480,7 @@ export default {
 .loadout-manager > .weapons :nth-child(n + 10) {
     grid-column: 3;
 }
-.loadout-manager > .weapons :nth-child(n + 14) {
+.loadout-manager > .weapons :nth-child(n + 15) {
     grid-column: 4;
 }
 </style>

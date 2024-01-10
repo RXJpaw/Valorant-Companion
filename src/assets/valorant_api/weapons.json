@@ -11,14 +11,15 @@
     "judge": "ec845bf4-4f79-ddda-a3da-0db3774b2794",
 
     "bulldog": "ae3de142-4d85-2547-dd26-4e90bed35cf7",
-    "guardian": "4ade7faa-4cf1-8376-95ef-39884480959b",
     "phantom": "ee8e8d15-496b-07ac-e5f6-8fae5d4c7b1a",
     "vandal": "9c82e19d-4575-0200-1a81-3eacf00cf872",
-
-    "marshal": "c4883e50-4494-202c-3ec3-6b8a9284f00b",
-    "operator": "a03b24d3-4319-996d-0f8c-94bbfba1dfc7",
     "ares": "55d8a0f4-4274-ca67-fe2c-06ab45efdf58",
     "odin": "63e6c2b6-4a8e-869c-3d4c-e38355226584",
+
+    "guardian": "4ade7faa-4cf1-8376-95ef-39884480959b",
+    "marshal": "c4883e50-4494-202c-3ec3-6b8a9284f00b",
+    "outlaw": "5f0aaf7a-4289-3998-d5ff-eb9a5cf7ef5c",
+    "operator": "a03b24d3-4319-996d-0f8c-94bbfba1dfc7",
 
     "melee": "2f59173c-4bed-b6c3-2191-dea9b58be9c7"
 }

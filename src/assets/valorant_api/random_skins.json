@@ -56,6 +56,11 @@
         "level": "76587a8a-4622-2e70-aafd-ea960b06a98d",
         "chroma": "1738abbc-4dbe-1a42-a15b-eda6249f35be"
     },
+    "outlaw": {
+        "base": "bd9c41dd-42b1-8555-78c1-81a36016bc03",
+        "level": "d45b04d5-44d9-2671-2070-11b8efae759c",
+        "chroma": "031401e8-4907-de2c-5097-b88eb90ad540"
+    },
     "phantom": {
         "base": "fff73ad4-4d46-a6d9-43f1-51b633845434",
         "level": "4728dfee-4879-381c-1db1-89b839cbd3d4",

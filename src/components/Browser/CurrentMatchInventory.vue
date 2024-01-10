@@ -117,7 +117,7 @@ export default {
 .inventory > .weapons :nth-child(n + 10) {
     grid-column: 3;
 }
-.inventory > .weapons :nth-child(n + 14) {
+.inventory > .weapons :nth-child(n + 15) {
     grid-column: 4;
 }
 .inventory > .weapons > .weapon {
