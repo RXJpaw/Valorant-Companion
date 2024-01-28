@@ -345,16 +345,15 @@ export default {
 
 .history > .ranks {
     position: relative;
-    overflow: var(--webkit-overlay);
+    overflow: auto;
 
     display: flex;
     flex-direction: column;
     gap: 5px;
 
-    padding: 0 11px;
     margin: 11px 0;
     height: var(--webkit-fill-available);
-    width: 102px;
+    width: 124px;
 }
 .history > .ranks::-webkit-scrollbar {
     width: 11px;
@@ -374,7 +373,9 @@ export default {
     text-align: left;
 
     border-radius: 6px;
+    margin-left: 11px;
     padding: 5px;
+    width: 92px;
 
     background-color: #121314;
 }
@@ -401,5 +402,17 @@ export default {
 .history > .ranks > .rank > .rank > .name {
     font-size: 13px;
     color: #ffffff;
+}
+
+.history > .ranks::-webkit-scrollbar,
+.history > .ranks::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+}
+.history > .ranks::-webkit-scrollbar-thumb,
+.history > .ranks::-webkit-scrollbar-thumb {
+    border: 3px solid #18191c;
+    background-color: #121314;
+    border-radius: 10px;
 }
 </style>

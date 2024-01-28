@@ -110,7 +110,7 @@ export default {
 }
 
 .buddy-mini > .instance-selector {
-    overflow: var(--webkit-overlay);
+    overflow: auto;
 
     display: flex;
     flex-direction: column;

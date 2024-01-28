@@ -156,7 +156,7 @@ export default {
 }
 
 .bonus > .offers {
-    overflow: var(--webkit-overlay);
+    overflow: auto;
 
     display: flex;
     gap: 11px;
@@ -165,7 +165,6 @@ export default {
     border-radius: 6px;
 
     pointer-events: none;
-    padding-bottom: 11px;
 }
 .bonus > .offers > .offer {
     overflow: hidden;

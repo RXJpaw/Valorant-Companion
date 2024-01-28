@@ -472,7 +472,8 @@ export default {
 .loadout-selector > .buddies {
     --buddy-height: 70px;
 
-    overflow-y: var(--webkit-overlay);
+    /* TODO: replace auto */
+    overflow-y: auto;
     overflow-x: hidden;
 
     display: grid;
@@ -516,7 +517,8 @@ export default {
 .loadout-selector > .weapons {
     --weapon-height: 50px;
 
-    overflow-y: var(--webkit-overlay);
+    /* TODO: replace auto */
+    overflow-y: auto;
     overflow-x: hidden;
 
     display: grid;

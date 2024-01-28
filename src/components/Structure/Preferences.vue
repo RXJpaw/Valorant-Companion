@@ -480,7 +480,7 @@ export default {
     z-index: 1250;
 
     position: relative;
-    margin: -28px 22px 22px;
+    margin: -28px 0 22px 22px;
 
     min-height: 11px;
     background-color: #1c1c1c;
@@ -500,7 +500,6 @@ export default {
     gap: 22px;
 
     margin-left: 22px;
-    margin-right: 22px;
 }
 .notifications:not(:has(div)) {
     display: none;
@@ -547,7 +546,7 @@ export default {
     width: 100%;
     height: calc(100% - 44px);
 
-    overflow: var(--webkit-overlay);
+    overflow: auto;
 }
 .settings > :not(.progress-bar):not(:last-child) {
     margin-bottom: 22px;
@@ -555,7 +554,6 @@ export default {
 .settings > .setting {
     padding: 11px 22px 22px;
     margin-left: 22px;
-    margin-right: 22px;
     border-radius: 6px;
 
     background-color: #121212;

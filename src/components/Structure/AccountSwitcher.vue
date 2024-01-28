@@ -690,7 +690,6 @@ export default {
     width: 354px;
     height: 29px;
     margin-left: 22px;
-    margin-right: 22px;
     border-radius: 6px;
 
     background-color: #1c1c1c;
@@ -722,8 +721,6 @@ export default {
 }
 
 .accounts {
-    overflow-anchor: none;
-
     position: relative;
     margin-top: 22px;
 
@@ -733,7 +730,7 @@ export default {
     width: 100%;
     height: calc(100% - 44px);
 
-    overflow: var(--webkit-overlay);
+    overflow: auto;
 }
 .accounts > :not(:last-child) {
     margin-bottom: 22px;
@@ -754,7 +751,7 @@ export default {
     min-height: calc(200px + 29px + 22px - 87px);
 }
 .accounts > .account-wrapper {
-    width: 442px;
+    width: 420px;
 
     transform-style: preserve-3d;
     user-select: none;
@@ -821,7 +818,6 @@ export default {
 
     padding: 11px;
     margin-left: 22px;
-    margin-right: 22px;
     border-radius: 6px;
 
     background-color: #121212;
@@ -831,7 +827,6 @@ export default {
 
     height: var(--dropdown-height);
     margin-left: 22px;
-    margin-right: 22px;
 
     transform: translateZ(-1px);
     transition: height 0.333s ease-in-out;

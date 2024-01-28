@@ -352,7 +352,8 @@ export default {
     --banner-height: 50px;
     --banner-width: calc(var(--banner-height) * 3.53125);
 
-    overflow-y: var(--webkit-overlay);
+    /* TODO: replace auto */
+    overflow-y: auto;
     overflow-x: hidden;
 
     display: grid;
@@ -378,7 +379,8 @@ export default {
     --banner-height: 50px;
     --banner-width: calc(var(--banner-height) * 1.96721);
 
-    overflow-y: var(--webkit-overlay);
+    /* TODO: replace auto */
+    overflow-y: auto;
     overflow-x: hidden;
 
     display: grid;
