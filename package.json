@@ -44,7 +44,7 @@
         "@vue/cli-service": "~5.0.0",
         "@vue/eslint-config-typescript": "^9.1.0",
         "core-js": "^3.8.3",
-        "electron": "^26.6.5",
+        "electron": "^27.3.0",
         "electron-builder": "^24.9.1",
         "electron-builder-squirrel-windows": "^24.9.1",
         "eslint": "^7.32.0",
