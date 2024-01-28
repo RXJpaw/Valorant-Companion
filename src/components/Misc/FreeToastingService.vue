@@ -49,6 +49,14 @@ export default {
             link: null,
             time: 30_000
         },
+        LOGIN_EXPIRED_TRY_RE_ADD: {
+            type: 'warning',
+            icon: 'key_off',
+            title: 'Login expired. Try re-adding your account with "stay signed-in" enabled.',
+            button: null,
+            link: null,
+            time: 9_000
+        },
         FAILED_ASSET_LOAD: {
             type: 'warning',
             icon: 'warning',

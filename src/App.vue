@@ -102,14 +102,29 @@ export default {
         window.electron.show()
 
         window.addEventListener('error', (event) => {
-            ErrorChannel.postMessage(FreeToastingService.presets.UNEXPECTED_ERROR)
+            throwErrorToast(event.error)
         })
         window.addEventListener('unhandledrejection', (event) => {
-            ErrorChannel.postMessage(FreeToastingService.presets.UNEXPECTED_ERROR)
+            throwErrorToast(event.reason)
         })
 
         await sleep(3000)
         await PersistentCache.delete_expired()
+    }
+}
+
+const throwErrorToast = (reason: any) => {
+    if (typeof reason === 'object' && typeof reason.error === 'string') {
+        switch (reason.error) {
+            case 'rc_access_token_not_found_c': {
+                return ErrorChannel.postMessage(FreeToastingService.presets.LOGIN_EXPIRED_TRY_RE_ADD)
+            }
+            default: {
+                ErrorChannel.postMessage(FreeToastingService.presets.UNEXPECTED_ERROR)
+            }
+        }
+    } else {
+        ErrorChannel.postMessage(FreeToastingService.presets.UNEXPECTED_ERROR)
     }
 }
 </script>

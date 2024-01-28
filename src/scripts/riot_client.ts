@@ -200,7 +200,7 @@ export const RiotClient = (subject?: string) => {
         const AccessTokenRegExp = /https:\/\/playvalorant\.com\/opt_in#access_token=([\w.-]*)/
         const AccessTokenMatch = Response.headers.location?.match(AccessTokenRegExp)
         const AccessToken = AccessTokenMatch?.[1]
-        if (!AccessToken) throw { error: 'access_token_not_found' }
+        if (!AccessToken) throw { error: 'rc_access_token_not_found_c' }
 
         const Data: RiotAccessTokenWithError = await getJwtPayload(AccessToken)
 
