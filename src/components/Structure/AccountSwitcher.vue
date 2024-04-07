@@ -276,6 +276,7 @@ export default {
         })
         window.addEventListener('drop', async (event) => {
             if (!this.loaded || !this.active || !this.holdingFile) return
+            event.preventDefault()
             this.holdingFile = false
 
             const filePath = event.dataTransfer?.files[0]?.path
