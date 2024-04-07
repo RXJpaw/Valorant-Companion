@@ -641,10 +641,12 @@ export const ValorantInstance = () => {
             const WinsByTier = SubjectSeason?.WinsByTier ?? { 0: 0 }
 
             const BestRankTier = Number(Object.keys(WinsByTier).sort((a, b) => Number(b) - Number(a))[0])
+            const LastRankTier = SubjectSeason?.CompetitiveTier ?? 0
 
             Triangles[Act.uuid] = {
                 NameShort: EpisodeAct ? `Ep. ${EpisodeAct[1]}, Act ${EpisodeAct[2]}` : Act.displayName,
-                BestRank: CompetitiveTier.tiers.find((t) => t.tier === BestRankTier)!
+                BestRank: CompetitiveTier.tiers.find((t) => t.tier === BestRankTier)!,
+                LastRank: CompetitiveTier.tiers.find((t) => t.tier === LastRankTier)!
             }
         }
 
@@ -739,6 +741,11 @@ export const ValorantInstance = () => {
     const getContracts = async () => {
         return await request('get', 'pd', `/contracts/v1/contracts/${getSelfSubject()}`)
     }
+    const getStorefront = async (force?: boolean): Promise<ValorantStoreStorefront> => {
+        const subject = getSelfSubject()
+
+        return await PersistentCache.get(`storefront_${subject}`, () => request('get', 'pd', `/store/v2/storefront/${subject}`), { force })
+    }
 
     const Client: ValorantInstanceClient = {
         on: (event, listener) => Emitter.on(event, listener),
@@ -779,6 +786,7 @@ export const ValorantInstance = () => {
         getContentServiceContent,
         getAccountXP,
         getContracts,
+        getStorefront,
 
         getPreGameMatch,
         getCoreGameMatch,

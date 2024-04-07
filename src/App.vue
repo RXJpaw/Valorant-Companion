@@ -72,7 +72,9 @@ export default {
             const Presence = presences.find((p) => p.Subject === selfSubject)
             if (!Presence) return
 
-            const MMR = await Valorant.parseMMR(selfSubject)
+            const Triangles = Object.values(await Valorant.parseTriangles(selfSubject))
+            const { LastRank } = <any>Triangles.find((triangle: any) => triangle.LastRank.tier !== 0) || Triangles[0]
+
             const Loadout = await Valorant.getSelfLoadout()
             const LevelBorder = await Valorant.getLevelBorder(Presence.accountLevel, Loadout.Identity.PreferredLevelBorderID)
 
@@ -83,8 +85,7 @@ export default {
                 TagLine: Presence.TagLine,
                 Level: Presence.accountLevel,
 
-                Rank: MMR.CurrentRank,
-                RR: MMR.CurrentRR,
+                Rank: LastRank,
 
                 PlayerCardID: Presence.playerCardId,
                 LevelBorderID: LevelBorder.uuid,
