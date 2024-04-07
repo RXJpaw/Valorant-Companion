@@ -131,12 +131,21 @@ ipcMain.handle('get-path', (event, args) => {
 })
 ipcMain.handle('fetch', async (event, args) => {
     const response = await fetch(args.input, args.init)
+    const headers = {}
+
+    response.headers.forEach((value, key) => {
+        if (headers[key]) {
+            headers[key] += '; ' + value
+        } else {
+            headers[key] = value
+        }
+    })
 
     return {
         ok: response.ok,
         url: response.url,
         type: response.type,
-        headers: Object.fromEntries(response.headers.entries()),
+        headers: headers,
         redirected: response.redirected,
         status: response.status,
         statusText: response.statusText,
